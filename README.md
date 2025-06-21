@@ -4,13 +4,18 @@ Professional hot tub service website built with Node.js and Express.
 
 ## Features
 
-- **Homepage**: Hero section emphasizing repairs with prominent phone contact
-- **Services**: Detailed pages for all 4 services (diagnosis/repair, transport, cleaning, maintenance)
-- **Gallery**: Photo gallery with admin upload capability
-- **About**: Company info highlighting biBerk insurance and professional credentials
-- **Contact**: Phone-first contact with backup form
-- **Blog**: Simple blog system for posting articles and tips
-- **Responsive Design**: Mobile-friendly layout with blue/black/white theme
+- **Customer Reviews Carousel**: Real customer testimonials with 5-star ratings
+- **Email Contact Forms**: Service requests sent directly to business email
+- **Professional Services**: Complete hot tub repair, transport, cleaning, and maintenance
+- **Responsive Design**: Mobile-friendly layout optimized for all devices
+- **Phone-First Contact**: Prominent phone number display throughout site
+
+## Services Offered
+
+- 🔧 **Diagnosis & Repair**: Expert troubleshooting and repair services
+- 🚛 **Hot Tub Transport**: Safe and professional moving services  
+- 🧽 **Deep Cleaning**: Thorough cleaning for optimal hygiene
+- 🔄 **Regular Maintenance**: Preventive care to keep spas running perfectly
 
 ## Quick Start
 
@@ -19,12 +24,27 @@ Professional hot tub service website built with Node.js and Express.
    npm install
    ```
 
-2. Start the development server:
+2. Create environment file:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your email credentials
+   ```
+
+3. Start the development server:
    ```bash
    npm run dev
    ```
 
-3. Visit `http://localhost:3000` to view the website
+4. Visit `http://localhost:3000` to view the website
+
+## Environment Variables
+
+Create a `.env` file with:
+```
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+BUSINESS_EMAIL=your-business@gmail.com
+```
 
 ## Production Deployment
 
@@ -35,33 +55,11 @@ Professional hot tub service website built with Node.js and Express.
 
 2. The server runs on port 3000 by default (configurable via PORT environment variable)
 
-## Raspberry Pi Deployment
+## Contact Information
 
-This website is optimized for Raspberry Pi hosting:
-
-1. Transfer files to your Raspberry Pi
-2. Install Node.js on the Pi
-3. Run `npm install` to install dependencies
-4. Use `npm start` to run the production server
-5. Consider using PM2 for process management:
-   ```bash
-   npm install -g pm2
-   pm2 start server.js --name "spa-doctors"
-   pm2 startup
-   pm2 save
-   ```
-
-## Admin Features
-
-- **Gallery Management**: Click "Admin Upload" on the gallery page to add photos
-- **Blog Management**: Click "Admin: Add Article" on the blog page to publish articles
-- **Contact Forms**: All form submissions are logged to the console
-
-## Configuration
-
-- **Phone Number**: Update the phone number in all HTML files (search for "123-456-7890")
-- **Google Reviews**: Replace "YOUR_GOOGLE_BUSINESS_ID" in the homepage with your actual Google Business ID
-- **Email**: Configure nodemailer settings in server.js for email notifications
+- **Phone**: (856) 266-7293
+- **Email**: Doctor4Spas@gmail.com
+- **Service Area**: Denver Metro Area
 
 ## File Structure
 
@@ -69,20 +67,17 @@ This website is optimized for Raspberry Pi hosting:
 SpaDoctorsWebsite/
 ├── server.js              # Main server file
 ├── package.json           # Dependencies and scripts
+├── .env                   # Environment variables (not in repo)
+├── .env.example           # Environment template
 ├── public/
 │   ├── css/style.css      # Main stylesheet
-│   ├── js/               # JavaScript files
 │   └── images/           # Static images
 ├── views/                # EJS templates
-│   ├── index.ejs         # Homepage
-│   ├── services.ejs      # Services page
+│   ├── index.ejs         # Homepage with reviews carousel
+│   ├── services.ejs      # Services page with request form
 │   ├── gallery.ejs       # Photo gallery
 │   ├── about.ejs         # About page
 │   ├── contact.ejs       # Contact page
 │   └── blog.ejs          # Blog page
 └── uploads/              # Uploaded gallery images
 ```
-
-## Support
-
-For technical support or questions about the website, refer to the code comments or contact the developer.
