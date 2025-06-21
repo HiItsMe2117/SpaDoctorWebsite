@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Tub Tips & Articles - Spa Doctors</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Spa Doctors</div>
+                <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
+                <div class="mobile-menu" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/gallery">Gallery</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/blog" class="active">Blog</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Hot Tub Tips & Articles</h1>
+                <p>Expert advice and tips to keep your hot tub running perfectly. Learn from the professionals at Spa Doctors.</p>
+                <a href="tel:+18562667293" class="cta-button">Get Professional Help</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <% if (posts && posts.length > 0) { %>
+                    <div class="blog-posts">
+                        <% posts.forEach(post => { %>
+                            <article class="blog-post">
+                                <h3><%= post.title %></h3>
+                                <div class="date">
+                                    Published on <%= new Date(post.date).toLocaleDateString('en-US', { 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric' 
+                                    }) %>
+                                </div>
+                                <div style="line-height: 1.8; color: #64748b;">
+                                    <%= post.content.replace(/\n/g, '<br>') %>
+                                </div>
+                            </article>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div style="text-align: center; padding: 3rem; background: #f8fafc; border-radius: 10px;">
+                        <h3 style="color: #64748b; margin-bottom: 2rem;">Coming Soon: Hot Tub Care Tips</h3>
+                        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 2rem;">
+                            We're preparing helpful articles and tips about hot tub maintenance, troubleshooting, and care. 
+                            Check back soon for expert advice from the Spa Doctors team!
+                        </p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 2rem 0; text-align: left;">
+                            <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                <h4 style="color: #2563eb; margin-bottom: 1rem;">🧪 Water Chemistry</h4>
+                                <p style="color: #64748b;">Learn how to properly balance your hot tub water for safe, clean soaking.</p>
+                            </div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                <h4 style="color: #2563eb; margin-bottom: 1rem;">🔧 DIY Maintenance</h4>
+                                <p style="color: #64748b;">Simple maintenance tasks you can do yourself to keep your spa running smoothly.</p>
+                            </div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                <h4 style="color: #2563eb; margin-bottom: 1rem;">❄️ Seasonal Care</h4>
+                                <p style="color: #64748b;">How to prepare your hot tub for winter and get it ready for spring.</p>
+                            </div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                <h4 style="color: #2563eb; margin-bottom: 1rem;">🚨 Troubleshooting</h4>
+                                <p style="color: #64748b;">Common hot tub problems and when to call the professionals.</p>
+                            </div>
+                        </div>
+                        
+                        <p style="margin-top: 2rem;"><strong>Have a hot tub question right now?</strong></p>
+                        <a href="tel:+18562667293" class="cta-button" style="margin-top: 1rem; display: inline-block;">📞 Call for Expert Advice</a>
+                    </div>
+                <% } %>
+
+                <!-- Admin Section for Adding Blog Posts -->
+                <div id="adminSection" style="display: none; margin-top: 3rem; padding: 2rem; background: #f8fafc; border-radius: 10px; border: 2px solid #2563eb;">
+                    <h3 style="color: #2563eb; margin-bottom: 1rem;">Add New Blog Post</h3>
+                    <form id="blogForm">
+                        <div class="form-group">
+                            <label for="title">Article Title</label>
+                            <input type="text" id="title" name="title" required placeholder="e.g., 5 Signs Your Hot Tub Needs Professional Repair">
+                        </div>
+                        <div class="form-group">
+                            <label for="content">Article Content</label>
+                            <textarea id="content" name="content" required rows="10" placeholder="Write your hot tub tips, advice, or article content here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn">Publish Article</button>
+                    </form>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
+                        Tips: Share helpful maintenance advice, seasonal tips, troubleshooting guides, or industry insights.
+                    </p>
+                </div>
+
+                <!-- Admin Toggle Button -->
+                <div style="text-align: center; margin-top: 3rem;">
+                    <button onclick="toggleAdmin()" class="btn" style="background: #64748b;">Admin: Add Article</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section contact-section">
+            <div class="container">
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Need Professional Hot Tub Help?</h3>
+                        <p>While our tips and articles can help with basic maintenance, some problems require professional expertise. Don't hesitate to call when you need expert service.</p>
+                        <a href="tel:+18562667293" class="phone-large">📞 (856) 266-7293</a>
+                        <p><strong>We're here to help with:</strong><br>
+                        • Complex repairs and diagnostics<br>
+                        • Emergency service calls<br>
+                        • Professional maintenance<br>
+                        • Expert troubleshooting advice</p>
+                    </div>
+                    <div class="contact-form">
+                        <h3 style="color: #334155; margin-bottom: 1rem;">Quick Question?</h3>
+                        <form id="questionForm">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="question">Your Hot Tub Question</label>
+                                <textarea id="question" name="message" placeholder="Ask us about hot tub maintenance, repairs, or any issues you're experiencing..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn">Send Question</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Spa Doctors</h4>
+                    <p>Professional hot tub repair, maintenance, transport, and cleaning services. Fully insured and experienced.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Expert Advice</h4>
+                    <p>Hot Tub Maintenance Tips</p>
+                    <p>Troubleshooting Guides</p>
+                    <p>Professional Consultations</p>
+                    <p>Emergency Support</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><a href="tel:+18562667293">📞 (856) 266-7293</a></p>
+                    <p>Free Expert Consultations</p>
+                    <p>Professional Service Available</p>
+                </div>
+            </div>
+            <p>&copy; 2024 Spa Doctors. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        function toggleAdmin() {
+            const adminSection = document.getElementById('adminSection');
+            adminSection.style.display = adminSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        document.getElementById('blogForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/add-blog-post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Blog post published successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to publish blog post. Please try again.');
+                }
+            } catch (error) {
+                alert('Error publishing blog post. Please try again.');
+            }
+        });
+
+        document.getElementById('questionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Thank you! We will get back to you with an answer soon.');
+                    this.reset();
+                } else {
+                    alert('Sorry, there was an error. Please call us directly.');
+                }
+            } catch (error) {
+                alert('Sorry, there was an error. Please call us directly at (856) 266-7293.');
+            }
+        });
+    </script>
+</body>
+</html>

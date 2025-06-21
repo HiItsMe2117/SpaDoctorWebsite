@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Tub Services - Spa Doctors</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Spa Doctors</div>
+                <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
+                <div class="mobile-menu" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/services" class="active">Services</a></li>
+                        <li><a href="/gallery">Gallery</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Professional Hot Tub Services</h1>
+                <p>Complete hot tub care from diagnosis to maintenance. Expert service you can trust.</p>
+                <a href="tel:+18562667293" class="cta-button">Call for Service</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h3>🔧 Diagnosis & Repair</h3>
+                        <p><strong>Expert troubleshooting and repair services</strong></p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Complete system diagnosis</li>
+                            <li>Pump and motor repair/replacement</li>
+                            <li>Heater troubleshooting and repair</li>
+                            <li>Control panel and electrical issues</li>
+                            <li>Plumbing leaks and pipe repairs</li>
+                            <li>Jet and filter system problems</li>
+                            <li>Water chemistry balancing</li>
+                            <li>Emergency repair services available</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Why choose our repair service?</strong><br>
+                        We diagnose the root cause, not just the symptoms. Our experienced technicians have seen it all and can fix what others can't.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <h3>🚛 Hot Tub Transport</h3>
+                        <p><strong>Safe and professional hot tub moving services</strong></p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Buyer and seller transport services</li>
+                            <li>Professional moving equipment</li>
+                            <li>Crane services for difficult access</li>
+                            <li>Electrical disconnection/reconnection</li>
+                            <li>Proper drainage and preparation</li>
+                            <li>Full insurance coverage</li>
+                            <li>Site assessment and planning</li>
+                            <li>Local and regional transport</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Move with confidence</strong><br>
+                        We handle your hot tub like it's our own. Professional equipment and years of experience ensure safe transport every time.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <h3>🧽 Deep Cleaning Services</h3>
+                        <p><strong>Thorough cleaning for optimal hygiene and performance</strong></p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Complete drain and refill</li>
+                            <li>Shell deep cleaning and sanitizing</li>
+                            <li>Filter cleaning and replacement</li>
+                            <li>Jet system cleaning and purging</li>
+                            <li>Cover cleaning and conditioning</li>
+                            <li>Skimmer and plumbing line flush</li>
+                            <li>Water chemistry balancing</li>
+                            <li>Eco-friendly cleaning products</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Clean, safe, and sparkling</strong><br>
+                        Regular deep cleaning extends your hot tub's life and ensures a healthy, enjoyable soak every time.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <h3>🔄 Regular Maintenance</h3>
+                        <p><strong>Preventive maintenance to keep your spa running perfectly</strong></p>
+                        <ul style="text-align: left; margin-top: 1rem; color: #64748b;">
+                            <li>Regular water testing and balancing</li>
+                            <li>Filter cleaning and replacement</li>
+                            <li>Equipment inspection and maintenance</li>
+                            <li>Seasonal opening and closing</li>
+                            <li>Preventive part replacement</li>
+                            <li>Performance optimization</li>
+                            <li>Custom maintenance schedules</li>
+                            <li>Detailed service reports</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><strong>Prevention is better than repair</strong><br>
+                        Regular maintenance prevents costly breakdowns and ensures your hot tub is always ready when you are.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section contact-section">
+            <div class="container">
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Ready to Schedule Service?</h3>
+                        <p>Call us now to discuss your hot tub needs. We provide free estimates and honest, professional advice.</p>
+                        <a href="tel:+18562667293" class="phone-large">📞 (856) 266-7293</a>
+                        <p><strong>What to expect:</strong><br>
+                        • Free phone consultation<br>
+                        • Transparent pricing<br>
+                        • Professional service<br>
+                        • Fully insured work<br>
+                        • Satisfaction guaranteed</p>
+                    </div>
+                    <div class="contact-form">
+                        <h3 style="color: #334155; margin-bottom: 1rem;">Service Request Form</h3>
+                        <form id="serviceForm">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="service">Service Needed</label>
+                                <select id="service" name="service" required style="width: 100%; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px; font-size: 1rem;">
+                                    <option value="">Select a service...</option>
+                                    <option value="diagnosis-repair">Diagnosis & Repair</option>
+                                    <option value="transport">Hot Tub Transport</option>
+                                    <option value="cleaning">Deep Cleaning</option>
+                                    <option value="maintenance">Regular Maintenance</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Describe Your Needs</label>
+                                <textarea id="message" name="message" placeholder="Tell us about your hot tub and what service you need..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn">Request Service</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Spa Doctors</h4>
+                    <p>Professional hot tub repair, maintenance, transport, and cleaning services. Fully insured and experienced.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Our Services</h4>
+                    <p>Hot Tub Diagnosis & Repair</p>
+                    <p>Professional Transport & Moving</p>
+                    <p>Deep Cleaning Services</p>
+                    <p>Regular Maintenance Programs</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><a href="tel:+18562667293">📞 (856) 266-7293</a></p>
+                    <p>Fully Insured via biBerk</p>
+                    <p>Professional & Reliable Service</p>
+                </div>
+            </div>
+            <p>&copy; 2024 Spa Doctors. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        document.getElementById('serviceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Thank you! We will contact you soon to discuss your service needs.');
+                    this.reset();
+                } else {
+                    alert('Sorry, there was an error. Please call us directly.');
+                }
+            } catch (error) {
+                alert('Sorry, there was an error. Please call us directly at (856) 266-7293.');
+            }
+        });
+    </script>
+</body>
+</html>

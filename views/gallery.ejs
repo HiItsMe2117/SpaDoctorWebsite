@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery - Spa Doctors</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Spa Doctors</div>
+                <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
+                <div class="mobile-menu" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/gallery" class="active">Gallery</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Our Work Gallery</h1>
+                <p>See examples of our professional hot tub repair, cleaning, and maintenance work.</p>
+                <a href="tel:+18562667293" class="cta-button">Call for Service</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2>Before & After Photos</h2>
+                <p style="text-align: center; max-width: 600px; margin: 0 auto 3rem auto; color: #64748b;">
+                    We take pride in our work and love showing the transformation we can achieve with your hot tub. 
+                    From repairs to deep cleaning, see the Spa Doctors difference.
+                </p>
+                
+                <% if (images && images.length > 0) { %>
+                    <div class="gallery-grid">
+                        <% images.forEach(image => { %>
+                            <div class="gallery-item">
+                                <img src="/uploads/<%= image.filename %>" alt="<%= image.originalname %>" onclick="openModal('/uploads/<%= image.filename %>')">
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div style="text-align: center; padding: 3rem; background: #f8fafc; border-radius: 10px;">
+                        <h3 style="color: #64748b; margin-bottom: 1rem;">Gallery Coming Soon</h3>
+                        <p style="color: #64748b;">We're building our photo gallery to showcase our work. Check back soon to see before and after photos of our hot tub repairs, cleanings, and maintenance projects.</p>
+                        <p style="margin-top: 2rem;"><strong>Want to see our work in person?</strong><br>
+                        Call us for references or to schedule a service visit!</p>
+                        <a href="tel:+18562667293" class="cta-button" style="margin-top: 1rem; display: inline-block;">📞 Call Now</a>
+                    </div>
+                <% } %>
+
+                <!-- Admin Upload Section (hidden by default) -->
+                <div id="adminSection" style="display: none; margin-top: 3rem; padding: 2rem; background: #f8fafc; border-radius: 10px;">
+                    <h3>Upload New Photo</h3>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="image">Select Image</label>
+                            <input type="file" id="image" name="image" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn">Upload Photo</button>
+                    </form>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
+                        Upload high-quality before/after photos of your work. Images will be displayed in the gallery.
+                    </p>
+                </div>
+
+                <!-- Admin Toggle Button -->
+                <div style="text-align: center; margin-top: 3rem;">
+                    <button onclick="toggleAdmin()" class="btn" style="background: #64748b;">Admin Upload</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section contact-section">
+            <div class="container">
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Ready to Transform Your Hot Tub?</h3>
+                        <p>Let us show you what professional service can do for your spa. From emergency repairs to regular maintenance, we deliver results you can see.</p>
+                        <a href="tel:+18562667293" class="phone-large">📞 (856) 266-7293</a>
+                        <p><strong>Services available:</strong><br>
+                        • Emergency repairs<br>
+                        • Deep cleaning & sanitizing<br>
+                        • Regular maintenance<br>
+                        • Professional transport</p>
+                    </div>
+                    <div class="contact-form">
+                        <h3 style="color: #334155; margin-bottom: 1rem;">Get a Quote</h3>
+                        <form id="quoteForm">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="service">Service Interest</label>
+                                <select id="service" name="service" required style="width: 100%; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px; font-size: 1rem;">
+                                    <option value="">What do you need?</option>
+                                    <option value="repair">Hot Tub Repair</option>
+                                    <option value="cleaning">Deep Cleaning</option>
+                                    <option value="maintenance">Regular Maintenance</option>
+                                    <option value="transport">Transport/Moving</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Tell Us More</label>
+                                <textarea id="message" name="message" placeholder="Describe your hot tub and what you need..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn">Request Quote</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Image Modal -->
+    <div id="imageModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9);" onclick="closeModal()">
+        <div style="position: relative; margin: auto; display: block; width: 80%; max-width: 700px; top: 50%; transform: translateY(-50%);">
+            <img id="modalImage" style="width: 100%; height: auto; border-radius: 10px;">
+            <span style="position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer;" onclick="closeModal()">&times;</span>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Spa Doctors</h4>
+                    <p>Professional hot tub repair, maintenance, transport, and cleaning services. Fully insured and experienced.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Our Work</h4>
+                    <p>Before & After Photos</p>
+                    <p>Customer Testimonials</p>
+                    <p>Professional Results</p>
+                    <p>Satisfaction Guaranteed</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><a href="tel:+18562667293">📞 (856) 266-7293</a></p>
+                    <p>Fully Insured via biBerk</p>
+                    <p>Professional & Reliable Service</p>
+                </div>
+            </div>
+            <p>&copy; 2024 Spa Doctors. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        function toggleAdmin() {
+            const adminSection = document.getElementById('adminSection');
+            adminSection.style.display = adminSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function openModal(imageSrc) {
+            document.getElementById('imageModal').style.display = 'block';
+            document.getElementById('modalImage').src = imageSrc;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Image uploaded successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to upload image. Please try again.');
+                }
+            } catch (error) {
+                alert('Error uploading image. Please try again.');
+            }
+        });
+
+        document.getElementById('quoteForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Thank you! We will contact you soon with a quote.');
+                    this.reset();
+                } else {
+                    alert('Sorry, there was an error. Please call us directly.');
+                }
+            } catch (error) {
+                alert('Sorry, there was an error. Please call us directly at (856) 266-7293.');
+            }
+        });
+
+        // Close modal when clicking outside the image
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

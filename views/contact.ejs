@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Spa Doctors</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Spa Doctors</div>
+                <a href="tel:8562667293" class="phone-header">📞 (856) 266-7293</a>
+                <div class="mobile-menu" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/gallery">Gallery</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact" class="active">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Contact Spa Doctors</h1>
+                <p>Ready to get your hot tub back to perfect condition? Call us now for fast, professional service.</p>
+                <a href="tel:+8562667293" class="cta-button">📞 Call Now</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h2>Get In Touch</h2>
+                        <div style="margin: 2rem 0;">
+                            <a href="tel:8562667293" class="phone-large">📞 (856) 266-7293</a>
+                            <p style="font-size: 1.1rem; color: #64748b; margin-top: 1rem;">
+                                <strong>Preferred Contact Method</strong><br>
+                                Call us directly for the fastest response. We're ready to help with all your hot tub needs.
+                            </p>
+                        </div>
+
+                        <div style="background: #f8fafc; padding: 2rem; border-radius: 10px; margin: 2rem 0;">
+                            <h3 style="color: #2563eb; margin-bottom: 1rem;">🕒 Availability</h3>
+                            <p style="color: #64748b; line-height: 1.8;">
+                                <strong>Regular Service Hours:</strong><br>
+                                Monday - Friday: 8:00 AM - 6:00 PM<br>
+                                Saturday: 9:00 AM - 4:00 PM<br>
+                                Sunday: Emergency calls only<br><br>
+                                <strong>Emergency Repairs:</strong><br>
+                                Available 7 days a week for urgent issues
+                            </p>
+                        </div>
+
+                        <div style="background: #2563eb; color: white; padding: 2rem; border-radius: 10px; margin: 2rem 0;">
+                            <h3 style="margin-bottom: 1rem;">✅ What We Offer</h3>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="margin: 0.5rem 0;">✓ Free phone consultations</li>
+                                <li style="margin: 0.5rem 0;">✓ Honest, upfront pricing</li>
+                                <li style="margin: 0.5rem 0;">✓ Same-day emergency service</li>
+                                <li style="margin: 0.5rem 0;">✓ Fully insured technicians</li>
+                                <li style="margin: 0.5rem 0;">✓ Satisfaction guaranteed</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: #f8fafc; padding: 2rem; border-radius: 10px;">
+                            <h3 style="color: #2563eb; margin-bottom: 1rem;">🛡️ Fully Insured</h3>
+                            <p style="color: #64748b;">
+                                We carry comprehensive insurance through <strong>biBerk</strong> to protect your property
+                                and give you complete peace of mind during our service calls.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="contact-form">
+                        <h3 style="color: #334155; margin-bottom: 1rem; text-align: center;">Contact Form</h3>
+                        <p style="text-align: center; color: #64748b; margin-bottom: 2rem; font-size: 0.9rem;">
+                            Prefer to send a message? Fill out the form below and we'll get back to you quickly.
+                        </p>
+
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Your Name *</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Phone Number *</label>
+                                <input type="tel" id="phone" name="phone" required placeholder="(856) 266-7293">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" placeholder="your@email.com (optional)">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="urgency">How urgent is your need?</label>
+                                <select id="urgency" name="urgency" style="width: 100%; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px; font-size: 1rem;">
+                                    <option value="normal">Normal service (within 1-2 days)</option>
+                                    <option value="urgent">Urgent (within 24 hours)</option>
+                                    <option value="emergency">Emergency (same day if possible)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="service">Service Needed</label>
+                                <select id="service" name="service" style="width: 100%; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px; font-size: 1rem;">
+                                    <option value="">Select a service...</option>
+                                    <option value="diagnosis-repair">Diagnosis & Repair</option>
+                                    <option value="transport">Hot Tub Transport</option>
+                                    <option value="cleaning">Deep Cleaning</option>
+                                    <option value="maintenance">Regular Maintenance</option>
+                                    <option value="quote">General Quote/Consultation</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Describe Your Hot Tub Issue *</label>
+                                <textarea id="message" name="message" required placeholder="Tell us about your hot tub problem, what symptoms you're seeing, and when it started..." rows="5"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn" style="width: 100%; padding: 1rem; font-size: 1.1rem;">Send Message</button>
+
+                            <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
+                                * Required fields
+                            </p>
+                        </form>
+
+                        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #f8fafc;">
+                            <p style="color: #64748b; margin-bottom: 1rem;">Need immediate help?</p>
+                            <a href="tel:+1234567890" class="cta-button">📞 Call (856) 266-7293</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="background: #f8fafc;">
+            <div class="container">
+                <h2>What to Expect When You Call</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h3>1️⃣ Free Consultation</h3>
+                        <p>We'll discuss your hot tub issue over the phone and provide initial guidance at no cost.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>2️⃣ Honest Assessment</h3>
+                        <p>If a service call is needed, we'll explain what to expect and provide upfront pricing.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>3️⃣ Professional Service</h3>
+                        <p>Our insured technicians arrive on time with the tools and expertise to solve your problem.</p>
+                    </div>
+                    <div class="service-card">
+                        <h3>4️⃣ Complete Solution</h3>
+                        <p>We don't just fix the symptom - we identify and resolve the root cause of your hot tub issues.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Spa Doctors</h4>
+                    <p>Professional hot tub repair, maintenance, transport, and cleaning services. Fully insured and experienced.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Contact</h4>
+                    <p><a href="tel:+1234567890">📞 (856) 266-7293</a></p>
+                    <p>Emergency Service Available</p>
+                    <p>Free Phone Consultations</p>
+                    <p>Same-Day Service When Possible</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Service Promise</h4>
+                    <p>Fully Insured via biBerk</p>
+                    <p>Professional & Reliable</p>
+                    <p>Honest, Upfront Pricing</p>
+                    <p>Satisfaction Guaranteed</p>
+                </div>
+            </div>
+            <p>&copy; 2024 Spa Doctors. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+
+            // Show loading state
+            submitButton.textContent = 'Sending...';
+            submitButton.disabled = true;
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch('/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success message
+                    const successMsg = document.createElement('div');
+                    successMsg.style.cssText = 'background: #10b981; color: white; padding: 1rem; border-radius: 5px; margin-top: 1rem; text-align: center;';
+                    successMsg.textContent = 'Thank you! We received your message and will contact you soon.';
+                    this.appendChild(successMsg);
+
+                    // Reset form
+                    this.reset();
+
+                    // Remove success message after 5 seconds
+                    setTimeout(() => {
+                        successMsg.remove();
+                    }, 5000);
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.style.cssText = 'background: #ef4444; color: white; padding: 1rem; border-radius: 5px; margin-top: 1rem; text-align: center;';
+                errorMsg.innerHTML = 'Sorry, there was an error sending your message.<br>Please call us directly at <a href="tel:+1234567890" style="color: white; text-decoration: underline;">(856) 266-7293</a>';
+                this.appendChild(errorMsg);
+
+                // Remove error message after 5 seconds
+                setTimeout(() => {
+                    errorMsg.remove();
+                }, 5000);
+            } finally {
+                // Restore button state
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
