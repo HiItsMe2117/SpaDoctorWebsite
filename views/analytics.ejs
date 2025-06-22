@@ -44,23 +44,23 @@
         <section class="section">
             <div class="container">
                 <!-- Dashboard Tab Navigation -->
-                <div class="dashboard-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 2rem; overflow-x: auto;">
-                    <button class="tab-button active" onclick="switchTab('analytics')" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 600; white-space: nowrap;">
+                <div class="dashboard-tabs">
+                    <button class="tab-button active" onclick="switchTab('analytics')">
                         📊 Analytics
                     </button>
-                    <button class="tab-button" onclick="switchTab('media')" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; color: #64748b; font-weight: 500; white-space: nowrap;">
+                    <button class="tab-button" onclick="switchTab('media')">
                         📸 Media Manager
                     </button>
-                    <button class="tab-button" onclick="switchTab('social')" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; color: #64748b; font-weight: 500; white-space: nowrap;">
+                    <button class="tab-button" onclick="switchTab('social')">
                         📱 Social Posts
                     </button>
-                    <button class="tab-button" onclick="switchTab('settings')" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; color: #64748b; font-weight: 500; white-space: nowrap;">
+                    <button class="tab-button" onclick="switchTab('settings')">
                         ⚙️ Settings
                     </button>
                 </div>
 
                 <!-- Analytics Tab Content -->
-                <div id="analytics-tab" class="tab-content">
+                <div id="analytics-tab" class="tab-content active" style="display: block;">
                     <div id="loading" style="text-align: center; padding: 2rem;">
                         <p>Loading analytics data...</p>
                     </div>
