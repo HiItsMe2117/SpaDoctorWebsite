@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Analytics - Spa Doctors</title>
+    <title>Business Dashboard - Spa Doctors</title>
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/analytics.js"></script>
 </head>
@@ -25,7 +25,7 @@
                         <li><a href="/about">About</a></li>
                         <li><a href="/contact">Contact</a></li>
                         <li><a href="/blog">Blog</a></li>
-                        <li><a href="/analytics" class="active">Analytics</a></li>
+                        <li><a href="/dashboard" class="active">Dashboard</a></li>
                     </ul>
                 </nav>
             </div>
@@ -35,19 +35,37 @@
     <main>
         <section class="hero">
             <div class="container">
-                <h1>Blog Analytics Dashboard</h1>
-                <p>Track which articles are performing best and engaging your Denver hot tub customers.</p>
+                <h1>Business Dashboard</h1>
+                <p>Manage your business analytics, media content, and social media presence all in one place.</p>
                 <button onclick="refreshData()" class="cta-button">Refresh Data</button>
             </div>
         </section>
 
         <section class="section">
             <div class="container">
-                <div id="loading" style="text-align: center; padding: 2rem;">
-                    <p>Loading analytics data...</p>
+                <!-- Dashboard Tab Navigation -->
+                <div class="dashboard-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 2rem; overflow-x: auto;">
+                    <button class="tab-button active" onclick="switchTab('analytics')" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 600; white-space: nowrap;">
+                        📊 Analytics
+                    </button>
+                    <button class="tab-button" onclick="switchTab('media')" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; color: #64748b; font-weight: 500; white-space: nowrap;">
+                        📸 Media Manager
+                    </button>
+                    <button class="tab-button" onclick="switchTab('social')" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; color: #64748b; font-weight: 500; white-space: nowrap;">
+                        📱 Social Posts
+                    </button>
+                    <button class="tab-button" onclick="switchTab('settings')" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; color: #64748b; font-weight: 500; white-space: nowrap;">
+                        ⚙️ Settings
+                    </button>
                 </div>
-                
-                <div id="analytics-content" style="display: none;">
+
+                <!-- Analytics Tab Content -->
+                <div id="analytics-tab" class="tab-content">
+                    <div id="loading" style="text-align: center; padding: 2rem;">
+                        <p>Loading analytics data...</p>
+                    </div>
+                    
+                    <div id="analytics-content" style="display: none;">
                     <!-- Overall Stats -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
                         <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
@@ -92,6 +110,166 @@
                     <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                         <h2 style="color: #334155; margin-bottom: 2rem;">📅 Daily Blog Views</h2>
                         <div id="daily-views"></div>
+                    </div>
+                </div>
+
+                <!-- Media Manager Tab Content -->
+                <div id="media-tab" class="tab-content" style="display: none;">
+                    <h2 style="color: #334155; margin-bottom: 2rem;">📸 Media Manager</h2>
+                    
+                    <!-- Upload Section -->
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Upload New Media</h3>
+                        <form id="mediaUploadForm" enctype="multipart/form-data" style="display: grid; gap: 1rem;">
+                            <div style="border: 2px dashed #cbd5e1; border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer;" onclick="document.getElementById('mediaFiles').click()">
+                                <input type="file" id="mediaFiles" name="mediaFiles" multiple accept="image/*,video/*" style="display: none;" onchange="handleFileSelect(this)">
+                                <div id="dropZoneContent">
+                                    <p style="color: #64748b; margin-bottom: 1rem; font-size: 1.1rem;">📁 Click to upload or drag & drop files here</p>
+                                    <p style="color: #94a3b8; font-size: 0.9rem;">Supports: JPG, PNG, GIF, MP4, MOV (Max 10MB per file)</p>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <input type="text" id="mediaTitle" name="title" placeholder="Title (optional)" style="padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                                <input type="text" id="mediaTags" name="tags" placeholder="Tags (comma separated)" style="padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                            </div>
+                            <button type="submit" class="btn" style="justify-self: start;">Upload Media</button>
+                        </form>
+                    </div>
+
+                    <!-- Media Library -->
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Media Library</h3>
+                        <div id="mediaLibrary" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                            <p style="color: #64748b; text-align: center; grid-column: 1 / -1; padding: 2rem;">No media uploaded yet. Upload your first image or video above!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Posts Tab Content -->
+                <div id="social-tab" class="tab-content" style="display: none;">
+                    <h2 style="color: #334155; margin-bottom: 2rem;">📱 Social Media Posts</h2>
+                    
+                    <!-- Create New Post -->
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Create New Post</h3>
+                        <form id="socialPostForm" style="display: grid; gap: 1rem;">
+                            <textarea id="postContent" name="content" placeholder="Write your post content here..." style="min-height: 120px; padding: 1rem; border: 2px solid #f8fafc; border-radius: 5px; resize: vertical;"></textarea>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Select Media (optional)</label>
+                                    <select id="postMedia" name="media" style="width: 100%; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                                        <option value="">No media</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Post to Platforms</label>
+                                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" name="platforms" value="google" checked> 🏢 Google Business
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" name="platforms" value="facebook" checked> 📘 Facebook
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                            <input type="checkbox" name="platforms" value="instagram" checked> 📷 Instagram
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <button type="submit" class="btn">📤 Post Now</button>
+                                <button type="button" class="btn" style="background: #64748b;" onclick="schedulePost()">⏰ Schedule Post</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Recent Posts -->
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Recent Posts</h3>
+                        <div id="recentPosts">
+                            <p style="color: #64748b; text-align: center; padding: 2rem;">No social media posts yet. Create your first post above!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab Content -->
+                <div id="settings-tab" class="tab-content" style="display: none;">
+                    <h2 style="color: #334155; margin-bottom: 2rem;">⚙️ Settings</h2>
+                    
+                    <!-- Social Media Connections -->
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Social Media Connections</h3>
+                        
+                        <div style="display: grid; gap: 1rem;">
+                            <!-- Google Business Profile -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span style="font-size: 1.5rem;">🏢</span>
+                                    <div>
+                                        <h4 style="margin: 0; color: #334155;">Google Business Profile</h4>
+                                        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Post updates and photos to your business listing</p>
+                                    </div>
+                                </div>
+                                <button class="btn" style="background: #10b981;" onclick="connectGoogle()">🔗 Connect</button>
+                            </div>
+
+                            <!-- Facebook -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span style="font-size: 1.5rem;">📘</span>
+                                    <div>
+                                        <h4 style="margin: 0; color: #334155;">Facebook Page</h4>
+                                        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Share posts and photos to your business page</p>
+                                    </div>
+                                </div>
+                                <button class="btn" style="background: #1877f2;" onclick="connectFacebook()">🔗 Connect</button>
+                            </div>
+
+                            <!-- Instagram -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <span style="font-size: 1.5rem;">📷</span>
+                                    <div>
+                                        <h4 style="margin: 0; color: #334155;">Instagram Business</h4>
+                                        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Post photos and videos to your Instagram</p>
+                                    </div>
+                                </div>
+                                <button class="btn" style="background: #e4405f;" onclick="connectInstagram()">🔗 Connect</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Settings -->
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">General Settings</h3>
+                        
+                        <div style="display: grid; gap: 1.5rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Default Post Template</label>
+                                <textarea placeholder="Default content to include in posts (e.g., hashtags, contact info)" style="width: 100%; min-height: 80px; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px; resize: vertical;">#HotTubRepair #DenverServices #SpaExperts
+
+Call (856) 266-7293 for professional hot tub service!</textarea>
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Auto-publish Settings</label>
+                                <div style="display: grid; gap: 0.5rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" checked> Automatically add contact info to posts
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" checked> Include website link in social posts
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox"> Send notification when posts are published
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button class="btn" style="justify-self: start;">💾 Save Settings</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -247,8 +425,215 @@
             loadAnalytics();
         }
 
-        // Load analytics when page loads
-        document.addEventListener('DOMContentLoaded', loadAnalytics);
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+                button.style.borderBottomColor = 'transparent';
+                button.style.color = '#64748b';
+                button.style.fontWeight = '500';
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Activate selected tab button
+            event.target.classList.add('active');
+            event.target.style.borderBottomColor = '#2563eb';
+            event.target.style.color = '#2563eb';
+            event.target.style.fontWeight = '600';
+            
+            // Load specific tab data
+            if (tabName === 'analytics') {
+                loadAnalytics();
+            } else if (tabName === 'media') {
+                loadMediaLibrary();
+            } else if (tabName === 'social') {
+                loadRecentPosts();
+                loadMediaForSocial();
+            }
+        }
+
+        // Media upload functionality
+        function handleFileSelect(input) {
+            const files = input.files;
+            const dropZoneContent = document.getElementById('dropZoneContent');
+            
+            if (files.length > 0) {
+                dropZoneContent.innerHTML = `
+                    <p style="color: #2563eb; margin-bottom: 1rem; font-size: 1.1rem;">📁 ${files.length} file(s) selected</p>
+                    <p style="color: #64748b; font-size: 0.9rem;">Click "Upload Media" below to process files</p>
+                `;
+            }
+        }
+
+        // Load media library
+        async function loadMediaLibrary() {
+            try {
+                const response = await fetch('/media-library');
+                const media = await response.json();
+                
+                const mediaLibrary = document.getElementById('mediaLibrary');
+                
+                if (media.length === 0) {
+                    mediaLibrary.innerHTML = '<p style="color: #64748b; text-align: center; grid-column: 1 / -1; padding: 2rem;">No media uploaded yet. Upload your first image or video above!</p>';
+                } else {
+                    mediaLibrary.innerHTML = media.map(item => `
+                        <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer;" onclick="selectMedia('${item.id}')">
+                            ${item.type === 'image' ? 
+                                `<img src="/uploads/${item.filename}" alt="${item.title || 'Uploaded media'}" style="width: 100%; height: 150px; object-fit: cover;">` :
+                                `<video style="width: 100%; height: 150px; object-fit: cover;"><source src="/uploads/${item.filename}"></video>`
+                            }
+                            <div style="padding: 1rem;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: #334155; font-size: 0.9rem;">${item.title || 'Untitled'}</h4>
+                                <p style="margin: 0; color: #64748b; font-size: 0.8rem;">${new Date(item.uploadDate).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading media library:', error);
+            }
+        }
+
+        // Load media options for social posts
+        async function loadMediaForSocial() {
+            try {
+                const response = await fetch('/media-library');
+                const media = await response.json();
+                
+                const select = document.getElementById('postMedia');
+                select.innerHTML = '<option value="">No media</option>' + 
+                    media.map(item => `<option value="${item.id}">${item.title || item.filename}</option>`).join('');
+            } catch (error) {
+                console.error('Error loading media for social:', error);
+            }
+        }
+
+        // Load recent social posts
+        async function loadRecentPosts() {
+            try {
+                const response = await fetch('/social-posts');
+                const posts = await response.json();
+                
+                const recentPosts = document.getElementById('recentPosts');
+                
+                if (posts.length === 0) {
+                    recentPosts.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No social media posts yet. Create your first post above!</p>';
+                } else {
+                    recentPosts.innerHTML = posts.slice(0, 5).map(post => `
+                        <div style="border-left: 4px solid #2563eb; padding: 1rem; margin-bottom: 1rem; background: #f8fafc; border-radius: 5px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                <h4 style="margin: 0; color: #334155;">${post.content.substring(0, 50)}${post.content.length > 50 ? '...' : ''}</h4>
+                                <span style="color: #64748b; font-size: 0.8rem;">${new Date(post.postDate).toLocaleDateString()}</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                ${post.platforms.map(platform => {
+                                    const icons = { google: '🏢', facebook: '📘', instagram: '📷' };
+                                    return `<span style="background: #e2e8f0; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">${icons[platform]} ${platform}</span>`;
+                                }).join('')}
+                            </div>
+                            <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Status: ${post.status}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading recent posts:', error);
+            }
+        }
+
+        // Social media connection functions
+        function connectGoogle() {
+            alert('Google Business Profile integration coming soon! This will allow you to post directly to your business listing.');
+        }
+
+        function connectFacebook() {
+            alert('Facebook integration coming soon! This will allow you to post to your business page.');
+        }
+
+        function connectInstagram() {
+            alert('Instagram integration coming soon! This will allow you to post photos and videos.');
+        }
+
+        function schedulePost() {
+            alert('Post scheduling feature coming soon! This will allow you to schedule posts for optimal times.');
+        }
+
+        // Form submissions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load analytics when page loads
+            loadAnalytics();
+
+            // Media upload form
+            document.getElementById('mediaUploadForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                try {
+                    const response = await fetch('/upload-media', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('Media uploaded successfully!');
+                        this.reset();
+                        document.getElementById('dropZoneContent').innerHTML = `
+                            <p style="color: #64748b; margin-bottom: 1rem; font-size: 1.1rem;">📁 Click to upload or drag & drop files here</p>
+                            <p style="color: #94a3b8; font-size: 0.9rem;">Supports: JPG, PNG, GIF, MP4, MOV (Max 10MB per file)</p>
+                        `;
+                        loadMediaLibrary();
+                    } else {
+                        alert('Upload failed: ' + (result.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    alert('Upload error: ' + error.message);
+                }
+            });
+
+            // Social post form
+            document.getElementById('socialPostForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
+                
+                const postData = {
+                    content: formData.get('content'),
+                    media: formData.get('media'),
+                    platforms: platforms
+                };
+                
+                try {
+                    const response = await fetch('/create-social-post', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(postData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('Post created successfully!');
+                        this.reset();
+                        loadRecentPosts();
+                    } else {
+                        alert('Post failed: ' + (result.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    alert('Post error: ' + error.message);
+                }
+            });
+        });
     </script>
 </body>
 </html>

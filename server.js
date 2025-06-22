@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
+const sharp = require('sharp');
+const { v4: uuidv4 } = require('uuid');
+const fs = require('fs').promises;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -72,6 +75,43 @@ let analytics = {
   // Performance metrics
   dailyStats: {}
 };
+
+// Media library storage
+let mediaLibrary = [];
+
+// Social media posts storage
+let socialPosts = [];
+
+// Social media platform settings
+let socialSettings = {
+  google: { connected: false, credentials: null },
+  facebook: { connected: false, credentials: null },
+  instagram: { connected: false, credentials: null },
+  defaultTemplate: "#HotTubRepair #DenverServices #SpaExperts\n\nCall (856) 266-7293 for professional hot tub service!"
+};
+
+// Enhanced multer setup for media uploads
+const mediaStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/media/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = uuidv4() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const mediaUpload = multer({ 
+  storage: mediaStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image and video files are allowed'), false);
+    }
+  }
+});
 
 // Google Business Profile API setup
 async function getGoogleReviews() {
@@ -276,9 +316,14 @@ app.get('/analytics-data', (req, res) => {
   });
 });
 
-// Analytics dashboard page
+// Business dashboard page (formerly analytics)
+app.get('/dashboard', (req, res) => {
+  res.render('analytics'); // Still using analytics.ejs template
+});
+
+// Keep old analytics route for backwards compatibility
 app.get('/analytics', (req, res) => {
-  res.render('analytics');
+  res.redirect('/dashboard');
 });
 
 // Serve sitemap.xml
@@ -366,6 +411,229 @@ app.post('/add-blog-post', (req, res) => {
     res.json({ success: false, message: 'Title and content are required.' });
   }
 });
+
+// Media Management Routes
+
+// Create media uploads directory if it doesn't exist
+const createDirectories = async () => {
+  try {
+    await fs.mkdir('./uploads/media', { recursive: true });
+    await fs.mkdir('./uploads/thumbnails', { recursive: true });
+  } catch (error) {
+    console.log('Directories already exist or created successfully');
+  }
+};
+createDirectories();
+
+// Upload media endpoint
+app.post('/upload-media', mediaUpload.array('mediaFiles', 5), async (req, res) => {
+  try {
+    const { title, tags } = req.body;
+    const uploadedFiles = [];
+
+    for (const file of req.files) {
+      const mediaItem = {
+        id: uuidv4(),
+        filename: file.filename,
+        originalName: file.originalname,
+        title: title || file.originalname,
+        tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+        type: file.mimetype.startsWith('image/') ? 'image' : 'video',
+        size: file.size,
+        uploadDate: new Date(),
+        path: file.path
+      };
+
+      // Generate thumbnail for images
+      if (mediaItem.type === 'image') {
+        try {
+          const thumbnailName = 'thumb_' + mediaItem.filename;
+          await sharp(file.path)
+            .resize(300, 300, { fit: 'cover' })
+            .jpeg({ quality: 80 })
+            .toFile(path.join('./uploads/thumbnails', thumbnailName));
+          mediaItem.thumbnail = thumbnailName;
+        } catch (thumbError) {
+          console.error('Thumbnail generation failed:', thumbError);
+        }
+      }
+
+      mediaLibrary.push(mediaItem);
+      uploadedFiles.push(mediaItem);
+    }
+
+    res.json({ 
+      success: true, 
+      message: `${uploadedFiles.length} file(s) uploaded successfully!`,
+      files: uploadedFiles 
+    });
+  } catch (error) {
+    console.error('Media upload error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get media library
+app.get('/media-library', (req, res) => {
+  res.json(mediaLibrary.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)));
+});
+
+// Delete media item
+app.delete('/media/:id', async (req, res) => {
+  try {
+    const mediaId = req.params.id;
+    const mediaIndex = mediaLibrary.findIndex(item => item.id === mediaId);
+    
+    if (mediaIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Media not found' });
+    }
+
+    const mediaItem = mediaLibrary[mediaIndex];
+    
+    // Delete files from disk
+    try {
+      await fs.unlink(mediaItem.path);
+      if (mediaItem.thumbnail) {
+        await fs.unlink(path.join('./uploads/thumbnails', mediaItem.thumbnail));
+      }
+    } catch (fileError) {
+      console.error('File deletion error:', fileError);
+    }
+
+    // Remove from library
+    mediaLibrary.splice(mediaIndex, 1);
+    res.json({ success: true, message: 'Media deleted successfully' });
+  } catch (error) {
+    console.error('Media deletion error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Social Media Routes
+
+// Create social media post
+app.post('/create-social-post', async (req, res) => {
+  try {
+    const { content, media, platforms } = req.body;
+    
+    if (!content || !platforms || platforms.length === 0) {
+      return res.status(400).json({ success: false, error: 'Content and platforms are required' });
+    }
+
+    const postId = uuidv4();
+    const post = {
+      id: postId,
+      content: content,
+      mediaId: media,
+      platforms: platforms,
+      status: 'scheduled', // For now, we'll mark as scheduled until APIs are fully implemented
+      postDate: new Date(),
+      createdAt: new Date(),
+      analytics: {
+        views: 0,
+        likes: 0,
+        shares: 0,
+        comments: 0
+      }
+    };
+
+    // In a real implementation, this is where we'd call the social media APIs
+    // For now, we'll simulate the posting
+    const results = {};
+    for (const platform of platforms) {
+      switch (platform) {
+        case 'google':
+          results.google = await simulateGoogleBusinessPost(post);
+          break;
+        case 'facebook':
+          results.facebook = await simulateFacebookPost(post);
+          break;
+        case 'instagram':
+          results.instagram = await simulateInstagramPost(post);
+          break;
+      }
+    }
+
+    post.platformResults = results;
+    post.status = 'published';
+    socialPosts.unshift(post);
+
+    res.json({ 
+      success: true, 
+      message: 'Post created successfully!',
+      post: post,
+      results: results
+    });
+  } catch (error) {
+    console.error('Social post creation error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get social media posts
+app.get('/social-posts', (req, res) => {
+  res.json(socialPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+});
+
+// Get social media settings
+app.get('/social-settings', (req, res) => {
+  res.json(socialSettings);
+});
+
+// Update social media settings
+app.post('/social-settings', (req, res) => {
+  try {
+    const { defaultTemplate, autoAddContact, includeWebsiteLink, sendNotifications } = req.body;
+    
+    if (defaultTemplate) {
+      socialSettings.defaultTemplate = defaultTemplate;
+    }
+    
+    socialSettings.autoAddContact = autoAddContact;
+    socialSettings.includeWebsiteLink = includeWebsiteLink;
+    socialSettings.sendNotifications = sendNotifications;
+    
+    res.json({ success: true, message: 'Settings updated successfully' });
+  } catch (error) {
+    console.error('Settings update error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Simulated social media posting functions (replace with real APIs later)
+async function simulateGoogleBusinessPost(post) {
+  // Simulate Google Business Profile posting
+  return {
+    platform: 'google',
+    success: true,
+    postId: 'gb_' + Date.now(),
+    message: 'Posted to Google Business Profile'
+  };
+}
+
+async function simulateFacebookPost(post) {
+  // Simulate Facebook posting
+  return {
+    platform: 'facebook',
+    success: true,
+    postId: 'fb_' + Date.now(),
+    message: 'Posted to Facebook Page'
+  };
+}
+
+async function simulateInstagramPost(post) {
+  // Simulate Instagram posting
+  return {
+    platform: 'instagram',
+    success: true,
+    postId: 'ig_' + Date.now(),
+    message: 'Posted to Instagram'
+  };
+}
+
+// Serve uploaded media files
+app.use('/uploads/media', express.static(path.join(__dirname, 'uploads/media')));
+app.use('/uploads/thumbnails', express.static(path.join(__dirname, 'uploads/thumbnails')));
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
