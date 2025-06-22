@@ -50,6 +50,12 @@ header {
   font-weight: bold;
   color: var(--primary-blue);
   flex-shrink: 0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.logo:hover {
+  color: var(--dark-blue);
 }
 
 .phone-header {
