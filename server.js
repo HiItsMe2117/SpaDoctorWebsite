@@ -57,10 +57,19 @@ let blogPosts = [
 ];
 let galleryImages = [];
 
-// Simple analytics tracking
-let blogAnalytics = {
-  pageViews: {},
+// Enhanced analytics tracking
+let analytics = {
+  // Blog analytics
+  blogPageViews: {},
   articleExpansions: {},
+  
+  // Business analytics
+  contactSubmissions: [],
+  pageViews: {},
+  customerJourneys: {},
+  servicePageViews: {},
+  
+  // Performance metrics
   dailyStats: {}
 };
 
@@ -133,10 +142,10 @@ app.get('/contact', (req, res) => {
 app.get('/blog', (req, res) => {
   // Track blog page view
   const today = new Date().toISOString().split('T')[0];
-  if (!blogAnalytics.pageViews[today]) {
-    blogAnalytics.pageViews[today] = 0;
+  if (!analytics.blogPageViews[today]) {
+    analytics.blogPageViews[today] = 0;
   }
-  blogAnalytics.pageViews[today]++;
+  analytics.blogPageViews[today]++;
   
   res.render('blog', { posts: blogPosts });
 });
@@ -146,13 +155,45 @@ app.post('/track-article-expansion', (req, res) => {
   const { articleTitle } = req.body;
   const today = new Date().toISOString().split('T')[0];
   
-  if (!blogAnalytics.articleExpansions[articleTitle]) {
-    blogAnalytics.articleExpansions[articleTitle] = {};
+  if (!analytics.articleExpansions[articleTitle]) {
+    analytics.articleExpansions[articleTitle] = {};
   }
-  if (!blogAnalytics.articleExpansions[articleTitle][today]) {
-    blogAnalytics.articleExpansions[articleTitle][today] = 0;
+  if (!analytics.articleExpansions[articleTitle][today]) {
+    analytics.articleExpansions[articleTitle][today] = 0;
   }
-  blogAnalytics.articleExpansions[articleTitle][today]++;
+  analytics.articleExpansions[articleTitle][today]++;
+  
+  res.json({ success: true });
+});
+
+// Track page views for customer journey
+app.post('/track-page-view', (req, res) => {
+  const { page, sessionId, timestamp } = req.body;
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Track overall page views
+  if (!analytics.pageViews[page]) {
+    analytics.pageViews[page] = {};
+  }
+  if (!analytics.pageViews[page][today]) {
+    analytics.pageViews[page][today] = 0;
+  }
+  analytics.pageViews[page][today]++;
+  
+  // Track customer journey
+  if (!analytics.customerJourneys[sessionId]) {
+    analytics.customerJourneys[sessionId] = {
+      pages: [],
+      startTime: timestamp,
+      lastActivity: timestamp
+    };
+  }
+  
+  analytics.customerJourneys[sessionId].pages.push({
+    page: page,
+    timestamp: timestamp
+  });
+  analytics.customerJourneys[sessionId].lastActivity = timestamp;
   
   res.json({ success: true });
 });
@@ -160,22 +201,78 @@ app.post('/track-article-expansion', (req, res) => {
 // Analytics dashboard endpoint (JSON API)
 app.get('/analytics-data', (req, res) => {
   const summary = {
-    totalPageViews: Object.values(blogAnalytics.pageViews).reduce((sum, views) => sum + views, 0),
-    articleStats: {}
+    // Blog analytics
+    totalBlogViews: Object.values(analytics.blogPageViews).reduce((sum, views) => sum + views, 0),
+    articleStats: {},
+    
+    // Business analytics
+    totalContacts: analytics.contactSubmissions.length,
+    serviceRequests: {},
+    contactTrends: {},
+    customerJourneyStats: {},
+    pagePerformance: {}
   };
   
-  // Calculate stats for each article
-  Object.keys(blogAnalytics.articleExpansions).forEach(title => {
-    const totalExpansions = Object.values(blogAnalytics.articleExpansions[title]).reduce((sum, count) => sum + count, 0);
+  // Calculate blog article stats
+  Object.keys(analytics.articleExpansions).forEach(title => {
+    const totalExpansions = Object.values(analytics.articleExpansions[title]).reduce((sum, count) => sum + count, 0);
     summary.articleStats[title] = {
       totalExpansions,
-      lastExpanded: Math.max(...Object.keys(blogAnalytics.articleExpansions[title]).map(date => new Date(date).getTime()))
+      lastExpanded: Object.keys(analytics.articleExpansions[title]).length > 0 ? 
+        Math.max(...Object.keys(analytics.articleExpansions[title]).map(date => new Date(date).getTime())) : null
     };
+  });
+  
+  // Calculate service request stats
+  analytics.contactSubmissions.forEach(submission => {
+    const service = submission.service;
+    if (!summary.serviceRequests[service]) {
+      summary.serviceRequests[service] = {
+        count: 0,
+        avgMessageLength: 0,
+        hasEmailCount: 0,
+        hasPhoneCount: 0,
+        referrerPages: {}
+      };
+    }
+    
+    summary.serviceRequests[service].count++;
+    summary.serviceRequests[service].avgMessageLength += submission.messageLength;
+    if (submission.hasEmail) summary.serviceRequests[service].hasEmailCount++;
+    if (submission.hasPhone) summary.serviceRequests[service].hasPhoneCount++;
+    
+    const referrer = submission.referrerPage;
+    if (!summary.serviceRequests[service].referrerPages[referrer]) {
+      summary.serviceRequests[service].referrerPages[referrer] = 0;
+    }
+    summary.serviceRequests[service].referrerPages[referrer]++;
+  });
+  
+  // Calculate averages
+  Object.keys(summary.serviceRequests).forEach(service => {
+    const stats = summary.serviceRequests[service];
+    stats.avgMessageLength = Math.round(stats.avgMessageLength / stats.count);
+  });
+  
+  // Calculate contact trends by day of week and hour
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  analytics.contactSubmissions.forEach(submission => {
+    const day = dayNames[submission.dayOfWeek];
+    const hour = submission.hourOfDay;
+    
+    if (!summary.contactTrends[day]) summary.contactTrends[day] = 0;
+    summary.contactTrends[day]++;
+  });
+  
+  // Page performance stats
+  Object.keys(analytics.pageViews).forEach(page => {
+    const totalViews = Object.values(analytics.pageViews[page]).reduce((sum, count) => sum + count, 0);
+    summary.pagePerformance[page] = totalViews;
   });
   
   res.json({
     summary,
-    rawData: blogAnalytics
+    rawData: analytics
   });
 });
 
@@ -196,9 +293,25 @@ app.get('/robots.txt', (req, res) => {
 });
 
 app.post('/contact', async (req, res) => {
-  const { name, email, phone, message, service } = req.body;
+  const { name, email, phone, message, service, sessionId, referrerPage } = req.body;
   
   console.log('Contact form submission:', { name, email, phone, message, service });
+  
+  // Track contact form analytics
+  const submissionData = {
+    timestamp: new Date().toISOString(),
+    service: service || 'General Contact',
+    hasEmail: !!email,
+    hasPhone: !!phone,
+    messageLength: message ? message.length : 0,
+    referrerPage: referrerPage || 'unknown',
+    sessionId: sessionId,
+    customerJourney: analytics.customerJourneys[sessionId] || null,
+    dayOfWeek: new Date().getDay(),
+    hourOfDay: new Date().getHours()
+  };
+  
+  analytics.contactSubmissions.push(submissionData);
   
   const mailOptions = {
     from: process.env.EMAIL_USER,

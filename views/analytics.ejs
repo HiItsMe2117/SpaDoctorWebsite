@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog Analytics - Spa Doctors</title>
     <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/analytics.js"></script>
 </head>
 <body>
     <header>
@@ -49,16 +50,36 @@
                 
                 <div id="analytics-content" style="display: none;">
                     <!-- Overall Stats -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
                         <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
-                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📊 Total Blog Views</h3>
-                            <div id="total-views" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
-                            <p style="color: #64748b; margin-top: 0.5rem;">All-time page visits</p>
+                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📞 Total Contacts</h3>
+                            <div id="total-contacts" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
+                            <p style="color: #64748b; margin-top: 0.5rem;">Customer inquiries</p>
                         </div>
                         <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
-                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📖 Total Article Reads</h3>
+                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📊 Blog Views</h3>
+                            <div id="total-blog-views" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
+                            <p style="color: #64748b; margin-top: 0.5rem;">Blog page visits</p>
+                        </div>
+                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📖 Article Reads</h3>
                             <div id="total-expansions" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
                             <p style="color: #64748b; margin-top: 0.5rem;">"Read More" clicks</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Business Intelligence -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                        <!-- Service Requests -->
+                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h2 style="color: #334155; margin-bottom: 2rem;">🔧 Service Demand</h2>
+                            <div id="service-requests"></div>
+                        </div>
+                        
+                        <!-- Contact Trends -->
+                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h2 style="color: #334155; margin-bottom: 2rem;">📅 Contact Trends</h2>
+                            <div id="contact-trends"></div>
                         </div>
                     </div>
 
@@ -117,11 +138,61 @@
                 document.getElementById('analytics-content').style.display = 'block';
                 
                 // Update overall stats
-                document.getElementById('total-views').textContent = data.summary.totalPageViews;
+                document.getElementById('total-contacts').textContent = data.summary.totalContacts;
+                document.getElementById('total-blog-views').textContent = data.summary.totalBlogViews;
                 
                 const totalExpansions = Object.values(data.summary.articleStats)
                     .reduce((sum, article) => sum + article.totalExpansions, 0);
                 document.getElementById('total-expansions').textContent = totalExpansions;
+                
+                // Update service requests
+                const serviceRequestsDiv = document.getElementById('service-requests');
+                serviceRequestsDiv.innerHTML = '';
+                
+                if (Object.keys(data.summary.serviceRequests).length === 0) {
+                    serviceRequestsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No service requests yet. Contact forms will show data here!</p>';
+                } else {
+                    Object.entries(data.summary.serviceRequests).forEach(([service, stats]) => {
+                        const serviceDiv = document.createElement('div');
+                        serviceDiv.style.cssText = 'border-left: 4px solid #2563eb; padding: 1rem; margin-bottom: 1rem; background: #f8fafc;';
+                        
+                        const topReferrer = Object.entries(stats.referrerPages)
+                            .sort(([,a], [,b]) => b - a)[0]?.[0] || 'unknown';
+                        
+                        serviceDiv.innerHTML = `
+                            <h4 style="color: #334155; margin-bottom: 0.5rem;">${service}</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; color: #64748b; font-size: 0.9rem;">
+                                <span><strong>${stats.count}</strong> requests</span>
+                                <span><strong>${stats.hasPhoneCount}</strong> with phone</span>
+                                <span><strong>${stats.hasEmailCount}</strong> with email</span>
+                                <span>From: <strong>${topReferrer}</strong></span>
+                            </div>
+                        `;
+                        serviceRequestsDiv.appendChild(serviceDiv);
+                    });
+                }
+                
+                // Update contact trends
+                const contactTrendsDiv = document.getElementById('contact-trends');
+                contactTrendsDiv.innerHTML = '';
+                
+                if (Object.keys(data.summary.contactTrends).length === 0) {
+                    contactTrendsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No contact trends yet.</p>';
+                } else {
+                    const sortedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                    sortedDays.forEach(day => {
+                        const count = data.summary.contactTrends[day] || 0;
+                        if (count > 0) {
+                            const dayDiv = document.createElement('div');
+                            dayDiv.style.cssText = 'display: flex; justify-content: space-between; padding: 0.5rem 1rem; margin-bottom: 0.5rem; background: #f8fafc; border-radius: 5px;';
+                            dayDiv.innerHTML = `
+                                <span style="color: #334155;">${day}</span>
+                                <span style="color: #2563eb; font-weight: bold;">${count} contacts</span>
+                            `;
+                            contactTrendsDiv.appendChild(dayDiv);
+                        }
+                    });
+                }
                 
                 // Update article stats
                 const articleStatsDiv = document.getElementById('article-stats');
@@ -147,19 +218,19 @@
                     });
                 }
                 
-                // Update daily views
+                // Update daily blog views
                 const dailyViewsDiv = document.getElementById('daily-views');
                 dailyViewsDiv.innerHTML = '';
                 
-                if (Object.keys(data.rawData.pageViews).length === 0) {
-                    dailyViewsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No page views recorded yet.</p>';
+                if (Object.keys(data.rawData.blogPageViews).length === 0) {
+                    dailyViewsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No blog views recorded yet.</p>';
                 } else {
-                    Object.entries(data.rawData.pageViews).forEach(([date, views]) => {
+                    Object.entries(data.rawData.blogPageViews).forEach(([date, views]) => {
                         const dayDiv = document.createElement('div');
                         dayDiv.style.cssText = 'display: flex; justify-content: space-between; padding: 0.5rem 1rem; margin-bottom: 0.5rem; background: #f8fafc; border-radius: 5px;';
                         dayDiv.innerHTML = `
                             <span style="color: #334155;">${new Date(date).toLocaleDateString()}</span>
-                            <span style="color: #2563eb; font-weight: bold;">${views} views</span>
+                            <span style="color: #2563eb; font-weight: bold;">${views} blog views</span>
                         `;
                         dailyViewsDiv.appendChild(dayDiv);
                     });
