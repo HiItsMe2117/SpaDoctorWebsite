@@ -108,6 +108,17 @@ app.get('/blog', (req, res) => {
   res.render('blog', { posts: blogPosts });
 });
 
+// Serve sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  res.set('Content-Type', 'application/xml');
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
+// Serve robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
+
 app.post('/contact', async (req, res) => {
   const { name, email, phone, message, service } = req.body;
   
