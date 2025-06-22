@@ -212,7 +212,7 @@
                                         <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Post updates and photos to your business listing</p>
                                     </div>
                                 </div>
-                                <button class="btn" style="background: #10b981;" onclick="connectGoogle()">🔗 Connect</button>
+                                <button id="googleConnectBtn" class="btn" style="background: #10b981;" onclick="connectGoogle()">🔗 Connect</button>
                             </div>
 
                             <!-- Facebook -->
@@ -550,7 +550,43 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
 
         // Social media connection functions
         function connectGoogle() {
-            alert('Google Business Profile integration coming soon! This will allow you to post directly to your business listing.');
+            window.location.href = '/auth/google';
+        }
+
+        function disconnectGoogle() {
+            if (confirm('Are you sure you want to disconnect your Google Business Profile?')) {
+                fetch('/auth/google/disconnect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('Google Business Profile disconnected successfully');
+                        updateGoogleConnectionStatus(false);
+                    } else {
+                        alert('Failed to disconnect: ' + (result.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    alert('Error disconnecting: ' + error.message);
+                });
+            }
+        }
+
+        function updateGoogleConnectionStatus(connected) {
+            const button = document.getElementById('googleConnectBtn');
+            if (connected) {
+                button.textContent = '🔗 Connected';
+                button.style.background = '#10b981';
+                button.onclick = disconnectGoogle;
+                button.title = 'Click to disconnect';
+            } else {
+                button.textContent = '🔗 Connect';
+                button.style.background = '#10b981';
+                button.onclick = connectGoogle;
+                button.title = 'Click to connect';
+            }
         }
 
         function connectFacebook() {
@@ -565,10 +601,44 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             alert('Post scheduling feature coming soon! This will allow you to schedule posts for optimal times.');
         }
 
+        // Check for Google connection status on page load
+        async function checkGoogleConnectionStatus() {
+            try {
+                const response = await fetch('/social-settings');
+                const settings = await response.json();
+                updateGoogleConnectionStatus(settings.google?.connected || false);
+            } catch (error) {
+                console.error('Error checking Google connection status:', error);
+            }
+        }
+
+        // Check for connection success/error messages from URL
+        function checkUrlMessages() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const googleConnected = urlParams.get('google_connected');
+            
+            if (googleConnected === 'success') {
+                alert('Google Business Profile connected successfully!');
+                updateGoogleConnectionStatus(true);
+                // Remove the parameter from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (googleConnected === 'error') {
+                alert('Failed to connect Google Business Profile. Please try again.');
+                // Remove the parameter from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
         // Form submissions
         document.addEventListener('DOMContentLoaded', function() {
             // Load analytics when page loads
             loadAnalytics();
+            
+            // Check Google connection status
+            checkGoogleConnectionStatus();
+            
+            // Check for URL messages
+            checkUrlMessages();
 
             // Media upload form
             document.getElementById('mediaUploadForm').addEventListener('submit', async function(e) {

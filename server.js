@@ -8,6 +8,8 @@ const { google } = require('googleapis');
 const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
+const { OAuth2Client } = require('google-auth-library');
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -84,11 +86,23 @@ let socialPosts = [];
 
 // Social media platform settings
 let socialSettings = {
-  google: { connected: false, credentials: null },
+  google: { 
+    connected: false, 
+    credentials: null,
+    refreshToken: null,
+    businessLocations: []
+  },
   facebook: { connected: false, credentials: null },
   instagram: { connected: false, credentials: null },
   defaultTemplate: "#HotTubRepair #DenverServices #SpaExperts\n\nCall (856) 266-7293 for professional hot tub service!"
 };
+
+// Google OAuth2 Client Setup
+const googleOAuth2Client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
 
 // Enhanced multer setup for media uploads
 const mediaStorage = multer.diskStorage({
@@ -543,7 +557,7 @@ app.post('/create-social-post', async (req, res) => {
     for (const platform of platforms) {
       switch (platform) {
         case 'google':
-          results.google = await simulateGoogleBusinessPost(post);
+          results.google = await postToGoogleBusiness(post);
           break;
         case 'facebook':
           results.facebook = await simulateFacebookPost(post);
@@ -629,6 +643,208 @@ async function simulateInstagramPost(post) {
     postId: 'ig_' + Date.now(),
     message: 'Posted to Instagram'
   };
+}
+
+// Google OAuth Authentication Routes
+
+// Initiate Google OAuth flow
+app.get('/auth/google', (req, res) => {
+  try {
+    const scopes = [
+      'https://www.googleapis.com/auth/business.manage',
+      'https://www.googleapis.com/auth/userinfo.profile'
+    ];
+    
+    const authUrl = googleOAuth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: scopes,
+      prompt: 'consent' // Forces refresh token generation
+    });
+    
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error('Google OAuth initiation error:', error);
+    res.status(500).json({ success: false, error: 'Failed to initiate Google authentication' });
+  }
+});
+
+// Handle Google OAuth callback
+app.get('/auth/google/callback', async (req, res) => {
+  try {
+    const { code } = req.query;
+    
+    if (!code) {
+      return res.status(400).send('Authorization code not provided');
+    }
+    
+    // Exchange code for tokens
+    const { tokens } = await googleOAuth2Client.getToken(code);
+    googleOAuth2Client.setCredentials(tokens);
+    
+    // Store tokens and update connection status
+    socialSettings.google.credentials = tokens.access_token;
+    socialSettings.google.refreshToken = tokens.refresh_token;
+    socialSettings.google.connected = true;
+    
+    // Fetch business locations
+    await fetchGoogleBusinessLocations();
+    
+    // Redirect back to dashboard with success message
+    res.redirect('/dashboard?google_connected=success');
+    
+  } catch (error) {
+    console.error('Google OAuth callback error:', error);
+    res.redirect('/dashboard?google_connected=error');
+  }
+});
+
+// Disconnect Google account
+app.post('/auth/google/disconnect', async (req, res) => {
+  try {
+    // Revoke the refresh token
+    if (socialSettings.google.refreshToken) {
+      await googleOAuth2Client.revokeToken(socialSettings.google.refreshToken);
+    }
+    
+    // Clear stored credentials
+    socialSettings.google.connected = false;
+    socialSettings.google.credentials = null;
+    socialSettings.google.refreshToken = null;
+    socialSettings.google.businessLocations = [];
+    
+    res.json({ success: true, message: 'Google account disconnected successfully' });
+  } catch (error) {
+    console.error('Google disconnect error:', error);
+    res.status(500).json({ success: false, error: 'Failed to disconnect Google account' });
+  }
+});
+
+// Fetch Google Business Profile locations
+async function fetchGoogleBusinessLocations() {
+  try {
+    if (!socialSettings.google.credentials) {
+      throw new Error('No Google credentials available');
+    }
+    
+    // Set up authenticated client
+    googleOAuth2Client.setCredentials({
+      access_token: socialSettings.google.credentials,
+      refresh_token: socialSettings.google.refreshToken
+    });
+    
+    const mybusiness = google.mybusinessbusinessinformation({
+      version: 'v1',
+      auth: googleOAuth2Client
+    });
+    
+    // List business accounts
+    const accountsResponse = await mybusiness.accounts.list();
+    const accounts = accountsResponse.data.accounts || [];
+    
+    if (accounts.length === 0) {
+      console.log('No Google Business accounts found');
+      return;
+    }
+    
+    // Get locations for the first account
+    const accountName = accounts[0].name;
+    const locationsResponse = await mybusiness.accounts.locations.list({
+      parent: accountName
+    });
+    
+    socialSettings.google.businessLocations = locationsResponse.data.locations || [];
+    console.log(`Found ${socialSettings.google.businessLocations.length} business locations`);
+    
+  } catch (error) {
+    console.error('Error fetching Google Business locations:', error);
+    // Don't throw - just log the error and continue
+  }
+}
+
+// Google Business Profile posting function (replaces simulation)
+async function postToGoogleBusiness(post) {
+  try {
+    if (!socialSettings.google.connected || !socialSettings.google.credentials) {
+      throw new Error('Google Business Profile not connected');
+    }
+    
+    if (socialSettings.google.businessLocations.length === 0) {
+      throw new Error('No business locations found');
+    }
+    
+    // Set up authenticated client
+    googleOAuth2Client.setCredentials({
+      access_token: socialSettings.google.credentials,
+      refresh_token: socialSettings.google.refreshToken
+    });
+    
+    const mybusiness = google.mybusinessbusinessinformation({
+      version: 'v1',
+      auth: googleOAuth2Client
+    });
+    
+    // Use the first business location
+    const locationName = socialSettings.google.businessLocations[0].name;
+    
+    // Prepare post data
+    const postData = {
+      languageCode: 'en-US',
+      summary: post.content,
+      callToAction: {
+        actionType: 'CALL',
+        url: 'tel:+18562667293'
+      }
+    };
+    
+    // Add media if provided
+    if (post.mediaId) {
+      const mediaItem = mediaLibrary.find(item => item.id === post.mediaId);
+      if (mediaItem && mediaItem.type === 'image') {
+        postData.media = [{
+          mediaFormat: 'PHOTO',
+          sourceUrl: `${process.env.VERCEL_URL || 'http://localhost:3000'}/uploads/media/${mediaItem.filename}`
+        }];
+      }
+    }
+    
+    // Create the post
+    const response = await mybusiness.accounts.locations.localPosts.create({
+      parent: locationName,
+      requestBody: postData
+    });
+    
+    return {
+      platform: 'google',
+      success: true,
+      postId: response.data.name,
+      message: 'Posted to Google Business Profile successfully',
+      data: response.data
+    };
+    
+  } catch (error) {
+    console.error('Google Business posting error:', error);
+    
+    // Handle token refresh if needed
+    if (error.code === 401 || error.message.includes('invalid_grant')) {
+      try {
+        const { credentials } = await googleOAuth2Client.refreshAccessToken();
+        socialSettings.google.credentials = credentials.access_token;
+        
+        // Retry the post with new token
+        return await postToGoogleBusiness(post);
+      } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError);
+        socialSettings.google.connected = false;
+      }
+    }
+    
+    return {
+      platform: 'google',
+      success: false,
+      error: error.message,
+      message: 'Failed to post to Google Business Profile'
+    };
+  }
 }
 
 // Serve uploaded media files
