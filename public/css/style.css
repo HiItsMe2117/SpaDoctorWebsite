@@ -458,8 +458,12 @@ footer {
 .tab-content {
   width: 100%;
   min-height: 400px;
+  height: auto;
   padding: 1rem 0;
   display: none;
+  visibility: visible;
+  opacity: 1;
+  overflow: visible;
 }
 
 .tab-content.active {
