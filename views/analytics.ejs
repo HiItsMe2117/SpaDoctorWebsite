@@ -427,27 +427,24 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
 
         // Tab switching functionality
         function switchTab(tabName) {
-            // Hide all tab contents
+            // Hide all tab contents and remove active class
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
+                tab.classList.remove('active');
             });
             
             // Remove active class from all tab buttons
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
-                button.style.borderBottomColor = 'transparent';
-                button.style.color = '#64748b';
-                button.style.fontWeight = '500';
             });
             
-            // Show selected tab content
-            document.getElementById(tabName + '-tab').style.display = 'block';
+            // Show selected tab content and add active class
+            const selectedTab = document.getElementById(tabName + '-tab');
+            selectedTab.style.display = 'block';
+            selectedTab.classList.add('active');
             
             // Activate selected tab button
             event.target.classList.add('active');
-            event.target.style.borderBottomColor = '#2563eb';
-            event.target.style.color = '#2563eb';
-            event.target.style.fontWeight = '600';
             
             // Load specific tab data
             if (tabName === 'analytics') {

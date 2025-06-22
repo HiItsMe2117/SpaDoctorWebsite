@@ -425,6 +425,47 @@ footer {
   }
 }
 
+/* Dashboard tab styles */
+.dashboard-tabs {
+  display: flex;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.tab-button {
+  padding: 1rem 2rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+  color: #2563eb;
+}
+
+.tab-button.active {
+  border-bottom-color: #2563eb;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.tab-content {
+  width: 100%;
+  min-height: 400px;
+  padding: 1rem 0;
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
 @media (max-width: 480px) {
   .header-content {
     padding: 0.8rem 0;
@@ -440,5 +481,14 @@ footer {
   
   .container {
     padding: 0 15px;
+  }
+  
+  .dashboard-tabs {
+    overflow-x: auto;
+  }
+  
+  .tab-button {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
   }
 }
