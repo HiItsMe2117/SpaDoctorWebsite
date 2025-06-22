@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Analytics - Spa Doctors</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Spa Doctors</div>
+                <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
+                <div class="mobile-menu" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/gallery">Gallery</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/analytics" class="active">Analytics</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Blog Analytics Dashboard</h1>
+                <p>Track which articles are performing best and engaging your Denver hot tub customers.</p>
+                <button onclick="refreshData()" class="cta-button">Refresh Data</button>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div id="loading" style="text-align: center; padding: 2rem;">
+                    <p>Loading analytics data...</p>
+                </div>
+                
+                <div id="analytics-content" style="display: none;">
+                    <!-- Overall Stats -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📊 Total Blog Views</h3>
+                            <div id="total-views" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
+                            <p style="color: #64748b; margin-top: 0.5rem;">All-time page visits</p>
+                        </div>
+                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📖 Total Article Reads</h3>
+                            <div id="total-expansions" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
+                            <p style="color: #64748b; margin-top: 0.5rem;">"Read More" clicks</p>
+                        </div>
+                    </div>
+
+                    <!-- Article Performance -->
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 3rem;">
+                        <h2 style="color: #334155; margin-bottom: 2rem;">📈 Article Performance</h2>
+                        <div id="article-stats"></div>
+                    </div>
+
+                    <!-- Daily Views Chart -->
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h2 style="color: #334155; margin-bottom: 2rem;">📅 Daily Blog Views</h2>
+                        <div id="daily-views"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Spa Doctors</h4>
+                    <p>Professional hot tub repair, maintenance, transport, and cleaning services. Fully insured and experienced.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Analytics</h4>
+                    <p>Blog Performance Tracking</p>
+                    <p>Customer Engagement Metrics</p>
+                    <p>Content Optimization</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><a href="tel:+18562667293">📞 (856) 266-7293</a></p>
+                    <p>Data-Driven Service</p>
+                    <p>Professional Excellence</p>
+                </div>
+            </div>
+            <p>&copy; 2024 Spa Doctors. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/analytics-data');
+                const data = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('analytics-content').style.display = 'block';
+                
+                // Update overall stats
+                document.getElementById('total-views').textContent = data.summary.totalPageViews;
+                
+                const totalExpansions = Object.values(data.summary.articleStats)
+                    .reduce((sum, article) => sum + article.totalExpansions, 0);
+                document.getElementById('total-expansions').textContent = totalExpansions;
+                
+                // Update article stats
+                const articleStatsDiv = document.getElementById('article-stats');
+                articleStatsDiv.innerHTML = '';
+                
+                if (Object.keys(data.summary.articleStats).length === 0) {
+                    articleStatsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No article interactions yet. Visit your blog and click "Read More" to see data here!</p>';
+                } else {
+                    Object.entries(data.summary.articleStats).forEach(([title, stats]) => {
+                        const articleDiv = document.createElement('div');
+                        articleDiv.style.cssText = 'border-left: 4px solid #2563eb; padding: 1rem; margin-bottom: 1rem; background: #f8fafc;';
+                        
+                        const lastRead = stats.lastExpanded ? new Date(stats.lastExpanded).toLocaleDateString() : 'Never';
+                        
+                        articleDiv.innerHTML = `
+                            <h4 style="color: #334155; margin-bottom: 0.5rem;">${title}</h4>
+                            <div style="display: flex; gap: 2rem; color: #64748b;">
+                                <span><strong>${stats.totalExpansions}</strong> reads</span>
+                                <span>Last read: <strong>${lastRead}</strong></span>
+                            </div>
+                        `;
+                        articleStatsDiv.appendChild(articleDiv);
+                    });
+                }
+                
+                // Update daily views
+                const dailyViewsDiv = document.getElementById('daily-views');
+                dailyViewsDiv.innerHTML = '';
+                
+                if (Object.keys(data.rawData.pageViews).length === 0) {
+                    dailyViewsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No page views recorded yet.</p>';
+                } else {
+                    Object.entries(data.rawData.pageViews).forEach(([date, views]) => {
+                        const dayDiv = document.createElement('div');
+                        dayDiv.style.cssText = 'display: flex; justify-content: space-between; padding: 0.5rem 1rem; margin-bottom: 0.5rem; background: #f8fafc; border-radius: 5px;';
+                        dayDiv.innerHTML = `
+                            <span style="color: #334155;">${new Date(date).toLocaleDateString()}</span>
+                            <span style="color: #2563eb; font-weight: bold;">${views} views</span>
+                        `;
+                        dailyViewsDiv.appendChild(dayDiv);
+                    });
+                }
+                
+            } catch (error) {
+                document.getElementById('loading').innerHTML = '<p style="color: #ef4444;">Error loading analytics data. Please try again.</p>';
+                console.error('Analytics error:', error);
+            }
+        }
+
+        function refreshData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('analytics-content').style.display = 'none';
+            loadAnalytics();
+        }
+
+        // Load analytics when page loads
+        document.addEventListener('DOMContentLoaded', loadAnalytics);
+    </script>
+</body>
+</html>

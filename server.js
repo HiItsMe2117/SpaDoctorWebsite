@@ -57,6 +57,13 @@ let blogPosts = [
 ];
 let galleryImages = [];
 
+// Simple analytics tracking
+let blogAnalytics = {
+  pageViews: {},
+  articleExpansions: {},
+  dailyStats: {}
+};
+
 // Google Business Profile API setup
 async function getGoogleReviews() {
   try {
@@ -124,7 +131,57 @@ app.get('/contact', (req, res) => {
 });
 
 app.get('/blog', (req, res) => {
+  // Track blog page view
+  const today = new Date().toISOString().split('T')[0];
+  if (!blogAnalytics.pageViews[today]) {
+    blogAnalytics.pageViews[today] = 0;
+  }
+  blogAnalytics.pageViews[today]++;
+  
   res.render('blog', { posts: blogPosts });
+});
+
+// Analytics tracking endpoints
+app.post('/track-article-expansion', (req, res) => {
+  const { articleTitle } = req.body;
+  const today = new Date().toISOString().split('T')[0];
+  
+  if (!blogAnalytics.articleExpansions[articleTitle]) {
+    blogAnalytics.articleExpansions[articleTitle] = {};
+  }
+  if (!blogAnalytics.articleExpansions[articleTitle][today]) {
+    blogAnalytics.articleExpansions[articleTitle][today] = 0;
+  }
+  blogAnalytics.articleExpansions[articleTitle][today]++;
+  
+  res.json({ success: true });
+});
+
+// Analytics dashboard endpoint (JSON API)
+app.get('/analytics-data', (req, res) => {
+  const summary = {
+    totalPageViews: Object.values(blogAnalytics.pageViews).reduce((sum, views) => sum + views, 0),
+    articleStats: {}
+  };
+  
+  // Calculate stats for each article
+  Object.keys(blogAnalytics.articleExpansions).forEach(title => {
+    const totalExpansions = Object.values(blogAnalytics.articleExpansions[title]).reduce((sum, count) => sum + count, 0);
+    summary.articleStats[title] = {
+      totalExpansions,
+      lastExpanded: Math.max(...Object.keys(blogAnalytics.articleExpansions[title]).map(date => new Date(date).getTime()))
+    };
+  });
+  
+  res.json({
+    summary,
+    rawData: blogAnalytics
+  });
+});
+
+// Analytics dashboard page
+app.get('/analytics', (req, res) => {
+  res.render('analytics');
 });
 
 // Serve sitemap.xml

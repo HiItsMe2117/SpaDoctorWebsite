@@ -203,11 +203,20 @@
             const preview = content.querySelector('.preview');
             const fullContent = content.querySelector('.full-content');
             const button = content.parentNode.querySelector('.read-more-btn');
+            const articleTitle = content.parentNode.querySelector('h3').textContent;
             
             if (fullContent.style.display === 'none') {
                 preview.style.display = 'none';
                 fullContent.style.display = 'block';
                 button.textContent = 'Read Less';
+                
+                // Track article expansion
+                fetch('/track-article-expansion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ articleTitle: articleTitle })
+                }).catch(err => console.log('Analytics tracking error:', err));
+                
             } else {
                 preview.style.display = 'block';
                 fullContent.style.display = 'none';
