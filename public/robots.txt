@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://spa-doctor-website.vercel.app/sitemap.xml
+
+# Disallow admin areas (if any)
+Disallow: /admin/
+Disallow: /uploads/
+
+# Allow important pages
+Allow: /
+Allow: /services
+Allow: /about
+Allow: /contact
+Allow: /gallery
+Allow: /blog
