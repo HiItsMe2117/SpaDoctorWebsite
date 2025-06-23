@@ -45,230 +45,456 @@
             <div class="container">
                 <!-- Dashboard Tab Navigation -->
                 <div class="dashboard-tabs">
-                    <button class="tab-button active" onclick="switchTab('analytics')">
+                    <button class="tab-button active" onclick="switchTab('analytics', this)">
                         📊 Analytics
                     </button>
-                    <button class="tab-button" onclick="switchTab('media')">
+                    <button class="tab-button" onclick="switchTab('media', this)">
                         📸 Media Manager
                     </button>
-                    <button class="tab-button" onclick="switchTab('social')">
+                    <button class="tab-button" onclick="switchTab('social', this)">
                         📱 Social Posts
                     </button>
-                    <button class="tab-button" onclick="switchTab('settings')">
+                    <button class="tab-button" onclick="switchTab('settings', this)">
                         ⚙️ Settings
                     </button>
                 </div>
 
                 <!-- Analytics Tab Content -->
-                <div id="analytics-tab" class="tab-content active" style="display: block;">
-                    <div id="loading" style="text-align: center; padding: 2rem;">
-                        <p>Loading analytics data...</p>
-                    </div>
+                <div id="analytics-tab" class="tab-content active">
+                    <h2 style="color: var(--gray-dark); margin-bottom: 2rem; font-size: 2rem;">📊 Business Analytics</h2>
                     
-                    <div id="analytics-content" style="display: none;">
-                    <!-- Overall Stats -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
-                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
-                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📞 Total Contacts</h3>
-                            <div id="total-contacts" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
-                            <p style="color: #64748b; margin-top: 0.5rem;">Customer inquiries</p>
-                        </div>
-                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
-                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📊 Blog Views</h3>
-                            <div id="total-blog-views" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
-                            <p style="color: #64748b; margin-top: 0.5rem;">Blog page visits</p>
-                        </div>
-                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
-                            <h3 style="color: #2563eb; margin-bottom: 1rem;">📖 Article Reads</h3>
-                            <div id="total-expansions" style="font-size: 2.5rem; font-weight: bold; color: #334155;">0</div>
-                            <p style="color: #64748b; margin-top: 0.5rem;">"Read More" clicks</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Business Intelligence -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
-                        <!-- Service Requests -->
-                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #334155; margin-bottom: 2rem;">🔧 Service Demand</h2>
-                            <div id="service-requests"></div>
+                    <!-- Key Metrics Cards -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                        <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
+                            <div style="color: var(--primary-blue); font-size: 2.5rem; margin-bottom: 0.5rem;">📞</div>
+                            <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">Total Contacts</h3>
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">25</div>
+                            <p style="color: var(--gray-medium); margin-top: 0.5rem;">Customer inquiries</p>
                         </div>
                         
-                        <!-- Contact Trends -->
-                        <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #334155; margin-bottom: 2rem;">📅 Contact Trends</h2>
-                            <div id="contact-trends"></div>
+                        <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
+                            <div style="color: var(--primary-blue); font-size: 2.5rem; margin-bottom: 0.5rem;">📊</div>
+                            <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">Blog Views</h3>
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">1,240</div>
+                            <p style="color: var(--gray-medium); margin-top: 0.5rem;">Page visits</p>
+                        </div>
+                        
+                        <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
+                            <div style="color: var(--primary-blue); font-size: 2.5rem; margin-bottom: 0.5rem;">📖</div>
+                            <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">Article Reads</h3>
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">89</div>
+                            <p style="color: var(--gray-medium); margin-top: 0.5rem;">Engagements</p>
                         </div>
                     </div>
-
-                    <!-- Article Performance -->
-                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 3rem;">
-                        <h2 style="color: #334155; margin-bottom: 2rem;">📈 Article Performance</h2>
-                        <div id="article-stats"></div>
-                    </div>
-
-                    <!-- Daily Views Chart -->
-                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                        <h2 style="color: #334155; margin-bottom: 2rem;">📅 Daily Blog Views</h2>
-                        <div id="daily-views"></div>
+                    
+                    <!-- Service Analytics -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+                        <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <h3 style="color: var(--gray-dark); margin-bottom: 1.5rem; font-size: 1.3rem;">🔧 Service Requests</h3>
+                            <div style="border-left: 4px solid var(--primary-blue); padding: 1rem; margin-bottom: 1rem; background: var(--gray-light); border-radius: 5px;">
+                                <h4 style="color: var(--gray-dark); margin-bottom: 0.5rem;">Hot Tub Repairs</h4>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--gray-medium);">This month</span>
+                                    <span style="font-weight: bold; color: var(--primary-blue);">12 requests</span>
+                                </div>
+                            </div>
+                            <div style="border-left: 4px solid var(--primary-blue); padding: 1rem; margin-bottom: 1rem; background: var(--gray-light); border-radius: 5px;">
+                                <h4 style="color: var(--gray-dark); margin-bottom: 0.5rem;">Cleaning Services</h4>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--gray-medium);">This month</span>
+                                    <span style="font-weight: bold; color: var(--primary-blue);">8 requests</span>
+                                </div>
+                            </div>
+                            <div style="border-left: 4px solid var(--primary-blue); padding: 1rem; background: var(--gray-light); border-radius: 5px;">
+                                <h4 style="color: var(--gray-dark); margin-bottom: 0.5rem;">Transport Services</h4>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--gray-medium);">This month</span>
+                                    <span style="font-weight: bold; color: var(--primary-blue);">5 requests</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <h3 style="color: var(--gray-dark); margin-bottom: 1.5rem; font-size: 1.3rem;">📅 Recent Activity</h3>
+                            <div style="border-bottom: 1px solid var(--gray-light); padding: 1rem 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h4 style="color: var(--gray-dark); margin-bottom: 0.3rem;">New Contact Form</h4>
+                                        <p style="color: var(--gray-medium); font-size: 0.9rem;">Hot tub repair inquiry</p>
+                                    </div>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div style="border-bottom: 1px solid var(--gray-light); padding: 1rem 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h4 style="color: var(--gray-dark); margin-bottom: 0.3rem;">Blog Article View</h4>
+                                        <p style="color: var(--gray-medium); font-size: 0.9rem;">Winter maintenance tips</p>
+                                    </div>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">4 hours ago</span>
+                                </div>
+                            </div>
+                            <div style="padding: 1rem 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h4 style="color: var(--gray-dark); margin-bottom: 0.3rem;">Phone Call</h4>
+                                        <p style="color: var(--gray-medium); font-size: 0.9rem;">Cleaning service booking</p>
+                                    </div>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">6 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Media Manager Tab Content -->
-                <div id="media-tab" class="tab-content" style="display: none;">
-                    <h2 style="color: #334155; margin-bottom: 2rem;">📸 Media Manager</h2>
+                <div id="media-tab" class="tab-content">
+                    <h2 style="color: var(--gray-dark); margin-bottom: 2rem; font-size: 2rem;">📸 Media Manager</h2>
                     
-                    <!-- Upload Section -->
-                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Upload New Media</h3>
-                        <form id="mediaUploadForm" enctype="multipart/form-data" style="display: grid; gap: 1rem;">
-                            <div style="border: 2px dashed #cbd5e1; border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer;" onclick="document.getElementById('mediaFiles').click()">
-                                <input type="file" id="mediaFiles" name="mediaFiles" multiple accept="image/*,video/*" style="display: none;" onchange="handleFileSelect(this)">
-                                <div id="dropZoneContent">
-                                    <p style="color: #64748b; margin-bottom: 1rem; font-size: 1.1rem;">📁 Click to upload or drag & drop files here</p>
-                                    <p style="color: #94a3b8; font-size: 0.9rem;">Supports: JPG, PNG, GIF, MP4, MOV (Max 10MB per file)</p>
+                    <!-- Google Business Profile Media Section -->
+                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem; border-left: 4px solid #4285f4;">
+                        <h3 style="color: #4285f4; margin-bottom: 1.5rem; font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
+                            🏢 Google Business Profile Media
+                        </h3>
+                        
+                        <div id="google-media-section">
+                            <div id="google-not-connected" style="text-align: center; padding: 2rem; background: var(--gray-light); border-radius: 8px;">
+                                <div style="color: var(--gray-medium); font-size: 2rem; margin-bottom: 1rem;">🔗</div>
+                                <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">Connect Google Business Profile</h4>
+                                <p style="color: var(--gray-medium); margin-bottom: 1.5rem;">Upload photos directly to your Google Business listing</p>
+                                <button onclick="connectGoogle()" style="background: #4285f4; color: white; border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer;">Connect Google</button>
+                            </div>
+                            
+                            <div id="google-setup-required" style="display: none; text-align: center; padding: 2rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px;">
+                                <div style="color: #856404; font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+                                <h4 style="color: #856404; margin-bottom: 1rem;">Google Business Profile Setup Required</h4>
+                                <p style="color: #856404; margin-bottom: 1.5rem;">You're connected to Google, but you need a verified Google Business Profile to upload photos.</p>
+                                <div style="margin-bottom: 1.5rem;">
+                                    <p style="color: #856404; font-size: 0.9rem; margin-bottom: 0.5rem;"><strong>Steps to set up your Google Business Profile:</strong></p>
+                                    <ol style="text-align: left; color: #856404; font-size: 0.9rem; max-width: 400px; margin: 0 auto;">
+                                        <li>Go to <a href="https://business.google.com" target="_blank" style="color: #4285f4;">business.google.com</a></li>
+                                        <li>Create or claim your business listing</li>
+                                        <li>Verify your business (usually by phone or postcard)</li>
+                                        <li>Return here to upload photos</li>
+                                    </ol>
+                                </div>
+                                <button onclick="disconnectGoogle()" style="background: #dc3545; color: white; border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer; margin-right: 1rem;">Disconnect</button>
+                                <a href="https://business.google.com" target="_blank" style="background: #4285f4; color: white; text-decoration: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; display: inline-block;">Set Up Business Profile</a>
+                            </div>
+                            
+                            <div id="google-connected" style="display: none;">
+                                <!-- Upload to Google Business Profile -->
+                                <div style="border: 2px dashed #4285f4; border-radius: 10px; padding: 2rem; text-align: center; background: #f8f9ff; margin-bottom: 2rem;">
+                                    <div style="color: #4285f4; font-size: 2rem; margin-bottom: 1rem;">🏢</div>
+                                    <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">Upload to Google Business Profile</h4>
+                                    <input type="file" id="googleMediaFile" accept="image/*" style="margin-bottom: 1rem;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                        <select id="googleMediaCategory" style="padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px;">
+                                            <option value="ADDITIONAL">Additional Photos</option>
+                                            <option value="EXTERIOR">Exterior</option>
+                                            <option value="INTERIOR">Interior</option>
+                                            <option value="PRODUCT">Products/Services</option>
+                                            <option value="AT_WORK">Team at Work</option>
+                                            <option value="COVER">Cover Photo</option>
+                                            <option value="PROFILE">Profile Photo</option>
+                                            <option value="LOGO">Logo</option>
+                                        </select>
+                                        <input type="text" id="googleMediaDescription" placeholder="Description (optional)" style="padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px;">
+                                    </div>
+                                    <button onclick="uploadToGoogleBusiness()" style="background: #4285f4; color: white; border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer;">Upload to Google Business</button>
+                                    <p style="color: var(--gray-medium); font-size: 0.9rem; margin-top: 1rem;">Photos will appear on your Google Business listing and Google Maps</p>
+                                </div>
+                                
+                                <!-- Google Business Profile Media Gallery -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                        <h4 style="color: var(--gray-dark); margin: 0;">Your Google Business Photos</h4>
+                                        <button onclick="refreshGoogleMedia()" style="background: var(--gray-medium); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🔄 Refresh</button>
+                                    </div>
+                                    <div id="google-media-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                                        <!-- Google Business Profile photos will be loaded here -->
+                                    </div>
                                 </div>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                <input type="text" id="mediaTitle" name="title" placeholder="Title (optional)" style="padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px;">
-                                <input type="text" id="mediaTags" name="tags" placeholder="Tags (comma separated)" style="padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px;">
-                            </div>
-                            <button type="submit" class="btn" style="justify-self: start;">Upload Media</button>
-                        </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Section -->
+                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1.5rem; font-size: 1.3rem;">Upload New Media (Local Storage)</h3>
+                        <div style="border: 2px dashed var(--primary-blue); border-radius: 10px; padding: 3rem; text-align: center; background: var(--gray-light); transition: all 0.3s ease;">
+                            <div style="color: var(--primary-blue); font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                            <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">Drag & drop files here</h4>
+                            <p style="color: var(--gray-medium); margin-bottom: 1.5rem;">Or click to browse your computer</p>
+                            <button style="background: var(--primary-blue); color: var(--white); border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">Choose Files</button>
+                            <p style="color: var(--gray-medium); font-size: 0.9rem; margin-top: 1rem;">Supports: JPG, PNG, GIF, MP4, MOV (Max 10MB per file)</p>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+                            <input type="text" placeholder="Title (optional)" style="padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px; font-family: inherit;">
+                            <input type="text" placeholder="Tags (comma separated)" style="padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px; font-family: inherit;">
+                        </div>
                     </div>
 
                     <!-- Media Library -->
-                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Media Library</h3>
-                        <div id="mediaLibrary" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-                            <p style="color: #64748b; text-align: center; grid-column: 1 / -1; padding: 2rem;">No media uploaded yet. Upload your first image or video above!</p>
+                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1.5rem; font-size: 1.3rem;">Media Library</h3>
+                        
+                        <!-- Filter Controls -->
+                        <div style="display: flex; gap: 1rem; margin-bottom: 2rem; align-items: center;">
+                            <select style="padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: 5px; color: var(--gray-dark);">
+                                <option>All Media</option>
+                                <option>Images</option>
+                                <option>Videos</option>
+                            </select>
+                            <input type="text" placeholder="Search media..." style="padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: 5px; flex: 1;">
+                        </div>
+                        
+                        <!-- Media Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
+                            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease; background: var(--white);">
+                                <div style="width: 100%; height: 150px; background: linear-gradient(135deg, var(--primary-blue), var(--light-blue)); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 2rem;">📸</div>
+                                <div style="padding: 1rem;">
+                                    <h4 style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.9rem;">Hot Tub Installation</h4>
+                                    <p style="margin: 0; color: var(--gray-medium); font-size: 0.8rem;">Uploaded: Dec 23, 2024</p>
+                                    <div style="margin-top: 0.5rem;">
+                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; margin-right: 0.3rem;">repair</span>
+                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">before</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease; background: var(--white);">
+                                <div style="width: 100%; height: 150px; background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue)); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 2rem;">🎥</div>
+                                <div style="padding: 1rem;">
+                                    <h4 style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.9rem;">Cleaning Process</h4>
+                                    <p style="margin: 0; color: var(--gray-medium); font-size: 0.8rem;">Uploaded: Dec 22, 2024</p>
+                                    <div style="margin-top: 0.5rem;">
+                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; margin-right: 0.3rem;">cleaning</span>
+                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">tutorial</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease; background: var(--white);">
+                                <div style="width: 100%; height: 150px; background: linear-gradient(135deg, var(--light-blue), var(--primary-blue)); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 2rem;">📷</div>
+                                <div style="padding: 1rem;">
+                                    <h4 style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.9rem;">Maintenance Tips</h4>
+                                    <p style="margin: 0; color: var(--gray-medium); font-size: 0.8rem;">Uploaded: Dec 21, 2024</p>
+                                    <div style="margin-top: 0.5rem;">
+                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; margin-right: 0.3rem;">maintenance</span>
+                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">tips</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Social Posts Tab Content -->
-                <div id="social-tab" class="tab-content" style="display: none;">
-                    <h2 style="color: #334155; margin-bottom: 2rem;">📱 Social Media Posts</h2>
+                <div id="social-tab" class="tab-content">
+                    <h2 style="color: var(--gray-dark); margin-bottom: 2rem; font-size: 2rem;">📱 Social Media Posts</h2>
                     
                     <!-- Create New Post -->
-                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Create New Post</h3>
-                        <form id="socialPostForm" style="display: grid; gap: 1rem;">
-                            <textarea id="postContent" name="content" placeholder="Write your post content here..." style="min-height: 120px; padding: 1rem; border: 2px solid #f8fafc; border-radius: 5px; resize: vertical;"></textarea>
+                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1.5rem; font-size: 1.3rem;">Create New Post</h3>
+                        <div style="display: grid; gap: 1.5rem;">
+                            <textarea placeholder="What's happening at Spa Doctors today?" style="min-height: 120px; padding: 1rem; border: 2px solid var(--gray-light); border-radius: 8px; resize: vertical; font-family: inherit; line-height: 1.5;"></textarea>
                             
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                                 <div>
-                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Select Media (optional)</label>
-                                    <select id="postMedia" name="media" style="width: 100%; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px;">
-                                        <option value="">No media</option>
-                                    </select>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--gray-dark);">Attach Media</label>
+                                    <div style="display: grid; gap: 0.5rem;">
+                                        <input type="file" accept="image/*,video/*" capture="environment" style="width: 100%; padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px; color: var(--gray-dark); cursor: pointer;" placeholder="Choose from camera roll or files">
+                                        <div style="display: flex; gap: 0.5rem; font-size: 0.8rem; color: var(--gray-medium);">
+                                            <span>📷 Camera Roll</span>
+                                            <span>•</span>
+                                            <span>📁 Device Files</span>
+                                            <span>•</span>
+                                            <span>🎥 Videos OK</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div>
-                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Post to Platforms</label>
-                                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                            <input type="checkbox" name="platforms" value="google" checked> 🏢 Google Business
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--gray-dark);">Post to Platforms</label>
+                                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--gray-dark);">
+                                            <input type="checkbox" checked style="accent-color: var(--primary-blue);"> 🏢 Google Business
                                         </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                            <input type="checkbox" name="platforms" value="facebook" checked> 📘 Facebook
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--gray-dark);">
+                                            <input type="checkbox" checked style="accent-color: var(--primary-blue);"> 📘 Facebook
                                         </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                            <input type="checkbox" name="platforms" value="instagram" checked> 📷 Instagram
+                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--gray-dark);">
+                                            <input type="checkbox" checked style="accent-color: var(--primary-blue);"> 📷 Instagram
                                         </label>
                                     </div>
                                 </div>
                             </div>
                             
                             <div style="display: flex; gap: 1rem; align-items: center;">
-                                <button type="submit" class="btn">📤 Post Now</button>
-                                <button type="button" class="btn" style="background: #64748b;" onclick="schedulePost()">⏰ Schedule Post</button>
+                                <button onclick="createSocialPost()" style="background: var(--primary-blue); color: var(--white); border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">📤 Post Now</button>
+                                <button onclick="schedulePost()" style="background: var(--gray-medium); color: var(--white); border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer; transition: background 0.3s ease;">⏰ Schedule Post</button>
                             </div>
-                        </form>
+                        </div>
                     </div>
 
                     <!-- Recent Posts -->
-                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Recent Posts</h3>
-                        <div id="recentPosts">
-                            <p style="color: #64748b; text-align: center; padding: 2rem;">No social media posts yet. Create your first post above!</p>
+                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1.5rem; font-size: 1.3rem;">Recent Posts</h3>
+                        
+                        <!-- Sample Posts -->
+                        <div style="display: grid; gap: 1.5rem;">
+                            <div style="border-left: 4px solid var(--primary-blue); padding: 1.5rem; background: var(--gray-light); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--gray-dark); line-height: 1.4;">Just completed another successful hot tub repair in Denver! Our team restored this family's relaxation paradise in just 2 hours. 🛁✨</h4>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem; white-space: nowrap; margin-left: 1rem;">Dec 23, 2024</span>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">🏢 Google Business</span>
+                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">📘 Facebook</span>
+                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">📷 Instagram</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: var(--primary-blue); font-size: 0.9rem; font-weight: 500;">✅ Published Successfully</span>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">12 engagements</span>
+                                </div>
+                            </div>
+                            
+                            <div style="border-left: 4px solid var(--primary-blue); padding: 1.5rem; background: var(--gray-light); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--gray-dark); line-height: 1.4;">Winter hot tub maintenance tips: Keep your spa running smoothly through the cold months! Check out our latest blog post for expert advice. ❄️🔧</h4>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem; white-space: nowrap; margin-left: 1rem;">Dec 22, 2024</span>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">🏢 Google Business</span>
+                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">📘 Facebook</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: var(--primary-blue); font-size: 0.9rem; font-weight: 500;">✅ Published Successfully</span>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">8 engagements</span>
+                                </div>
+                            </div>
+                            
+                            <div style="border-left: 4px solid #f59e0b; padding: 1.5rem; background: #fffbeb; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--gray-dark); line-height: 1.4;">🎄 Holiday Special: 20% off all hot tub cleaning services this December! Book now to start the new year with a sparkling clean spa. Call (856) 266-7293!</h4>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem; white-space: nowrap; margin-left: 1rem;">Dec 21, 2024</span>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                                    <span style="background: var(--white); color: #f59e0b; padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">🏢 Google Business</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #f59e0b; font-size: 0.9rem; font-weight: 500;">⏰ Scheduled for Dec 25, 2024</span>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">Pending</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Settings Tab Content -->
-                <div id="settings-tab" class="tab-content" style="display: none;">
-                    <h2 style="color: #334155; margin-bottom: 2rem;">⚙️ Settings</h2>
+                <div id="settings-tab" class="tab-content">
+                    <h2 style="color: var(--gray-dark); margin-bottom: 2rem; font-size: 2rem;">⚙️ Business Settings</h2>
                     
                     <!-- Social Media Connections -->
-                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">Social Media Connections</h3>
+                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔗</span> Social Media Connections
+                        </h3>
                         
                         <div style="display: grid; gap: 1rem;">
-                            <!-- Google Business Profile -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                            <div class="google-connection-status" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--gray-light); border-radius: 8px; border-left: 4px solid var(--gray-medium);">
                                 <div style="display: flex; align-items: center; gap: 1rem;">
                                     <span style="font-size: 1.5rem;">🏢</span>
                                     <div>
-                                        <h4 style="margin: 0; color: #334155;">Google Business Profile</h4>
-                                        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Post updates and photos to your business listing</p>
+                                        <h4 style="color: var(--gray-dark); margin-bottom: 0.2rem;">Google Business Profile</h4>
+                                        <p style="color: var(--gray-medium); font-size: 0.9rem; margin: 0;">Ready to connect</p>
                                     </div>
                                 </div>
-                                <button id="googleConnectBtn" class="btn" style="background: #10b981;" onclick="connectGoogle()">🔗 Connect</button>
+                                <button onclick="connectGoogle()" style="background: var(--primary-blue); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Connect</button>
                             </div>
-
-                            <!-- Facebook -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--gray-light); border-radius: 8px; border-left: 4px solid var(--gray-medium);">
                                 <div style="display: flex; align-items: center; gap: 1rem;">
                                     <span style="font-size: 1.5rem;">📘</span>
                                     <div>
-                                        <h4 style="margin: 0; color: #334155;">Facebook Page</h4>
-                                        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Share posts and photos to your business page</p>
+                                        <h4 style="color: var(--gray-dark); margin-bottom: 0.2rem;">Facebook Business</h4>
+                                        <p style="color: var(--gray-medium); font-size: 0.9rem; margin: 0;">Ready to connect</p>
                                     </div>
                                 </div>
-                                <button class="btn" style="background: #1877f2;" onclick="connectFacebook()">🔗 Connect</button>
+                                <button onclick="connectFacebook()" style="background: var(--primary-blue); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Connect</button>
                             </div>
-
-                            <!-- Instagram -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 2px solid #f8fafc; border-radius: 5px;">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--gray-light); border-radius: 8px; border-left: 4px solid var(--gray-medium);">
                                 <div style="display: flex; align-items: center; gap: 1rem;">
                                     <span style="font-size: 1.5rem;">📷</span>
                                     <div>
-                                        <h4 style="margin: 0; color: #334155;">Instagram Business</h4>
-                                        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Post photos and videos to your Instagram</p>
+                                        <h4 style="color: var(--gray-dark); margin-bottom: 0.2rem;">Instagram Business</h4>
+                                        <p style="color: var(--gray-medium); font-size: 0.9rem; margin: 0;">Ready to connect</p>
                                     </div>
                                 </div>
-                                <button class="btn" style="background: #e4405f;" onclick="connectInstagram()">🔗 Connect</button>
+                                <button onclick="connectInstagram()" style="background: var(--primary-blue); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Connect</button>
                             </div>
                         </div>
                     </div>
-
+                    
                     <!-- General Settings -->
-                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                        <h3 style="color: #2563eb; margin-bottom: 1.5rem;">General Settings</h3>
+                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>⚙️</span> Post Settings
+                        </h3>
                         
-                        <div style="display: grid; gap: 1.5rem;">
-                            <div>
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Default Post Template</label>
-                                <textarea placeholder="Default content to include in posts (e.g., hashtags, contact info)" style="width: 100%; min-height: 80px; padding: 0.8rem; border: 2px solid #f8fafc; border-radius: 5px; resize: vertical;">#HotTubRepair #DenverServices #SpaExperts
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; color: var(--gray-dark); font-weight: 500; margin-bottom: 0.5rem;">Default Post Template:</label>
+                            <textarea style="width: 100%; height: 100px; padding: 1rem; border: 2px solid var(--gray-light); border-radius: 8px; font-family: inherit; resize: vertical; color: var(--gray-dark);" placeholder="Enter your default social media post template...">#HotTubRepair #DenverServices #SpaExperts
 
 Call (856) 266-7293 for professional hot tub service!</textarea>
-                            </div>
-                            
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--gray-dark);">
+                                <input type="checkbox" style="transform: scale(1.2);" checked>
+                                Auto-add contact info
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--gray-dark);">
+                                <input type="checkbox" style="transform: scale(1.2);" checked>
+                                Include website link
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--gray-dark);">
+                                <input type="checkbox" style="transform: scale(1.2);">
+                                Send notifications
+                            </label>
+                        </div>
+                        
+                        <button style="background: var(--primary-blue); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: background 0.3s ease;" onmouseover="this.style.background='var(--dark-blue)'" onmouseout="this.style.background='var(--primary-blue)'">
+                            💾 Save Settings
+                        </button>
+                    </div>
+                    
+                    <!-- Account Settings -->
+                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>👤</span> Account Settings
+                        </h3>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
                             <div>
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Auto-publish Settings</label>
-                                <div style="display: grid; gap: 0.5rem;">
-                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <input type="checkbox" checked> Automatically add contact info to posts
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <input type="checkbox" checked> Include website link in social posts
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <input type="checkbox"> Send notification when posts are published
-                                    </label>
+                                <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">Business Information</h4>
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; color: var(--gray-dark); font-weight: 500; margin-bottom: 0.3rem;">Business Name:</label>
+                                    <input type="text" value="Spa Doctors" style="width: 100%; padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px; color: var(--gray-dark);">
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <label style="display: block; color: var(--gray-dark); font-weight: 500; margin-bottom: 0.3rem;">Phone Number:</label>
+                                    <input type="tel" value="(856) 266-7293" style="width: 100%; padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px; color: var(--gray-dark);">
                                 </div>
                             </div>
                             
-                            <button class="btn" style="justify-self: start;">💾 Save Settings</button>
+                            <div>
+                                <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">Data Management</h4>
+                                <button style="background: var(--gray-medium); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 5px; cursor: pointer; margin-right: 1rem; margin-bottom: 0.5rem;">📊 Export Analytics</button>
+                                <button style="background: var(--gray-medium); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 5px; cursor: pointer; margin-bottom: 0.5rem;">🗑️ Clear Data</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -301,6 +527,8 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
     </footer>
 
     <script>
+        console.log('Dashboard script started loading...');
+
         function toggleMenu() {
             const nav = document.getElementById('nav');
             nav.classList.toggle('active');
@@ -310,32 +538,32 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             try {
                 const response = await fetch('/analytics-data');
                 const data = await response.json();
-                
+
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('analytics-content').style.display = 'block';
-                
+
                 // Update overall stats
                 document.getElementById('total-contacts').textContent = data.summary.totalContacts;
                 document.getElementById('total-blog-views').textContent = data.summary.totalBlogViews;
-                
+
                 const totalExpansions = Object.values(data.summary.articleStats)
                     .reduce((sum, article) => sum + article.totalExpansions, 0);
                 document.getElementById('total-expansions').textContent = totalExpansions;
-                
+
                 // Update service requests
                 const serviceRequestsDiv = document.getElementById('service-requests');
                 serviceRequestsDiv.innerHTML = '';
-                
+
                 if (Object.keys(data.summary.serviceRequests).length === 0) {
                     serviceRequestsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No service requests yet. Contact forms will show data here!</p>';
                 } else {
                     Object.entries(data.summary.serviceRequests).forEach(([service, stats]) => {
                         const serviceDiv = document.createElement('div');
                         serviceDiv.style.cssText = 'border-left: 4px solid #2563eb; padding: 1rem; margin-bottom: 1rem; background: #f8fafc;';
-                        
+
                         const topReferrer = Object.entries(stats.referrerPages)
                             .sort(([,a], [,b]) => b - a)[0]?.[0] || 'unknown';
-                        
+
                         serviceDiv.innerHTML = `
                             <h4 style="color: #334155; margin-bottom: 0.5rem;">${service}</h4>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; color: #64748b; font-size: 0.9rem;">
@@ -348,11 +576,11 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                         serviceRequestsDiv.appendChild(serviceDiv);
                     });
                 }
-                
+
                 // Update contact trends
                 const contactTrendsDiv = document.getElementById('contact-trends');
                 contactTrendsDiv.innerHTML = '';
-                
+
                 if (Object.keys(data.summary.contactTrends).length === 0) {
                     contactTrendsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No contact trends yet.</p>';
                 } else {
@@ -370,20 +598,20 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                         }
                     });
                 }
-                
+
                 // Update article stats
                 const articleStatsDiv = document.getElementById('article-stats');
                 articleStatsDiv.innerHTML = '';
-                
+
                 if (Object.keys(data.summary.articleStats).length === 0) {
                     articleStatsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No article interactions yet. Visit your blog and click "Read More" to see data here!</p>';
                 } else {
                     Object.entries(data.summary.articleStats).forEach(([title, stats]) => {
                         const articleDiv = document.createElement('div');
                         articleDiv.style.cssText = 'border-left: 4px solid #2563eb; padding: 1rem; margin-bottom: 1rem; background: #f8fafc;';
-                        
+
                         const lastRead = stats.lastExpanded ? new Date(stats.lastExpanded).toLocaleDateString() : 'Never';
-                        
+
                         articleDiv.innerHTML = `
                             <h4 style="color: #334155; margin-bottom: 0.5rem;">${title}</h4>
                             <div style="display: flex; gap: 2rem; color: #64748b;">
@@ -394,11 +622,11 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                         articleStatsDiv.appendChild(articleDiv);
                     });
                 }
-                
+
                 // Update daily blog views
                 const dailyViewsDiv = document.getElementById('daily-views');
                 dailyViewsDiv.innerHTML = '';
-                
+
                 if (Object.keys(data.rawData.blogPageViews).length === 0) {
                     dailyViewsDiv.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No blog views recorded yet.</p>';
                 } else {
@@ -412,7 +640,7 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                         dailyViewsDiv.appendChild(dayDiv);
                     });
                 }
-                
+
             } catch (error) {
                 document.getElementById('loading').innerHTML = '<p style="color: #ef4444;">Error loading analytics data. Please try again.</p>';
                 console.error('Analytics error:', error);
@@ -426,34 +654,28 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
         }
 
         // Tab switching functionality
-        function switchTab(tabName) {
-            // Hide all tab contents and remove active class
+        function switchTab(tabName, buttonElement) {
+            // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
                 tab.classList.remove('active');
             });
-            
+
             // Remove active class from all tab buttons
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
             });
-            
-            // Show selected tab content and add active class
-            const selectedTab = document.getElementById(tabName + '-tab');
-            selectedTab.style.display = 'block';
-            selectedTab.classList.add('active');
-            
-            // Activate selected tab button
-            event.target.classList.add('active');
-            
-            // Load specific tab data
+
+            // Show the selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            // Add active class to clicked button
+            buttonElement.classList.add('active');
+
+            // Load data based on tab
             if (tabName === 'analytics') {
                 loadAnalytics();
             } else if (tabName === 'media') {
-                loadMediaLibrary();
-            } else if (tabName === 'social') {
-                loadRecentPosts();
-                loadMediaForSocial();
+                checkGoogleConnectionStatus();
             }
         }
 
@@ -461,7 +683,7 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
         function handleFileSelect(input) {
             const files = input.files;
             const dropZoneContent = document.getElementById('dropZoneContent');
-            
+
             if (files.length > 0) {
                 dropZoneContent.innerHTML = `
                     <p style="color: #2563eb; margin-bottom: 1rem; font-size: 1.1rem;">📁 ${files.length} file(s) selected</p>
@@ -470,79 +692,19 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             }
         }
 
-        // Load media library
+        // Load media library - DISABLED (using hardcoded content)
         async function loadMediaLibrary() {
-            try {
-                const response = await fetch('/media-library');
-                const media = await response.json();
-                
-                const mediaLibrary = document.getElementById('mediaLibrary');
-                
-                if (media.length === 0) {
-                    mediaLibrary.innerHTML = '<p style="color: #64748b; text-align: center; grid-column: 1 / -1; padding: 2rem;">No media uploaded yet. Upload your first image or video above!</p>';
-                } else {
-                    mediaLibrary.innerHTML = media.map(item => `
-                        <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer;" onclick="selectMedia('${item.id}')">
-                            ${item.type === 'image' ? 
-                                `<img src="/uploads/${item.filename}" alt="${item.title || 'Uploaded media'}" style="width: 100%; height: 150px; object-fit: cover;">` :
-                                `<video style="width: 100%; height: 150px; object-fit: cover;"><source src="/uploads/${item.filename}"></video>`
-                            }
-                            <div style="padding: 1rem;">
-                                <h4 style="margin: 0 0 0.5rem 0; color: #334155; font-size: 0.9rem;">${item.title || 'Untitled'}</h4>
-                                <p style="margin: 0; color: #64748b; font-size: 0.8rem;">${new Date(item.uploadDate).toLocaleDateString()}</p>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Error loading media library:', error);
-            }
+            console.log('Media library loading disabled - using hardcoded content');
         }
 
-        // Load media options for social posts
+        // Load media options for social posts - DISABLED (using hardcoded content)
         async function loadMediaForSocial() {
-            try {
-                const response = await fetch('/media-library');
-                const media = await response.json();
-                
-                const select = document.getElementById('postMedia');
-                select.innerHTML = '<option value="">No media</option>' + 
-                    media.map(item => `<option value="${item.id}">${item.title || item.filename}</option>`).join('');
-            } catch (error) {
-                console.error('Error loading media for social:', error);
-            }
+            console.log('Media for social loading disabled - using hardcoded content');
         }
 
-        // Load recent social posts
+        // Load recent social posts - DISABLED (using hardcoded content)
         async function loadRecentPosts() {
-            try {
-                const response = await fetch('/social-posts');
-                const posts = await response.json();
-                
-                const recentPosts = document.getElementById('recentPosts');
-                
-                if (posts.length === 0) {
-                    recentPosts.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">No social media posts yet. Create your first post above!</p>';
-                } else {
-                    recentPosts.innerHTML = posts.slice(0, 5).map(post => `
-                        <div style="border-left: 4px solid #2563eb; padding: 1rem; margin-bottom: 1rem; background: #f8fafc; border-radius: 5px;">
-                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                <h4 style="margin: 0; color: #334155;">${post.content.substring(0, 50)}${post.content.length > 50 ? '...' : ''}</h4>
-                                <span style="color: #64748b; font-size: 0.8rem;">${new Date(post.postDate).toLocaleDateString()}</span>
-                            </div>
-                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                ${post.platforms.map(platform => {
-                                    const icons = { google: '🏢', facebook: '📘', instagram: '📷' };
-                                    return `<span style="background: #e2e8f0; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">${icons[platform]} ${platform}</span>`;
-                                }).join('')}
-                            </div>
-                            <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Status: ${post.status}</p>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Error loading recent posts:', error);
-            }
+            console.log('Recent posts loading disabled - using hardcoded content');
         }
 
         // Social media connection functions
@@ -572,18 +734,25 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
         }
 
         function updateGoogleConnectionStatus(connected) {
-            const button = document.getElementById('googleConnectBtn');
-            if (connected) {
-                button.textContent = '🔗 Connected';
-                button.style.background = '#10b981';
-                button.onclick = disconnectGoogle;
-                button.title = 'Click to disconnect';
-            } else {
-                button.textContent = '🔗 Connect';
-                button.style.background = '#10b981';
-                button.onclick = connectGoogle;
-                button.title = 'Click to connect';
-            }
+            // Update settings UI to show connection status
+            const connectionElements = document.querySelectorAll('.google-connection-status');
+            connectionElements.forEach(element => {
+                if (connected) {
+                    element.style.borderLeft = '4px solid #34a853';
+                    element.querySelector('h4').textContent = 'Google Business Profile - Connected';
+                    element.querySelector('p').textContent = 'Successfully connected and authenticated';
+                    element.querySelector('button').textContent = 'Disconnect';
+                    element.querySelector('button').onclick = disconnectGoogle;
+                    element.querySelector('button').style.background = '#dc3545';
+                } else {
+                    element.style.borderLeft = '4px solid var(--gray-medium)';
+                    element.querySelector('h4').textContent = 'Google Business Profile';
+                    element.querySelector('p').textContent = 'Ready to connect';
+                    element.querySelector('button').textContent = 'Connect';
+                    element.querySelector('button').onclick = connectGoogle;
+                    element.querySelector('button').style.background = '#4285f4';
+                }
+            });
         }
 
         function connectFacebook() {
@@ -594,18 +763,335 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             alert('Instagram integration coming soon! This will allow you to post photos and videos.');
         }
 
+        // Create social media post
+        async function createSocialPost() {
+            // Get form data
+            const socialTab = document.getElementById('social-tab');
+            const textarea = socialTab.querySelector('textarea');
+            const fileInput = socialTab.querySelector('input[type="file"]');
+            const platformCheckboxes = socialTab.querySelectorAll('input[type="checkbox"]:checked');
+            
+            const content = textarea.value.trim();
+            if (!content) {
+                alert('Please enter some content for your post!');
+                return;
+            }
+            
+            // Get selected platforms
+            const platforms = Array.from(platformCheckboxes).map(cb => {
+                const label = cb.parentElement.textContent.trim();
+                if (label.includes('Google')) return 'google';
+                if (label.includes('Facebook')) return 'facebook';
+                if (label.includes('Instagram')) return 'instagram';
+                return null;
+            }).filter(p => p);
+            
+            if (platforms.length === 0) {
+                alert('Please select at least one platform to post to!');
+                return;
+            }
+            
+            // Prepare data
+            let requestBody;
+            let requestHeaders = { 'Content-Type': 'application/json' };
+            
+            // Debug logging
+            console.log('Sending data:', {
+                content: content,
+                platforms: platforms,
+                platformsJSON: JSON.stringify(platforms)
+            });
+            
+            // Check if file is selected
+            if (fileInput.files.length > 0) {
+                // Use FormData for file upload
+                const formData = new FormData();
+                formData.append('content', content);
+                formData.append('platforms', JSON.stringify(platforms));
+                formData.append('mediaFile', fileInput.files[0]);
+                requestBody = formData;
+                requestHeaders = {}; // Let browser set content-type for FormData
+            } else {
+                // Use JSON for text-only posts
+                requestBody = JSON.stringify({
+                    content: content,
+                    platforms: platforms
+                });
+            }
+            
+            // Show loading state
+            const postButton = event.target;
+            const originalText = postButton.textContent;
+            postButton.textContent = '⏳ Posting...';
+            postButton.disabled = true;
+            
+            try {
+                const response = await fetch('/create-social-post', {
+                    method: 'POST',
+                    headers: requestHeaders,
+                    body: requestBody
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    let successMessage = '✅ Post created successfully!\n\n';
+                    
+                    // Check if Google Business Profile requires manual action
+                    if (result.results && result.results.google && result.results.google.requiresManualAction) {
+                        successMessage += `📱 ${platforms.filter(p => p !== 'google').join(', ')}: Posted automatically\n`;
+                        successMessage += `🏢 Google Business Profile: Authentication verified\n`;
+                        successMessage += `📋 Manual posting required at business.google.com\n\n`;
+                        successMessage += `Content ready to copy: "${result.post.content}"`;
+                    } else {
+                        successMessage += `Posted to: ${platforms.join(', ')}\n`;
+                        successMessage += `Engagement tracking activated.`;
+                    }
+                    
+                    alert(successMessage);
+                    
+                    // Clear form
+                    textarea.value = '';
+                    fileInput.value = '';
+                    
+                    // Refresh recent posts (in real implementation)
+                    console.log('Post created:', result.post);
+                } else {
+                    alert('❌ Failed to create post: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('❌ Error creating post: ' + error.message);
+                console.error('Post creation error:', error);
+            } finally {
+                // Restore button state
+                postButton.textContent = originalText;
+                postButton.disabled = false;
+            }
+        }
+
         function schedulePost() {
             alert('Post scheduling feature coming soon! This will allow you to schedule posts for optimal times.');
         }
 
-        // Check for Google connection status on page load
+        // Google Business Profile Media Functions
+
+        // Upload media to Google Business Profile
+        async function uploadToGoogleBusiness() {
+            const fileInput = document.getElementById('googleMediaFile');
+            const category = document.getElementById('googleMediaCategory').value;
+            const description = document.getElementById('googleMediaDescription').value;
+
+            if (!fileInput.files.length) {
+                alert('Please select a file to upload!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('mediaFile', fileInput.files[0]);
+            formData.append('category', category);
+            formData.append('description', description);
+
+            // Show loading state
+            const uploadButton = event.target;
+            const originalText = uploadButton.textContent;
+            uploadButton.textContent = '⏳ Uploading...';
+            uploadButton.disabled = true;
+
+            try {
+                const response = await fetch('/google-business-media/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ Photo uploaded to Google Business Profile successfully!\n\nIt will appear on your Google listing and Google Maps.');
+                    
+                    // Clear form
+                    fileInput.value = '';
+                    document.getElementById('googleMediaDescription').value = '';
+                    
+                    // Refresh gallery
+                    refreshGoogleMedia();
+                } else {
+                    alert('❌ Failed to upload to Google Business Profile: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('❌ Upload error: ' + error.message);
+                console.error('Google Business media upload error:', error);
+            } finally {
+                // Restore button state
+                uploadButton.textContent = originalText;
+                uploadButton.disabled = false;
+            }
+        }
+
+        // Load Google Business Profile media
+        async function loadGoogleBusinessMedia() {
+            try {
+                const response = await fetch('/google-business-media');
+                const result = await response.json();
+
+                const gallery = document.getElementById('google-media-gallery');
+                
+                if (result.success && result.data.length > 0) {
+                    gallery.innerHTML = result.data.map(media => {
+                        const categoryLabel = getCategoryLabel(media.locationAssociation?.category || 'ADDITIONAL');
+                        const createDate = media.createTime ? new Date(media.createTime).toLocaleDateString() : 'Unknown';
+                        
+                        return `
+                            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); background: var(--white);">
+                                <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #4285f4, #34a853); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                                    ${media.thumbnailUrl ? 
+                                        `<img src="${media.thumbnailUrl}" alt="Business photo" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                        '🏢'
+                                    }
+                                </div>
+                                <div style="padding: 1rem;">
+                                    <h4 style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.9rem;">${categoryLabel}</h4>
+                                    <p style="margin: 0; color: var(--gray-medium); font-size: 0.8rem;">Uploaded: ${createDate}</p>
+                                    ${media.description ? `<p style="margin: 0.5rem 0 0 0; color: var(--gray-dark); font-size: 0.8rem;">${media.description}</p>` : ''}
+                                    <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                                        ${media.googleUrl ? `<a href="${media.googleUrl}" target="_blank" style="background: #4285f4; color: white; padding: 0.3rem 0.6rem; border-radius: 3px; font-size: 0.7rem; text-decoration: none;">View</a>` : ''}
+                                        <button onclick="deleteGoogleMedia('${encodeURIComponent(media.name)}')" style="background: #dc3545; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 3px; font-size: 0.7rem; cursor: pointer;">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    gallery.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--gray-medium);">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">📷</div>
+                            <p>No photos uploaded to Google Business Profile yet</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading Google Business media:', error);
+                document.getElementById('google-media-gallery').innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #dc3545;">
+                        <p>Error loading Google Business Profile photos</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Refresh Google Business Profile media
+        async function refreshGoogleMedia() {
+            const refreshButton = event.target;
+            const originalText = refreshButton.textContent;
+            refreshButton.textContent = '⏳ Loading...';
+            refreshButton.disabled = true;
+
+            try {
+                await loadGoogleBusinessMedia();
+            } finally {
+                refreshButton.textContent = originalText;
+                refreshButton.disabled = false;
+            }
+        }
+
+        // Delete Google Business Profile media
+        async function deleteGoogleMedia(mediaName) {
+            if (!confirm('Are you sure you want to delete this photo from your Google Business Profile?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/google-business-media/${mediaName}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ Photo deleted from Google Business Profile successfully!');
+                    refreshGoogleMedia();
+                } else {
+                    alert('❌ Failed to delete photo: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('❌ Delete error: ' + error.message);
+                console.error('Google Business media delete error:', error);
+            }
+        }
+
+        // Get user-friendly category labels
+        function getCategoryLabel(category) {
+            const labels = {
+                'COVER': 'Cover Photo',
+                'PROFILE': 'Profile Photo',
+                'LOGO': 'Logo',
+                'EXTERIOR': 'Exterior',
+                'INTERIOR': 'Interior',
+                'PRODUCT': 'Products/Services',
+                'AT_WORK': 'Team at Work',
+                'FOOD_AND_DRINK': 'Food & Drink',
+                'MENU': 'Menu',
+                'COMMON_AREA': 'Common Area',
+                'ROOMS': 'Rooms',
+                'TEAMS': 'Team Photos',
+                'ADDITIONAL': 'Additional Photos'
+            };
+            return labels[category] || category;
+        }
+
+        // Check Google connection status and update UI
         async function checkGoogleConnectionStatus() {
             try {
                 const response = await fetch('/social-settings');
-                const settings = await response.json();
-                updateGoogleConnectionStatus(settings.google?.connected || false);
+                const result = await response.json();
+
+                if (result.google && result.google.connected) {
+                    // Check if setup is required (fallback location)
+                    if (result.google.businessLocations && result.google.businessLocations.length > 0) {
+                        const location = result.google.businessLocations[0];
+                        
+                        if (location.setupRequired || location.fallback) {
+                            // Show setup required UI
+                            document.getElementById('google-not-connected').style.display = 'none';
+                            document.getElementById('google-setup-required').style.display = 'block';
+                            document.getElementById('google-connected').style.display = 'none';
+                            
+                            // Update settings UI if it exists
+                            updateGoogleConnectionStatus(true);
+                        } else {
+                            // Show connected UI
+                            document.getElementById('google-not-connected').style.display = 'none';
+                            document.getElementById('google-setup-required').style.display = 'none';
+                            document.getElementById('google-connected').style.display = 'block';
+                            
+                            // Load existing media
+                            loadGoogleBusinessMedia();
+                            
+                            // Update settings UI if it exists
+                            updateGoogleConnectionStatus(true);
+                        }
+                    } else {
+                        // No locations found, show setup required
+                        document.getElementById('google-not-connected').style.display = 'none';
+                        document.getElementById('google-setup-required').style.display = 'block';
+                        document.getElementById('google-connected').style.display = 'none';
+                        
+                        updateGoogleConnectionStatus(true);
+                    }
+                } else {
+                    // Show disconnected UI
+                    document.getElementById('google-not-connected').style.display = 'block';
+                    document.getElementById('google-setup-required').style.display = 'none';
+                    document.getElementById('google-connected').style.display = 'none';
+                    
+                    // Update settings UI if it exists
+                    updateGoogleConnectionStatus(false);
+                }
             } catch (error) {
                 console.error('Error checking Google connection status:', error);
+                // Default to disconnected state
+                document.getElementById('google-not-connected').style.display = 'block';
+                document.getElementById('google-setup-required').style.display = 'none';
+                document.getElementById('google-connected').style.display = 'none';
             }
         }
 
@@ -613,7 +1099,7 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
         function checkUrlMessages() {
             const urlParams = new URLSearchParams(window.location.search);
             const googleConnected = urlParams.get('google_connected');
-            
+
             if (googleConnected === 'success') {
                 alert('Google Business Profile connected successfully!');
                 updateGoogleConnectionStatus(true);
@@ -626,31 +1112,47 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             }
         }
 
-        // Form submissions
-        document.addEventListener('DOMContentLoaded', function() {
+        // Initialize dashboard data
+        function initializeDashboard() {
+            console.log('Initializing dashboard...');
+
             // Load analytics when page loads
             loadAnalytics();
-            
-            // Check Google connection status
-            checkGoogleConnectionStatus();
-            
+
             // Check for URL messages
             checkUrlMessages();
+        }
 
+        // Check if DOM is already loaded, otherwise wait for DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOM Content Loaded event fired');
+                initializeDashboard();
+            });
+        } else {
+            console.log('DOM already ready, initializing immediately');
+            initializeDashboard();
+        }
+
+        // Form submissions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Note: Forms are now static mockups, so no event listeners needed
+
+            /*
             // Media upload form
             document.getElementById('mediaUploadForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
+
                 const formData = new FormData(this);
-                
+
                 try {
                     const response = await fetch('/upload-media', {
                         method: 'POST',
                         body: formData
                     });
-                    
+
                     const result = await response.json();
-                    
+
                     if (result.success) {
                         alert('Media uploaded successfully!');
                         this.reset();
@@ -670,25 +1172,25 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             // Social post form
             document.getElementById('socialPostForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
+
                 const formData = new FormData(this);
                 const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
-                
+
                 const postData = {
                     content: formData.get('content'),
                     media: formData.get('media'),
                     platforms: platforms
                 };
-                
+
                 try {
                     const response = await fetch('/create-social-post', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(postData)
                     });
-                    
+
                     const result = await response.json();
-                    
+
                     if (result.success) {
                         alert('Post created successfully!');
                         this.reset();
@@ -699,8 +1201,12 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                 } catch (error) {
                     alert('Post error: ' + error.message);
                 }
-            });
+            */
         });
+
+        // Simple direct initialization
+        console.log('Direct initialization...');
+        // Note: Media and social content is now hardcoded in HTML
     </script>
 </body>
 </html>

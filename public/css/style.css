@@ -425,49 +425,43 @@ footer {
   }
 }
 
-/* Dashboard tab styles */
-.dashboard-tabs {
-  display: flex;
-  border-bottom: 2px solid #e2e8f0;
-  margin-bottom: 2rem;
-  overflow-x: auto;
-}
-
-.tab-button {
-  padding: 1rem 2rem;
-  border: none;
-  background: none;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  color: #64748b;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: all 0.3s ease;
-}
-
-.tab-button:hover {
-  color: #2563eb;
-}
-
-.tab-button.active {
-  border-bottom-color: #2563eb;
-  color: #2563eb;
-  font-weight: 600;
-}
-
+/* Tab content visibility */
 .tab-content {
-  width: 100%;
-  min-height: 400px;
-  height: auto;
-  padding: 1rem 0;
-  display: none;
-  visibility: visible;
-  opacity: 1;
-  overflow: visible;
+    display: none; /* Hide all tabs by default */
 }
 
 .tab-content.active {
-  display: block;
+    display: block; /* Only show active tab */
+}
+
+/* Tab button styling */
+.dashboard-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.tab-button {
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #64748b;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    font-weight: 600;
+}
+
+.tab-button:hover {
+    color: #2563eb;
+    background: #f1f5f9;
 }
 
 @media (max-width: 480px) {
