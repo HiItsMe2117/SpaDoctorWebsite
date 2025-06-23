@@ -81,3 +81,4 @@ SpaDoctorsWebsite/
 │   └── blog.ejs          # Blog page
 └── uploads/              # Uploaded gallery images
 ```
+# Updated Mon Jun 23 12:48:22 MDT 2025
