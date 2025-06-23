@@ -1,0 +1,24 @@
+{
+  "watch": [
+    "server.js",
+    "views/",
+    "public/",
+    "utils/",
+    "package.json"
+  ],
+  "ignore": [
+    "data/",
+    "uploads/",
+    "node_modules/",
+    "*.log",
+    ".env",
+    ".git/",
+    "README.md",
+    "DEPLOYMENT.md"
+  ],
+  "ext": "js,json,ejs,css",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "delay": 1000
+}

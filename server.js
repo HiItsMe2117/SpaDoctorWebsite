@@ -10,6 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
 const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios');
+const dataManager = require('./utils/dataManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -40,49 +41,31 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-let blogPosts = [
-  {
-    id: Date.now() + 1,
-    title: "Essential Hot Tub Maintenance: Your Monthly Checklist",
-    content: "Regular maintenance is the key to trouble-free hot tub ownership. A consistent routine prevents problems, extends equipment life, and ensures safe, clean water.\n\n## Weekly Tasks (5-10 minutes)\n\n**Water Testing & Chemical Balance**\n- Test pH, alkalinity, and sanitizer levels\n- Adjust chemicals as needed\n- Add shock treatment after heavy use\n- Check water level and top off if needed\n\n**Visual Inspection**\n- Check for debris in water or on surfaces\n- Verify all jets are functioning properly\n- Ensure spa cover is in good condition\n\n## Monthly Deep Maintenance (30-45 minutes)\n\n**Filter Care**\n- Remove and rinse cartridge filters\n- Rotate filter sets if you have spares\n- Replace filters every 12-18 months\n\n**Spa Shell Cleaning**\n- Wipe down surfaces with spa-safe cleaner\n- Clean waterline to remove oils and residue\n- Check jet faces for buildup\n\n**Cover Maintenance**\n- Clean both sides with mild soap\n- Condition vinyl with UV protectant\n- Check locks and hinges\n\n## Quarterly Tasks (1-2 hours)\n\n**Complete Water Change**\nDenver's hard water requires more frequent changes:\n- Drain spa completely\n- Clean shell thoroughly\n- Inspect plumbing for leaks\n- Refill and balance chemistry\n\n## Denver-Specific Considerations\n\n**Hard Water Management**\n- Use calcium hardness reducers monthly\n- Clean scale buildup regularly\n- Monitor for white residue\n\n**Altitude Effects**\n- Chemicals behave differently at 5,280 feet\n- UV exposure breaks down sanitizers faster\n- Equipment works harder at altitude\n\n## When to Call Professionals\n\nContact Spa Doctors for:\n- Persistent water chemistry problems\n- Unusual equipment noises\n- Heating issues or error codes\n- Any safety concerns\n\n**Need professional maintenance help? Spa Doctors offers comprehensive services throughout Denver. Call (856) 266-7293 for expert assistance.**",
-    date: new Date('2024-12-21')
-  },
-  {
-    id: Date.now() + 2,
-    title: "Common Hot Tub Problems and Quick Troubleshooting",
-    content: "Every hot tub owner encounters issues. While some problems need professional repair, many have simple solutions you can try first. Here's your guide to basic troubleshooting.\n\n## Water Issues\n\n**Cloudy Water**\nFirst steps: Test water chemistry (pH, alkalinity, sanitizer). Adjust levels and run filtration for several hours. Clean or replace dirty filters.\n\nCall professionals if: Water stays cloudy after 24-48 hours.\n\n**Foamy Water**\nQuick fix: Usually soap residue from lotions or body products. Shock treat and ensure bathers rinse before entering.\n\nCall professionals if: Foam persists or appears oily.\n\n**Green or Discolored Water**\nImmediate action: Stop using spa immediately. Indicates algae or metal contamination. Test and shock water.\n\nCall professionals if: You're uncomfortable with chemicals or discoloration returns.\n\n## Temperature Problems\n\n**Not Heating**\nCheck: Spa is in filter mode, temperature set higher than current, filters aren't clogged.\n\nCall professionals if: These steps don't work - likely electrical/pump issues.\n\n**Overheating**\nSafety first: Turn off power immediately. Check for blocked vents or dirty filters.\n\nCall professionals if: Frequent overheating indicates serious mechanical problems.\n\n## Pump and Flow Issues\n\n**Weak Water Flow**\nTry: Clean filter cartridges thoroughly. Check skimmer basket for debris.\n\nCall professionals if: Flow remains weak - could be pump problems.\n\n**Noisy Operation**\nListen: Grinding, squealing, rattling sounds need immediate attention.\n\nCall professionals if: Any unusual noises - continuing can cause expensive damage.\n\n## Denver-Specific Issues\n\n**Altitude Effects**\nColorado elevation affects pump performance. What seems broken might be normal at 5,280 feet.\n\n**Hard Water Effects**\nScale buildup affects jets and heating elements. Regular descaling prevents \"mechanical\" problems.\n\n## Safety Rules\n\n- Never attempt electrical repairs yourself\n- Don't ignore strange smells or sounds\n- When in doubt, turn off power and call professionals\n- Don't use spa with questionable water quality\n\n**Experiencing persistent problems? Spa Doctors provides expert diagnosis and repair in Denver. Call (856) 266-7293 for professional help.**",
-    date: new Date('2024-12-21')
-  },
-  {
-    id: Date.now() + 3,
-    title: "Hot Tub Water Chemistry 101: The Denver Owner's Guide",
-    content: "Proper hot tub water chemistry is essential for safe soaking and protecting your equipment. Denver's water conditions and altitude require special attention.\n\n## Water Chemistry Basics\n\n**pH Levels (7.2-7.6 ideal)**\nMeasures how acidic or basic your water is. Too low = equipment corrosion and skin irritation. Too high = ineffective sanitizers and cloudy water.\n\n**Total Alkalinity (80-120 ppm)**\nActs as pH buffer, preventing wild swings. Denver's high alkaline water requires closer monitoring.\n\n**Sanitizer Levels**\n- Chlorine: 1-3 ppm\n- Bromine: 2-4 ppm\nKills bacteria and keeps water safe. At Denver's altitude, chlorine dissipates faster due to UV exposure.\n\n## Denver-Specific Challenges\n\n**Hard Water Issues**\nDenver water is naturally hard (high calcium), causing scale buildup. Regular calcium hardness testing (150-300 ppm) is crucial.\n\n**Altitude Effects**\nAt 5,280 feet, chemicals behave differently. You may need adjusted dosing and more frequent testing.\n\n**Seasonal Changes**\nColorado's temperature extremes affect chemical consumption. Winter heating and summer UV impact chemistry differently than sea level.\n\n## Testing Schedule\n\n- **2-3 times weekly**: pH and sanitizer\n- **Weekly**: Alkalinity and calcium hardness\n- **Monthly**: Total dissolved solids\n\n## When to Call Professionals\n\nContact experts for:\n- Persistent cloudy/foamy water despite proper chemistry\n- Unusual odors or skin irritation\n- Equipment corrosion or scale damage\n- If uncomfortable handling chemicals\n\n## Denver Pro Tips\n\n1. Test before/after heavy use\n2. Keep chemicals covered - UV breaks down chlorine faster\n3. Monitor after storms - pressure changes affect balance\n4. Invest in quality testing equipment\n\n**Need help with water chemistry issues? Spa Doctors offers professional testing and treatment in Denver. Call (856) 266-7293 for expert assistance.**",
-    date: new Date('2024-12-21')
-  }
-];
+// Data storage variables - loaded from persistent storage
+let blogPosts = [];
 let galleryImages = [];
-
-// Enhanced analytics tracking
-let analytics = {
-  // Blog analytics
-  blogPageViews: {},
-  articleExpansions: {},
-  
-  // Business analytics
-  contactSubmissions: [],
-  pageViews: {},
-  customerJourneys: {},
-  servicePageViews: {},
-  
-  // Performance metrics
-  dailyStats: {}
-};
-
-// Media library storage
+let analytics = {};
 let mediaLibrary = [];
-
-// Social media posts storage
 let socialPosts = [];
+
+// Initialize data on server start
+async function initializeData() {
+  try {
+    console.log('Loading persistent data...');
+    blogPosts = await dataManager.loadBlogPosts();
+    galleryImages = await dataManager.loadGalleryImages();
+    analytics = await dataManager.loadAnalytics();
+    mediaLibrary = await dataManager.loadMediaLibrary();
+    socialPosts = await dataManager.loadSocialPosts();
+    
+    console.log(`Loaded: ${blogPosts.length} blog posts, ${galleryImages.length} gallery images, ${mediaLibrary.length} media items, ${socialPosts.length} social posts`);
+    
+    // Create backup on startup
+    await dataManager.createBackup();
+  } catch (error) {
+    console.error('Error initializing data:', error);
+  }
+}
 
 // Social media platform settings
 let socialSettings = {
@@ -372,6 +355,9 @@ app.post('/contact', async (req, res) => {
   
   analytics.contactSubmissions.push(submissionData);
   
+  // Save analytics data
+  await dataManager.saveAnalytics(analytics);
+  
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: process.env.BUSINESS_EMAIL || process.env.EMAIL_USER,
@@ -398,13 +384,18 @@ app.post('/contact', async (req, res) => {
   }
 });
 
-app.post('/upload-image', upload.single('image'), (req, res) => {
+app.post('/upload-image', upload.single('image'), async (req, res) => {
   if (req.file) {
-    galleryImages.push({
+    const newImage = {
       filename: req.file.filename,
       originalname: req.file.originalname,
       uploadDate: new Date()
-    });
+    };
+    galleryImages.push(newImage);
+    
+    // Save gallery images
+    await dataManager.saveGalleryImages(galleryImages);
+    
     res.json({ success: true, message: 'Image uploaded successfully!' });
   } else {
     res.json({ success: false, message: 'Failed to upload image.' });
@@ -476,6 +467,9 @@ app.post('/upload-media', mediaUpload.array('mediaFiles', 5), async (req, res) =
       uploadedFiles.push(mediaItem);
     }
 
+    // Save media library
+    await dataManager.saveMediaLibrary(mediaLibrary);
+
     res.json({ 
       success: true, 
       message: `${uploadedFiles.length} file(s) uploaded successfully!`,
@@ -516,6 +510,10 @@ app.delete('/media/:id', async (req, res) => {
 
     // Remove from library
     mediaLibrary.splice(mediaIndex, 1);
+    
+    // Save media library
+    await dataManager.saveMediaLibrary(mediaLibrary);
+    
     res.json({ success: true, message: 'Media deleted successfully' });
   } catch (error) {
     console.error('Media deletion error:', error);
@@ -617,10 +615,10 @@ app.post('/create-social-post', (req, res, next) => {
           console.log('Google Business posting result:', results.google);
           break;
         case 'facebook':
-          results.facebook = await simulateFacebookPost(post);
+          results.facebook = await postToFacebook(post);
           break;
         case 'instagram':
-          results.instagram = await simulateInstagramPost(post);
+          results.instagram = await postToInstagram(post);
           break;
       }
     }
@@ -628,6 +626,9 @@ app.post('/create-social-post', (req, res, next) => {
     post.platformResults = results;
     post.status = 'published';
     socialPosts.unshift(post);
+    
+    // Save social posts
+    await dataManager.saveSocialPosts(socialPosts);
 
     res.json({ 
       success: true, 
@@ -671,34 +672,30 @@ app.post('/social-settings', (req, res) => {
   }
 });
 
-// Simulated social media posting functions (replace with real APIs later)
-async function simulateGoogleBusinessPost(post) {
-  // Simulate Google Business Profile posting
-  return {
-    platform: 'google',
-    success: true,
-    postId: 'gb_' + Date.now(),
-    message: 'Posted to Google Business Profile'
-  };
-}
-
-async function simulateFacebookPost(post) {
-  // Simulate Facebook posting
+// Real social media posting functions - ready for API integration
+async function postToFacebook(post) {
+  // TODO: Implement Facebook Graph API posting
+  // Requires: Facebook Page Access Token, Facebook App ID
+  console.log('Facebook posting not yet implemented - requires Facebook Graph API setup');
   return {
     platform: 'facebook',
-    success: true,
-    postId: 'fb_' + Date.now(),
-    message: 'Posted to Facebook Page'
+    success: false,
+    error: 'Facebook API not configured',
+    message: 'Please configure Facebook Graph API credentials',
+    setupRequired: true
   };
 }
 
-async function simulateInstagramPost(post) {
-  // Simulate Instagram posting
+async function postToInstagram(post) {
+  // TODO: Implement Instagram Basic Display API posting
+  // Requires: Instagram Business Account, Facebook Graph API
+  console.log('Instagram posting not yet implemented - requires Instagram Business API setup');
   return {
     platform: 'instagram',
-    success: true,
-    postId: 'ig_' + Date.now(),
-    message: 'Posted to Instagram'
+    success: false,
+    error: 'Instagram API not configured',
+    message: 'Please configure Instagram Business API credentials',
+    setupRequired: true
   };
 }
 
@@ -1528,6 +1525,9 @@ async function getGoogleBusinessMedia() {
 // Serve uploaded media files
 app.use('/uploads/media', express.static(path.join(__dirname, 'uploads/media')));
 app.use('/uploads/thumbnails', express.static(path.join(__dirname, 'uploads/thumbnails')));
+
+// Initialize data on server start
+initializeData();
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {

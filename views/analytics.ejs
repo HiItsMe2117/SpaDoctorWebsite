@@ -68,21 +68,21 @@
                         <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
                             <div style="color: var(--primary-blue); font-size: 2.5rem; margin-bottom: 0.5rem;">📞</div>
                             <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">Total Contacts</h3>
-                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">25</div>
+                            <div id="total-contacts" style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">0</div>
                             <p style="color: var(--gray-medium); margin-top: 0.5rem;">Customer inquiries</p>
                         </div>
                         
                         <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
                             <div style="color: var(--primary-blue); font-size: 2.5rem; margin-bottom: 0.5rem;">📊</div>
                             <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">Blog Views</h3>
-                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">1,240</div>
+                            <div id="total-blog-views" style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">0</div>
                             <p style="color: var(--gray-medium); margin-top: 0.5rem;">Page visits</p>
                         </div>
                         
                         <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
                             <div style="color: var(--primary-blue); font-size: 2.5rem; margin-bottom: 0.5rem;">📖</div>
                             <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">Article Reads</h3>
-                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">89</div>
+                            <div id="total-expansions" style="font-size: 2.5rem; font-weight: bold; color: var(--gray-dark);">0</div>
                             <p style="color: var(--gray-medium); margin-top: 0.5rem;">Engagements</p>
                         </div>
                     </div>
@@ -91,26 +91,8 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
                         <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
                             <h3 style="color: var(--gray-dark); margin-bottom: 1.5rem; font-size: 1.3rem;">🔧 Service Requests</h3>
-                            <div style="border-left: 4px solid var(--primary-blue); padding: 1rem; margin-bottom: 1rem; background: var(--gray-light); border-radius: 5px;">
-                                <h4 style="color: var(--gray-dark); margin-bottom: 0.5rem;">Hot Tub Repairs</h4>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: var(--gray-medium);">This month</span>
-                                    <span style="font-weight: bold; color: var(--primary-blue);">12 requests</span>
-                                </div>
-                            </div>
-                            <div style="border-left: 4px solid var(--primary-blue); padding: 1rem; margin-bottom: 1rem; background: var(--gray-light); border-radius: 5px;">
-                                <h4 style="color: var(--gray-dark); margin-bottom: 0.5rem;">Cleaning Services</h4>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: var(--gray-medium);">This month</span>
-                                    <span style="font-weight: bold; color: var(--primary-blue);">8 requests</span>
-                                </div>
-                            </div>
-                            <div style="border-left: 4px solid var(--primary-blue); padding: 1rem; background: var(--gray-light); border-radius: 5px;">
-                                <h4 style="color: var(--gray-dark); margin-bottom: 0.5rem;">Transport Services</h4>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: var(--gray-medium);">This month</span>
-                                    <span style="font-weight: bold; color: var(--primary-blue);">5 requests</span>
-                                </div>
+                            <div id="service-requests">
+                                <!-- Dynamic service request data will load here -->
                             </div>
                         </div>
                         
@@ -250,42 +232,13 @@
                             <input type="text" placeholder="Search media..." style="padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: 5px; flex: 1;">
                         </div>
                         
-                        <!-- Media Grid -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
-                            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease; background: var(--white);">
-                                <div style="width: 100%; height: 150px; background: linear-gradient(135deg, var(--primary-blue), var(--light-blue)); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 2rem;">📸</div>
-                                <div style="padding: 1rem;">
-                                    <h4 style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.9rem;">Hot Tub Installation</h4>
-                                    <p style="margin: 0; color: var(--gray-medium); font-size: 0.8rem;">Uploaded: Dec 23, 2024</p>
-                                    <div style="margin-top: 0.5rem;">
-                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; margin-right: 0.3rem;">repair</span>
-                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">before</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease; background: var(--white);">
-                                <div style="width: 100%; height: 150px; background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue)); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 2rem;">🎥</div>
-                                <div style="padding: 1rem;">
-                                    <h4 style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.9rem;">Cleaning Process</h4>
-                                    <p style="margin: 0; color: var(--gray-medium); font-size: 0.8rem;">Uploaded: Dec 22, 2024</p>
-                                    <div style="margin-top: 0.5rem;">
-                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; margin-right: 0.3rem;">cleaning</span>
-                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">tutorial</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease; background: var(--white);">
-                                <div style="width: 100%; height: 150px; background: linear-gradient(135deg, var(--light-blue), var(--primary-blue)); display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 2rem;">📷</div>
-                                <div style="padding: 1rem;">
-                                    <h4 style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.9rem;">Maintenance Tips</h4>
-                                    <p style="margin: 0; color: var(--gray-medium); font-size: 0.8rem;">Uploaded: Dec 21, 2024</p>
-                                    <div style="margin-top: 0.5rem;">
-                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; margin-right: 0.3rem;">maintenance</span>
-                                        <span style="background: var(--gray-light); color: var(--gray-dark); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">tips</span>
-                                    </div>
-                                </div>
+                        <!-- Media Grid (Dynamic) -->
+                        <div id="media-library-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
+                            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--gray-medium); background: var(--gray-light); border-radius: 8px;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                                <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">No Media Uploaded Yet</h4>
+                                <p style="margin-bottom: 1.5rem;">Upload photos and videos above to build your media library!</p>
+                                <p style="font-size: 0.9rem;">Media files will be organized and accessible for social media posts.</p>
                             </div>
                         </div>
                     </div>
@@ -342,51 +295,13 @@
                     <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
                         <h3 style="color: var(--primary-blue); margin-bottom: 1.5rem; font-size: 1.3rem;">Recent Posts</h3>
                         
-                        <!-- Sample Posts -->
-                        <div style="display: grid; gap: 1.5rem;">
-                            <div style="border-left: 4px solid var(--primary-blue); padding: 1.5rem; background: var(--gray-light); border-radius: 8px;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                                    <h4 style="margin: 0; color: var(--gray-dark); line-height: 1.4;">Just completed another successful hot tub repair in Denver! Our team restored this family's relaxation paradise in just 2 hours. 🛁✨</h4>
-                                    <span style="color: var(--gray-medium); font-size: 0.8rem; white-space: nowrap; margin-left: 1rem;">Dec 23, 2024</span>
-                                </div>
-                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">🏢 Google Business</span>
-                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">📘 Facebook</span>
-                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">📷 Instagram</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="color: var(--primary-blue); font-size: 0.9rem; font-weight: 500;">✅ Published Successfully</span>
-                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">12 engagements</span>
-                                </div>
-                            </div>
-                            
-                            <div style="border-left: 4px solid var(--primary-blue); padding: 1.5rem; background: var(--gray-light); border-radius: 8px;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                                    <h4 style="margin: 0; color: var(--gray-dark); line-height: 1.4;">Winter hot tub maintenance tips: Keep your spa running smoothly through the cold months! Check out our latest blog post for expert advice. ❄️🔧</h4>
-                                    <span style="color: var(--gray-medium); font-size: 0.8rem; white-space: nowrap; margin-left: 1rem;">Dec 22, 2024</span>
-                                </div>
-                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">🏢 Google Business</span>
-                                    <span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">📘 Facebook</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="color: var(--primary-blue); font-size: 0.9rem; font-weight: 500;">✅ Published Successfully</span>
-                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">8 engagements</span>
-                                </div>
-                            </div>
-                            
-                            <div style="border-left: 4px solid #f59e0b; padding: 1.5rem; background: #fffbeb; border-radius: 8px;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                                    <h4 style="margin: 0; color: var(--gray-dark); line-height: 1.4;">🎄 Holiday Special: 20% off all hot tub cleaning services this December! Book now to start the new year with a sparkling clean spa. Call (856) 266-7293!</h4>
-                                    <span style="color: var(--gray-medium); font-size: 0.8rem; white-space: nowrap; margin-left: 1rem;">Dec 21, 2024</span>
-                                </div>
-                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                                    <span style="background: var(--white); color: #f59e0b; padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">🏢 Google Business</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="color: #f59e0b; font-size: 0.9rem; font-weight: 500;">⏰ Scheduled for Dec 25, 2024</span>
-                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">Pending</span>
-                                </div>
+                        <!-- Recent Posts (Dynamic) -->
+                        <div id="recent-posts-container" style="display: grid; gap: 1.5rem;">
+                            <div style="text-align: center; padding: 3rem; color: var(--gray-medium); background: var(--gray-light); border-radius: 8px;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">📱</div>
+                                <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">No Social Media Posts Yet</h4>
+                                <p style="margin-bottom: 1.5rem;">Create your first social media post above to see it appear here!</p>
+                                <p style="font-size: 0.9rem;">Posts will show engagement metrics and platform status once created.</p>
                             </div>
                         </div>
                     </div>
@@ -676,6 +591,8 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                 loadAnalytics();
             } else if (tabName === 'media') {
                 checkGoogleConnectionStatus();
+            } else if (tabName === 'social') {
+                loadRecentPosts();
             }
         }
 
@@ -702,9 +619,65 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             console.log('Media for social loading disabled - using hardcoded content');
         }
 
-        // Load recent social posts - DISABLED (using hardcoded content)
+        // Load recent social posts from API
         async function loadRecentPosts() {
-            console.log('Recent posts loading disabled - using hardcoded content');
+            try {
+                const response = await fetch('/social-posts');
+                const posts = await response.json();
+                
+                const container = document.getElementById('recent-posts-container');
+                
+                if (posts.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: var(--gray-medium); background: var(--gray-light); border-radius: 8px;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📱</div>
+                            <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">No Social Media Posts Yet</h4>
+                            <p style="margin-bottom: 1.5rem;">Create your first social media post above to see it appear here!</p>
+                            <p style="font-size: 0.9rem;">Posts will show engagement metrics and platform status once created.</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = posts.map(post => {
+                        const postDate = new Date(post.createdAt).toLocaleDateString();
+                        const platformBadges = post.platforms.map(platform => {
+                            const platformInfo = {
+                                google: { icon: '🏢', name: 'Google Business' },
+                                facebook: { icon: '📘', name: 'Facebook' },
+                                instagram: { icon: '📷', name: 'Instagram' }
+                            };
+                            const info = platformInfo[platform] || { icon: '📱', name: platform };
+                            return `<span style="background: var(--white); color: var(--primary-blue); padding: 0.3rem 0.7rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500;">${info.icon} ${info.name}</span>`;
+                        }).join('');
+                        
+                        const statusInfo = post.status === 'published' 
+                            ? { color: 'var(--primary-blue)', text: '✅ Published Successfully' }
+                            : { color: '#f59e0b', text: '⏰ Scheduled' };
+                            
+                        return `
+                            <div style="border-left: 4px solid var(--primary-blue); padding: 1.5rem; background: var(--gray-light); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                    <h4 style="margin: 0; color: var(--gray-dark); line-height: 1.4;">${post.content}</h4>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem; white-space: nowrap; margin-left: 1rem;">${postDate}</span>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                                    ${platformBadges}
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: ${statusInfo.color}; font-size: 0.9rem; font-weight: 500;">${statusInfo.text}</span>
+                                    <span style="color: var(--gray-medium); font-size: 0.8rem;">${post.analytics?.views || 0} views</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error loading recent posts:', error);
+                document.getElementById('recent-posts-container').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #dc3545;">
+                        <p>Error loading recent posts. Please try again.</p>
+                    </div>
+                `;
+            }
         }
 
         // Social media connection functions
