@@ -187,6 +187,18 @@ app.get('/blog', (req, res) => {
   res.render('blog', { posts: blogPosts });
 });
 
+// Serve sitemap.xml with proper content-type
+app.get('/sitemap.xml', (req, res) => {
+  res.setHeader('Content-Type', 'application/xml');
+  res.sendFile(path.join(__dirname, 'public/sitemap.xml'));
+});
+
+// Serve robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.sendFile(path.join(__dirname, 'public/robots.txt'));
+});
+
 // Analytics tracking endpoints
 app.post('/track-article-expansion', (req, res) => {
   const { articleTitle } = req.body;
