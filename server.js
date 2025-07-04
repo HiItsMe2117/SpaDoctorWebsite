@@ -84,6 +84,48 @@ function sanitizeContent(content) {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Helper function for formatting blog content
+app.locals.formatArticleContent = function(content) {
+  return content
+    // Convert **bold** to <strong> tags
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Convert section headers (lines that end with colon)
+    .replace(/^(.+):$/gm, '<h3>$1</h3>')
+    // Split into paragraphs and wrap in <p> tags
+    .split('\n\n')
+    .map(paragraph => {
+      paragraph = paragraph.trim();
+      if (!paragraph) return '';
+      
+      // Don't wrap headings in paragraphs
+      if (paragraph.startsWith('<h')) {
+        return paragraph;
+      }
+      
+      // Handle bullet points
+      if (paragraph.includes('\n-')) {
+        const lines = paragraph.split('\n');
+        const firstLine = lines[0];
+        const bullets = lines.slice(1).filter(line => line.trim().startsWith('-'));
+        
+        let html = firstLine ? `<p>${firstLine.replace(/\n/g, '<br>')}</p>` : '';
+        if (bullets.length > 0) {
+          html += '<ul>';
+          bullets.forEach(bullet => {
+            const text = bullet.replace(/^-\s*/, '').trim();
+            if (text) html += `<li>${text}</li>`;
+          });
+          html += '</ul>';
+        }
+        return html;
+      }
+      
+      // Regular paragraph
+      return `<p>${paragraph.replace(/\n/g, '<br>')}</p>`;
+    })
+    .join('');
+};
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -222,6 +264,31 @@ app.get('/blog', (req, res) => {
   analytics.blogPageViews[today]++;
   
   res.render('blog', { posts: blogPosts });
+});
+
+// Individual blog post route
+app.get('/blog/:id', (req, res) => {
+  const postId = parseInt(req.params.id);
+  const post = blogPosts.find(p => p.id === postId);
+  
+  if (!post) {
+    return res.status(404).render('404', { 
+      title: 'Blog Post Not Found',
+      message: 'The blog post you are looking for does not exist.' 
+    });
+  }
+  
+  // Track individual article view
+  const today = new Date().toISOString().split('T')[0];
+  if (!analytics.articleExpansions[today]) {
+    analytics.articleExpansions[today] = {};
+  }
+  if (!analytics.articleExpansions[today][post.title]) {
+    analytics.articleExpansions[today][post.title] = 0;
+  }
+  analytics.articleExpansions[today][post.title]++;
+  
+  res.render('blog-post', { post });
 });
 
 // Admin routes
