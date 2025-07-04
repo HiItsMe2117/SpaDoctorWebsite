@@ -156,6 +156,35 @@ let analytics = {};
 let mediaLibrary = [];
 let socialPosts = [];
 
+// Category definitions
+const blogCategories = {
+  "maintenance-care": {
+    name: "Maintenance & Care",
+    description: "Regular upkeep, cleaning, and preventive care for your hot tub",
+    icon: "🧽"
+  },
+  "troubleshooting-repair": {
+    name: "Troubleshooting & Repair", 
+    description: "Common problems, repairs, and diagnostic guides",
+    icon: "🔧"
+  },
+  "safety-electrical": {
+    name: "Safety & Electrical",
+    description: "Safety tips, electrical guidelines, and code compliance", 
+    icon: "⚡"
+  },
+  "seasonal-moving": {
+    name: "Seasonal & Moving",
+    description: "Winter care, transport, and seasonal preparation",
+    icon: "🚚"
+  },
+  "professional-services": {
+    name: "Professional Services",
+    description: "When to call experts and professional service information",
+    icon: "👨‍🔧"
+  }
+};
+
 // Initialize data on server start
 async function initializeData() {
   try {
@@ -263,7 +292,41 @@ app.get('/blog', (req, res) => {
   }
   analytics.blogPageViews[today]++;
   
-  res.render('blog', { posts: blogPosts });
+  const selectedCategory = req.query.category;
+  let filteredPosts = blogPosts;
+  
+  if (selectedCategory && blogCategories[selectedCategory]) {
+    filteredPosts = blogPosts.filter(post => post.category === selectedCategory);
+  }
+  
+  res.render('blog', { 
+    posts: filteredPosts,
+    allPosts: blogPosts,
+    categories: blogCategories,
+    selectedCategory: selectedCategory || null
+  });
+});
+
+// Category route
+app.get('/blog/category/:category', (req, res) => {
+  const category = req.params.category;
+  
+  if (!blogCategories[category]) {
+    return res.status(404).render('404', {
+      title: 'Category Not Found',
+      message: 'The blog category you are looking for does not exist.'
+    });
+  }
+  
+  const filteredPosts = blogPosts.filter(post => post.category === category);
+  
+  res.render('blog', {
+    posts: filteredPosts,
+    allPosts: blogPosts,
+    categories: blogCategories,
+    selectedCategory: category,
+    categoryInfo: blogCategories[category]
+  });
 });
 
 // Individual blog post route

@@ -170,6 +170,14 @@
                 <header class="article-header">
                     <h1 class="article-title"><%= post.title %></h1>
                     <div class="article-meta">
+                        <% if (post.category) { %>
+                            <div style="margin-bottom: 1rem;">
+                                <a href="/blog?category=<%= post.category %>" style="background: #2563eb; color: white; font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: 25px; text-decoration: none; display: inline-flex; align-items: center; transition: background 0.3s;">
+                                    <span style="margin-right: 0.5rem;">🏷️</span>
+                                    View More in This Category
+                                </a>
+                            </div>
+                        <% } %>
                         Published on <%= new Date(post.date).toLocaleDateString('en-US', { 
                             year: 'numeric', 
                             month: 'long', 
