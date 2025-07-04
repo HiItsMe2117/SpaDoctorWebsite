@@ -341,6 +341,107 @@ app.post('/admin/delete-post', requireAdminAuth, (req, res) => {
   });
 });
 
+// Bulk import sample posts
+app.post('/admin/import-sample-posts', requireAdminAuth, async (req, res) => {
+  try {
+    const fs = require('fs').promises;
+    const path = require('path');
+    
+    // Read the sample posts file
+    const samplePostsPath = path.join(__dirname, 'blog-content-ready.json');
+    const sampleData = await fs.readFile(samplePostsPath, 'utf8');
+    const samplePosts = JSON.parse(sampleData);
+    
+    let importCount = 0;
+    
+    // Add each post with proper formatting
+    for (const post of samplePosts) {
+      const newPost = {
+        id: Date.now() + importCount, // Ensure unique IDs
+        title: post.title.trim(),
+        content: sanitizeContent(post.content),
+        date: new Date(),
+        author: 'Spa Doctors'
+      };
+      
+      blogPosts.unshift(newPost);
+      importCount++;
+      
+      // Small delay to ensure unique timestamps
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    
+    // Save to persistent storage
+    await dataManager.saveBlogPosts(blogPosts);
+    
+    res.json({
+      success: true,
+      message: `Successfully imported ${importCount} sample blog posts`,
+      count: importCount
+    });
+    
+  } catch (error) {
+    console.error('Error importing sample posts:', error);
+    res.json({
+      success: false,
+      error: 'Failed to import sample posts. Please try again.'
+    });
+  }
+});
+
+// Bulk import custom posts
+app.post('/admin/bulk-import', requireAdminAuth, async (req, res) => {
+  try {
+    const { posts } = req.body;
+    
+    if (!posts || !Array.isArray(posts)) {
+      return res.json({
+        success: false,
+        error: 'Invalid data format. Expected array of posts.'
+      });
+    }
+    
+    let importCount = 0;
+    
+    // Add each post with proper formatting
+    for (const post of posts) {
+      if (!post.title || !post.content) {
+        continue; // Skip posts without required fields
+      }
+      
+      const newPost = {
+        id: Date.now() + importCount, // Ensure unique IDs
+        title: post.title.trim(),
+        content: sanitizeContent(post.content),
+        date: new Date(),
+        author: post.author || 'Admin'
+      };
+      
+      blogPosts.unshift(newPost);
+      importCount++;
+      
+      // Small delay to ensure unique timestamps
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    
+    // Save to persistent storage
+    await dataManager.saveBlogPosts(blogPosts);
+    
+    res.json({
+      success: true,
+      message: `Successfully imported ${importCount} blog posts`,
+      count: importCount
+    });
+    
+  } catch (error) {
+    console.error('Error in bulk import:', error);
+    res.json({
+      success: false,
+      error: 'Failed to import posts. Please check your data format.'
+    });
+  }
+});
+
 // Serve sitemap.xml with proper content-type
 app.get('/sitemap.xml', (req, res) => {
   res.setHeader('Content-Type', 'application/xml');

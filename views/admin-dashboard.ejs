@@ -199,6 +199,33 @@
             </div>
         </div>
 
+        <div class="add-post-form" style="border: 2px solid #059669; background: #f0f9ff;">
+            <h3>🚀 Quick Start: Import Sample Posts</h3>
+            <p style="color: #64748b; margin-bottom: 1.5rem;">
+                Get your blog up and running instantly with 12 professional hot tub articles. 
+                Perfect for SEO and establishing expertise!
+            </p>
+            
+            <div class="bulk-import-actions" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <button onclick="importSamplePosts()" class="btn-primary" id="importBtn">
+                    📚 Import 12 Sample Posts
+                </button>
+                <button onclick="toggleBulkImport()" class="btn-primary" style="background: #64748b;">
+                    📄 Custom Bulk Import
+                </button>
+            </div>
+
+            <div id="customBulkImport" style="display: none;">
+                <div class="form-group">
+                    <label for="bulkJson">Paste JSON Array of Posts:</label>
+                    <textarea id="bulkJson" rows="8" placeholder='[{"title": "Post Title", "content": "Post content..."}]' style="font-family: monospace; font-size: 0.9rem;"></textarea>
+                </div>
+                <button onclick="importCustomPosts()" class="btn-primary" id="customImportBtn">
+                    Import Custom Posts
+                </button>
+            </div>
+        </div>
+
         <div class="add-post-form">
             <h3>✍️ Add New Blog Post</h3>
             
@@ -335,6 +362,102 @@ Tips for writing great blog content:
                 }
             } catch (error) {
                 showError('Connection error. Please try again.');
+            }
+        }
+
+        // Bulk import functionality
+        function toggleBulkImport() {
+            const customSection = document.getElementById('customBulkImport');
+            customSection.style.display = customSection.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function importSamplePosts() {
+            if (!confirm('This will import 12 sample blog posts. Continue?')) {
+                return;
+            }
+
+            const importBtn = document.getElementById('importBtn');
+            importBtn.disabled = true;
+            importBtn.textContent = 'Importing...';
+
+            try {
+                const response = await fetch('/admin/import-sample-posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess(`Successfully imported ${result.count} blog posts!`);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showError(result.error || 'Failed to import posts');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                importBtn.disabled = false;
+                importBtn.textContent = '📚 Import 12 Sample Posts';
+            }
+        }
+
+        async function importCustomPosts() {
+            const jsonText = document.getElementById('bulkJson').value.trim();
+            
+            if (!jsonText) {
+                showError('Please paste JSON data for import');
+                return;
+            }
+
+            let posts;
+            try {
+                posts = JSON.parse(jsonText);
+                if (!Array.isArray(posts)) {
+                    throw new Error('Data must be an array of posts');
+                }
+            } catch (error) {
+                showError('Invalid JSON format. Please check your data.');
+                return;
+            }
+
+            if (!confirm(`This will import ${posts.length} posts. Continue?`)) {
+                return;
+            }
+
+            const importBtn = document.getElementById('customImportBtn');
+            importBtn.disabled = true;
+            importBtn.textContent = 'Importing...';
+
+            try {
+                const response = await fetch('/admin/bulk-import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ posts })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess(`Successfully imported ${result.count} blog posts!`);
+                    document.getElementById('bulkJson').value = '';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showError(result.error || 'Failed to import posts');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                importBtn.disabled = false;
+                importBtn.textContent = 'Import Custom Posts';
             }
         }
 
