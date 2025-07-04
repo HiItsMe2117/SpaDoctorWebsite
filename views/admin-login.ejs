@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Spa Doctors</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-login {
+            max-width: 400px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .admin-login h2 {
+            text-align: center;
+            color: #2563eb;
+            margin-bottom: 2rem;
+        }
+        .passcode-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .success-message {
+            background: #f0f9ff;
+            color: #2563eb;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background: #1d4ed8;
+        }
+        .login-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .back-link a {
+            color: #64748b;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login">
+        <h2>🔐 Admin Login</h2>
+        
+        <div class="passcode-info">
+            <strong>Daily Passcode Required</strong><br>
+            Enter today's passcode to access the admin panel.<br>
+            Format: SPA#### (e.g., SPA1234)
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="passcode">Enter Today's Passcode:</label>
+                <input type="text" id="passcode" name="passcode" required 
+                       placeholder="SPA####" maxlength="7" autocomplete="off">
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">Login to Admin Panel</button>
+        </form>
+
+        <div class="back-link">
+            <a href="/blog">← Back to Blog</a>
+        </div>
+    </div>
+
+    <script>
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const passcode = document.getElementById('passcode').value.trim().toUpperCase();
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (!passcode) {
+                showError('Please enter a passcode');
+                return;
+            }
+
+            if (!passcode.match(/^SPA\d{4}$/)) {
+                showError('Invalid passcode format. Use SPA#### (e.g., SPA1234)');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+
+            try {
+                const response = await fetch('/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ passcode })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/admin/blog';
+                    }, 1000);
+                } else {
+                    showError(result.error || 'Invalid passcode. Please try again.');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login to Admin Panel';
+            }
+        });
+
+        // Auto-format passcode input
+        document.getElementById('passcode').addEventListener('input', function(e) {
+            let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (value.length > 3 && !value.startsWith('SPA')) {
+                value = 'SPA' + value.substring(0, 4);
+            }
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>

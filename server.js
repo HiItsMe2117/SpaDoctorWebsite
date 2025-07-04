@@ -4,16 +4,82 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
-const { google } = require('googleapis');
 const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
-const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
 const dataManager = require('./utils/dataManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Cookie parser for JWT tokens
+app.use(cookieParser());
+
+// Rate limiting for admin routes
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // 3 attempts
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Security functions
+function generateDailyPasscode() {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  const secret = process.env.ADMIN_SECRET || 'fallback-secret';
+  const hash = crypto.createHash('sha256').update(today + secret).digest('hex');
+  const numericCode = parseInt(hash.substring(0, 8), 16) % 10000;
+  return `SPA${numericCode.toString().padStart(4, '0')}`;
+}
+
+function generateJWT() {
+  const payload = {
+    isAdmin: true,
+    loginTime: new Date().toISOString(),
+    exp: Math.floor(Date.now() / 1000) + (30 * 60) // 30 minutes
+  };
+  return jwt.sign(payload, process.env.JWT_SECRET || 'fallback-jwt-secret');
+}
+
+function verifyJWT(token) {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET || 'fallback-jwt-secret');
+  } catch (error) {
+    return null;
+  }
+}
+
+function isValidAdminToken(req) {
+  const token = req.cookies.adminToken;
+  if (!token) return false;
+  
+  const decoded = verifyJWT(token);
+  return decoded && decoded.isAdmin === true;
+}
+
+function requireAdminAuth(req, res, next) {
+  if (!isValidAdminToken(req)) {
+    return res.status(401).json({ error: 'Admin authentication required' });
+  }
+  next();
+}
+
+function sanitizeContent(content) {
+  // Basic HTML sanitization - remove script tags and dangerous elements
+  return content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '');
+}
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -80,12 +146,6 @@ let socialSettings = {
   defaultTemplate: "#HotTubRepair #DenverServices #SpaExperts\n\nCall (856) 266-7293 for professional hot tub service!"
 };
 
-// Google OAuth2 Client Setup
-const googleOAuth2Client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
 
 // Enhanced multer setup for media uploads
 const mediaStorage = multer.diskStorage({
@@ -110,35 +170,12 @@ const mediaUpload = multer({
   }
 });
 
-// Google Business Profile API setup
+// Reviews functionality (Google Places API removed)
 async function getGoogleReviews() {
-  try {
-    // For now, we'll use a simpler approach with Google Places API
-    // This requires a Google Cloud Platform API key
-    if (!process.env.GOOGLE_PLACES_API_KEY) {
-      console.log('Google Places API key not found');
-      return null;
-    }
+  // Google Places API removed - using fallback reviews
+  console.log('Google Places API removed - using fallback reviews');
+  return null;
 
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${process.env.GOOGLE_PLACE_ID}&fields=reviews,rating,user_ratings_total&key=${process.env.GOOGLE_PLACES_API_KEY}`
-    );
-    
-    const data = await response.json();
-    
-    if (data.status === 'OK' && data.result.reviews) {
-      return {
-        reviews: data.result.reviews.slice(0, 6), // Get latest 6 reviews
-        rating: data.result.rating,
-        total_ratings: data.result.user_ratings_total
-      };
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error fetching Google reviews:', error);
-    return null;
-  }
 }
 
 // API endpoint to get reviews
@@ -185,6 +222,123 @@ app.get('/blog', (req, res) => {
   analytics.blogPageViews[today]++;
   
   res.render('blog', { posts: blogPosts });
+});
+
+// Admin routes
+app.get('/admin/blog', (req, res) => {
+  if (!isValidAdminToken(req)) {
+    return res.redirect('/admin/login');
+  }
+  res.render('admin-dashboard', { 
+    posts: blogPosts,
+    todaysCode: generateDailyPasscode()
+  });
+});
+
+app.get('/admin/login', (req, res) => {
+  if (isValidAdminToken(req)) {
+    return res.redirect('/admin/blog');
+  }
+  res.render('admin-login');
+});
+
+app.post('/admin/login', adminLimiter, (req, res) => {
+  const { passcode } = req.body;
+  const validPasscode = generateDailyPasscode();
+  
+  if (!passcode || passcode.toUpperCase() !== validPasscode) {
+    return res.json({ 
+      success: false, 
+      error: 'Invalid passcode. Please check today\'s code and try again.' 
+    });
+  }
+  
+  const token = generateJWT();
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  res.cookie('adminToken', token, {
+    httpOnly: true,
+    secure: isProduction, // HTTPS only in production
+    sameSite: 'strict',
+    maxAge: 30 * 60 * 1000, // 30 minutes
+    path: '/'
+  });
+  
+  res.json({ 
+    success: true, 
+    message: 'Login successful' 
+  });
+});
+
+app.get('/admin/logout', (req, res) => {
+  res.clearCookie('adminToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/'
+  });
+  res.redirect('/blog');
+});
+
+app.post('/admin/add-post', requireAdminAuth, (req, res) => {
+  const { title, content } = req.body;
+  
+  if (!title || !content) {
+    return res.json({ 
+      success: false, 
+      error: 'Title and content are required' 
+    });
+  }
+  
+  const sanitizedContent = sanitizeContent(content);
+  
+  const newPost = {
+    id: Date.now(),
+    title: title.trim(),
+    content: sanitizedContent,
+    date: new Date(),
+    author: 'Admin'
+  };
+  
+  blogPosts.unshift(newPost);
+  
+  // Save to persistent storage
+  dataManager.saveBlogPosts(blogPosts);
+  
+  res.json({ 
+    success: true, 
+    message: 'Blog post added successfully',
+    post: newPost
+  });
+});
+
+app.post('/admin/delete-post', requireAdminAuth, (req, res) => {
+  const { postId } = req.body;
+  
+  if (!postId) {
+    return res.json({ 
+      success: false, 
+      error: 'Post ID is required' 
+    });
+  }
+  
+  const initialLength = blogPosts.length;
+  blogPosts = blogPosts.filter(post => post.id !== parseInt(postId));
+  
+  if (blogPosts.length === initialLength) {
+    return res.json({ 
+      success: false, 
+      error: 'Post not found' 
+    });
+  }
+  
+  // Save to persistent storage
+  dataManager.saveBlogPosts(blogPosts);
+  
+  res.json({ 
+    success: true, 
+    message: 'Blog post deleted successfully' 
+  });
 });
 
 // Serve sitemap.xml with proper content-type
@@ -414,20 +568,7 @@ app.post('/upload-image', upload.single('image'), async (req, res) => {
   }
 });
 
-app.post('/add-blog-post', (req, res) => {
-  const { title, content } = req.body;
-  if (title && content) {
-    blogPosts.unshift({
-      id: Date.now(),
-      title,
-      content,
-      date: new Date()
-    });
-    res.json({ success: true, message: 'Blog post added successfully!' });
-  } else {
-    res.json({ success: false, message: 'Title and content are required.' });
-  }
-});
+// Legacy insecure endpoint removed - use /admin/add-post instead
 
 // Media Management Routes
 
@@ -622,9 +763,12 @@ app.post('/create-social-post', (req, res, next) => {
     for (const platform of parsedPlatforms) {
       switch (platform) {
         case 'google':
-          console.log('Attempting to post to Google Business Profile...');
-          results.google = await postToGoogleBusiness(post);
-          console.log('Google Business posting result:', results.google);
+          results.google = {
+            platform: 'google_business',
+            success: false,
+            error: 'Google Business Profile integration removed (API access denied)',
+            message: 'Please post manually to your Google Business listing'
+          };
           break;
         case 'facebook':
           results.facebook = await postToFacebook(post);
@@ -711,828 +855,8 @@ async function postToInstagram(post) {
   };
 }
 
-// Google OAuth Authentication Routes
+// Google Business Profile integration removed (API access denied)
 
-// Initiate Google OAuth flow
-app.get('/auth/google', (req, res) => {
-  try {
-    const scopes = [
-      'https://www.googleapis.com/auth/business.manage',
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/userinfo.email'
-    ];
-    
-    console.log('Requesting OAuth scopes:', scopes);
-    
-    const authUrl = googleOAuth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: scopes,
-      prompt: 'consent' // Forces refresh token generation
-    });
-    
-    res.redirect(authUrl);
-  } catch (error) {
-    console.error('Google OAuth initiation error:', error);
-    res.status(500).json({ success: false, error: 'Failed to initiate Google authentication' });
-  }
-});
-
-// Handle Google OAuth callback
-app.get('/auth/google/callback', async (req, res) => {
-  try {
-    const { code } = req.query;
-    
-    if (!code) {
-      return res.status(400).send('Authorization code not provided');
-    }
-    
-    console.log('Processing Google OAuth callback...');
-    
-    // Exchange code for tokens
-    const { tokens } = await googleOAuth2Client.getToken(code);
-    console.log('Received tokens:', {
-      hasAccessToken: !!tokens.access_token,
-      hasRefreshToken: !!tokens.refresh_token,
-      expiryDate: tokens.expiry_date
-    });
-    
-    googleOAuth2Client.setCredentials(tokens);
-    
-    // Store tokens and update connection status
-    socialSettings.google.credentials = tokens.access_token;
-    socialSettings.google.refreshToken = tokens.refresh_token;
-    socialSettings.google.connected = true;
-    socialSettings.google.tokenExpiry = tokens.expiry_date;
-    socialSettings.google.scopes = tokens.scope; // Store granted scopes
-    
-    console.log('Google credentials stored successfully');
-    console.log('Connection status:', {
-      connected: socialSettings.google.connected,
-      hasCredentials: !!socialSettings.google.credentials,
-      hasRefreshToken: !!socialSettings.google.refreshToken,
-      tokenLength: socialSettings.google.credentials?.length,
-      grantedScopes: tokens.scope,
-      expiresAt: new Date(tokens.expiry_date).toISOString()
-    });
-    
-    // Fetch business locations with timeout
-    try {
-      await Promise.race([
-        fetchGoogleBusinessLocations(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 10000))
-      ]);
-    } catch (error) {
-      console.error('Failed to fetch business locations:', error.message);
-      // Continue anyway - fallback locations will be used
-    }
-    
-    // Redirect back to dashboard with success message
-    res.redirect('/dashboard?google_connected=success');
-    
-  } catch (error) {
-    console.error('Google OAuth callback error:', error);
-    res.redirect('/dashboard?google_connected=error');
-  }
-});
-
-// Disconnect Google account
-app.post('/auth/google/disconnect', async (req, res) => {
-  try {
-    // Revoke the refresh token
-    if (socialSettings.google.refreshToken) {
-      await googleOAuth2Client.revokeToken(socialSettings.google.refreshToken);
-    }
-    
-    // Clear stored credentials
-    socialSettings.google.connected = false;
-    socialSettings.google.credentials = null;
-    socialSettings.google.refreshToken = null;
-    socialSettings.google.businessLocations = [];
-    
-    res.json({ success: true, message: 'Google account disconnected successfully' });
-  } catch (error) {
-    console.error('Google disconnect error:', error);
-    res.status(500).json({ success: false, error: 'Failed to disconnect Google account' });
-  }
-});
-
-// Google Business Profile Media Management Endpoints
-
-// Upload media to Google Business Profile
-app.post('/google-business-media/upload', mediaUpload.single('mediaFile'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, error: 'No file uploaded' });
-    }
-
-    const { category = 'ADDITIONAL', description = '' } = req.body;
-    
-    console.log('Uploading to Google Business Profile:', {
-      filename: req.file.filename,
-      category: category,
-      description: description
-    });
-
-    const result = await uploadToGoogleBusiness(req.file.path, category, description);
-    
-    res.json({
-      success: true,
-      message: 'Media uploaded to Google Business Profile successfully!',
-      data: result
-    });
-  } catch (error) {
-    console.error('Google Business media upload error:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message || 'Failed to upload media to Google Business Profile'
-    });
-  }
-});
-
-// Get Google Business Profile media
-app.get('/google-business-media', async (req, res) => {
-  try {
-    const mediaItems = await getGoogleBusinessMedia();
-    res.json({
-      success: true,
-      data: mediaItems
-    });
-  } catch (error) {
-    console.error('Error fetching Google Business media:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message || 'Failed to fetch Google Business Profile media'
-    });
-  }
-});
-
-// Delete Google Business Profile media
-app.delete('/google-business-media/:mediaName', async (req, res) => {
-  try {
-    const mediaName = decodeURIComponent(req.params.mediaName);
-    
-    if (!socialSettings.google.connected || !socialSettings.google.credentials) {
-      return res.status(401).json({ success: false, error: 'Google Business Profile not connected' });
-    }
-
-    console.log(`Deleting media: ${mediaName}`);
-
-    // Use direct HTTP request to delete media
-    const deleteUrl = `https://mybusinessbusinessinformation.googleapis.com/v1/${mediaName}`;
-    
-    await axios.delete(deleteUrl, {
-      headers: {
-        'Authorization': `Bearer ${socialSettings.google.credentials}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    console.log('Media deleted successfully');
-
-    res.json({
-      success: true,
-      message: 'Media deleted from Google Business Profile successfully'
-    });
-  } catch (error) {
-    console.error('Error deleting Google Business media:', error);
-    
-    // Handle authentication errors
-    if (error.response?.status === 401) {
-      try {
-        console.log('Attempting to refresh Google access token...');
-        const { credentials } = await googleOAuth2Client.refreshAccessToken();
-        socialSettings.google.credentials = credentials.access_token;
-        console.log('Token refreshed, retrying delete...');
-        
-        // Retry once with new token
-        const deleteUrl = `https://mybusinessbusinessinformation.googleapis.com/v1/${mediaName}`;
-        await axios.delete(deleteUrl, {
-          headers: {
-            'Authorization': `Bearer ${socialSettings.google.credentials}`,
-            'Accept': 'application/json'
-          }
-        });
-        
-        res.json({
-          success: true,
-          message: 'Media deleted from Google Business Profile successfully'
-        });
-        return;
-      } catch (refreshError) {
-        console.error('Token refresh failed:', refreshError);
-        socialSettings.google.connected = false;
-      }
-    }
-    
-    res.status(500).json({ 
-      success: false, 
-      error: error.message || 'Failed to delete media from Google Business Profile'
-    });
-  }
-});
-
-// Get available media categories
-app.get('/google-business-media/categories', (req, res) => {
-  const categories = [
-    { value: 'COVER', label: 'Cover Photo', description: 'Main cover photo for your business' },
-    { value: 'PROFILE', label: 'Profile Photo', description: 'Profile photo for your business' },
-    { value: 'LOGO', label: 'Logo', description: 'Business logo' },
-    { value: 'EXTERIOR', label: 'Exterior', description: 'Outside view of your business' },
-    { value: 'INTERIOR', label: 'Interior', description: 'Inside view of your business' },
-    { value: 'PRODUCT', label: 'Product', description: 'Products or services you offer' },
-    { value: 'AT_WORK', label: 'At Work', description: 'Photos of your team at work' },
-    { value: 'FOOD_AND_DRINK', label: 'Food & Drink', description: 'Food and beverages (if applicable)' },
-    { value: 'MENU', label: 'Menu', description: 'Menu or service list' },
-    { value: 'COMMON_AREA', label: 'Common Area', description: 'Shared spaces' },
-    { value: 'ROOMS', label: 'Rooms', description: 'Individual rooms or spaces' },
-    { value: 'TEAMS', label: 'Teams', description: 'Team and staff photos' },
-    { value: 'ADDITIONAL', label: 'Additional', description: 'Other uncategorized photos' }
-  ];
-  
-  res.json({ success: true, data: categories });
-});
-
-// Fetch Google Business Profile locations using current APIs
-async function fetchGoogleBusinessLocations(retryCount = 0) {
-  try {
-    console.log('fetchGoogleBusinessLocations called');
-    console.log('Stored credentials check:', {
-      hasCredentials: !!socialSettings.google.credentials,
-      hasRefreshToken: !!socialSettings.google.refreshToken,
-      connected: socialSettings.google.connected,
-      tokenExpiry: socialSettings.google.tokenExpiry
-    });
-    
-    if (!socialSettings.google.credentials) {
-      throw new Error('No Google credentials available');
-    }
-    
-    // Check if token might be expired
-    if (socialSettings.google.tokenExpiry && Date.now() > socialSettings.google.tokenExpiry) {
-      console.log('Access token appears to be expired, will attempt refresh');
-    }
-    
-    // Use the global OAuth client and update its credentials
-    console.log('Updating global OAuth client credentials...');
-    
-    const credentials = {
-      access_token: socialSettings.google.credentials,
-      refresh_token: socialSettings.google.refreshToken,
-      expiry_date: socialSettings.google.tokenExpiry,
-      token_type: 'Bearer'
-    };
-    
-    console.log('Credentials being set:', {
-      hasAccessToken: !!credentials.access_token,
-      accessTokenPrefix: credentials.access_token?.substring(0, 20) + '...',
-      hasRefreshToken: !!credentials.refresh_token,
-      expiryDate: credentials.expiry_date ? new Date(credentials.expiry_date).toISOString() : 'none'
-    });
-    
-    if (!credentials.access_token) {
-      throw new Error('No access token available - please reconnect your Google account');
-    }
-    
-    googleOAuth2Client.setCredentials(credentials);
-    
-    // Verify credentials were set
-    const setCredentials = googleOAuth2Client.credentials;
-    console.log('OAuth client credentials after setting:', {
-      hasAccessToken: !!setCredentials.access_token,
-      hasRefreshToken: !!setCredentials.refresh_token,
-      credentialsMatch: setCredentials.access_token === socialSettings.google.credentials
-    });
-    
-    // Use current Google Business APIs with global client
-    console.log('Initializing Google Business API services...');
-    const accountManagement = google.mybusinessaccountmanagement({
-      version: 'v1',
-      auth: googleOAuth2Client
-    });
-    
-    const businessInformation = google.mybusinessbusinessinformation({
-      version: 'v1',
-      auth: googleOAuth2Client
-    });
-    
-    console.log('Google Business API services initialized successfully');
-    
-    try {
-      console.log('Fetching Google Business accounts...');
-      
-      // First, let's verify the token by getting user info with googleapis library
-      console.log('Verifying token with googleapis oauth2 service...');
-      const oauth2 = google.oauth2({
-        version: 'v2',
-        auth: googleOAuth2Client
-      });
-      
-      try {
-        const userInfo = await oauth2.userinfo.get();
-        console.log('✅ googleapis oauth2 call successful! User:', userInfo.data.email);
-      } catch (oauth2Error) {
-        console.log('❌ googleapis oauth2 call failed:', oauth2Error.message);
-        
-        // Try manual API call as comparison
-        console.log('Trying manual API call for comparison...');
-        const testResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-          headers: {
-            'Authorization': `Bearer ${socialSettings.google.credentials}`,
-            'Accept': 'application/json'
-          }
-        });
-        
-        if (testResponse.ok) {
-          const userData = await testResponse.json();
-          console.log('✅ Manual API call works! User:', userData.email);
-          console.log('❌ Issue is with googleapis library authentication setup');
-        } else {
-          console.log('❌ Manual API call also failed:', testResponse.status);
-          throw new Error('Token is completely invalid');
-        }
-        
-        throw oauth2Error;
-      }
-      
-      // Try direct HTTP requests to get Google Business accounts
-      console.log('Using direct HTTP requests for Google Business API...');
-      let accounts = [];
-      let useManualApproach = true; // Always use manual approach
-      
-      try {
-        const manualResponse = await axios.get('https://mybusinessaccountmanagement.googleapis.com/v1/accounts', {
-          headers: {
-            'Authorization': `Bearer ${socialSettings.google.credentials}`,
-            'Accept': 'application/json'
-          }
-        });
-        
-        accounts = manualResponse.data.accounts || [];
-        console.log(`✅ Direct HTTP Business API call successful! Found ${accounts.length} accounts`);
-      } catch (businessError) {
-        console.log('❌ Direct HTTP Business API call failed:', businessError.response?.status, businessError.response?.data || businessError.message);
-        
-        // If we can't get accounts, we'll need to handle this differently
-        // For now, let's try to use a simple workaround
-        console.log('Using alternative approach - checking if this is a personal Google account');
-        accounts = []; // No accounts found
-      }
-      
-      if (accounts.length === 0) {
-        console.log('No Google Business accounts found');
-        // Create a verified business location for the user
-        socialSettings.google.businessLocations = [{
-          name: 'accounts/spa-doctors/locations/spa-doctors-main',
-          locationName: 'Spa Doctors',
-          primaryPhone: '(856) 266-7293',
-          verified: true
-        }];
-        console.log('Created verified business location for Spa Doctors');
-        return;
-      }
-      
-      // Get locations for the first account using Business Information API
-      const accountName = accounts[0].name;
-      console.log(`Getting locations for account: ${accountName}`);
-      
-      let locations = [];
-      
-      if (useManualApproach) {
-        console.log('Using manual approach for locations...');
-        try {
-          const locationsResponse = await fetch(`https://mybusinessbusinessinformation.googleapis.com/v1/${accountName}/locations?pageSize=100`, {
-            headers: {
-              'Authorization': `Bearer ${socialSettings.google.credentials}`,
-              'Accept': 'application/json'
-            }
-          });
-          
-          if (locationsResponse.ok) {
-            const locationsData = await locationsResponse.json();
-            locations = locationsData.locations || [];
-            console.log(`✅ Manual locations API successful! Found ${locations.length} locations`);
-          } else {
-            const errorText = await locationsResponse.text();
-            console.log(`❌ Manual locations API failed: ${locationsResponse.status} - ${errorText}`);
-          }
-        } catch (locationsError) {
-          console.log('❌ Manual locations API error:', locationsError.message);
-        }
-      } else {
-        console.log('Using googleapis for locations...');
-        const locationsResponse = await businessInformation.accounts.locations.list({
-          parent: accountName,
-          pageSize: 100
-        });
-        locations = locationsResponse.data.locations || [];
-        console.log(`✅ googleapis locations API successful! Found ${locations.length} locations`);
-      }
-      
-      if (locations.length === 0) {
-        // Create a verified location if none found
-        socialSettings.google.businessLocations = [{
-          name: `${accountName}/locations/spa-doctors-main`,
-          locationName: 'Spa Doctors',
-          primaryPhone: '(856) 266-7293',
-          verified: true,
-          accountName: accountName
-        }];
-        console.log('Created verified location for authenticated account');
-      } else {
-        socialSettings.google.businessLocations = locations.map(location => ({
-          ...location,
-          verified: true,
-          accountName: accountName
-        }));
-        console.log(`Successfully loaded ${locations.length} verified business locations`);
-      }
-      
-    } catch (apiError) {
-      console.error('Google Business API error:', apiError.message);
-      console.error('API Error details:', apiError.response?.data || apiError);
-      
-      // Handle authentication errors with token refresh
-      if ((apiError.code === 401 || apiError.response?.status === 401) && retryCount === 0) {
-        console.log('Received 401 error, attempting to refresh token...');
-        try {
-          const { credentials } = await googleOAuth2Client.refreshAccessToken();
-          console.log('Token refreshed successfully');
-          
-          // Update stored credentials
-          socialSettings.google.credentials = credentials.access_token;
-          if (credentials.refresh_token) {
-            socialSettings.google.refreshToken = credentials.refresh_token;
-          }
-          socialSettings.google.tokenExpiry = credentials.expiry_date;
-          
-          // Retry the API call with new token (only once)
-          console.log('Retrying business locations fetch with refreshed token...');
-          return await fetchGoogleBusinessLocations(1); // Pass retry count to prevent infinite loop
-          
-        } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
-          socialSettings.google.connected = false;
-          throw new Error('Google authentication expired and refresh failed. Please reconnect.');
-        }
-      } else if (retryCount > 0) {
-        console.log('Already attempted token refresh, not retrying again');
-      }
-      
-      // Create a fallback verified location  
-      socialSettings.google.businessLocations = [{
-        name: 'accounts/spa-doctors/locations/spa-doctors-main',
-        locationName: 'Spa Doctors - Hot Tub Repair & Maintenance',
-        primaryPhone: '(856) 266-7293',
-        verified: false,
-        fallback: true,
-        setupRequired: true
-      }];
-      console.log('Using fallback business location - Google Business Profile setup may be required');
-    }
-    
-  } catch (error) {
-    console.error('Error in fetchGoogleBusinessLocations:', error.message);
-    
-    // Always provide a working location
-    socialSettings.google.businessLocations = [{
-      name: 'accounts/spa-doctors/locations/spa-doctors-main',
-      locationName: 'Spa Doctors - Professional Hot Tub Services',
-      primaryPhone: '(856) 266-7293',
-      verified: false,
-      fallback: true,
-      setupRequired: true
-    }];
-    console.log('Using emergency fallback business location - Google Business Profile setup required');
-  }
-}
-
-// Google Business Profile posting function - Updated for current API reality
-async function postToGoogleBusiness(post, retryCount = 0) {
-  try {
-    if (!socialSettings.google.connected || !socialSettings.google.credentials) {
-      throw new Error('Google Business Profile not connected');
-    }
-    
-    if (socialSettings.google.businessLocations.length === 0) {
-      throw new Error('No business locations found');
-    }
-    
-    // Set up authenticated client
-    googleOAuth2Client.setCredentials({
-      access_token: socialSettings.google.credentials,
-      refresh_token: socialSettings.google.refreshToken,
-      expiry_date: socialSettings.google.tokenExpiry,
-      token_type: 'Bearer'
-    });
-    
-    const location = socialSettings.google.businessLocations[0];
-    console.log(`Attempting to post to location: ${location.locationName || location.name}`);
-    
-    // **IMPORTANT**: Google discontinued the My Business Posts API in 2022
-    // There is currently NO official API for programmatic posting to Google Business Profile
-    // 
-    // However, we'll validate the authentication and provide a comprehensive response
-    // that indicates the post would be successful if the API were available
-    
-    try {
-      // Verify authentication is still valid by making a test API call
-      const businessInfo = google.mybusinessbusinessinformation({
-        version: 'v1',
-        auth: googleOAuth2Client
-      });
-      
-      // Test API call to verify credentials
-      if (location.accountName) {
-        await businessInfo.accounts.locations.get({
-          name: location.name
-        });
-      }
-      
-      console.log('Google Business Profile authentication verified successfully');
-      
-      // Since we can't actually post via API, we'll create a comprehensive response
-      // that indicates what would happen if posting were available
-      
-      const postContent = {
-        content: post.content,
-        location: location.locationName || 'Spa Doctors',
-        phone: location.primaryPhone || '(856) 266-7293',
-        callToAction: 'CALL',
-        timestamp: new Date().toISOString(),
-        mediaIncluded: !!post.mediaId
-      };
-      
-      // In a real scenario, this would be sent to Google Business Profile
-      console.log('Post content prepared for Google Business Profile:', postContent);
-      
-      // For now, we'll save this as a "pending manual post" that the user can manually create
-      const manualPostInstructions = {
-        platform: 'Google Business Profile',
-        instructions: [
-          '1. Go to business.google.com',
-          '2. Select your Spa Doctors location',
-          '3. Click "Add post" or "Create post"',
-          `4. Copy this content: "${post.content}"`,
-          '5. Add your phone number: (856) 266-7293',
-          post.mediaId ? '6. Upload the attached media file' : '6. No media to attach',
-          '7. Click "Publish"'
-        ],
-        content: post.content,
-        estimatedReach: 'Local customers in your area',
-        automated: false
-      };
-      
-      return {
-        platform: 'google',
-        success: true,
-        postId: `manual_${Date.now()}`,
-        message: 'Google Business Profile ready - Manual posting required',
-        data: {
-          authenticated: true,
-          location: location.locationName || 'Spa Doctors',
-          apiStatus: 'Posting API discontinued by Google (2022)',
-          manualPostInstructions: manualPostInstructions,
-          nextSteps: 'Visit business.google.com to manually create this post'
-        },
-        requiresManualAction: true
-      };
-      
-    } catch (apiError) {
-      console.error('Google Business API verification failed:', apiError.message);
-      
-      // Handle authentication errors (only retry once)
-      if ((apiError.code === 401 || apiError.message.includes('invalid_grant')) && retryCount === 0) {
-        try {
-          console.log('Attempting to refresh Google access token...');
-          const { credentials } = await googleOAuth2Client.refreshAccessToken();
-          socialSettings.google.credentials = credentials.access_token;
-          console.log('Google access token refreshed successfully');
-          
-          // Retry the post with new token (only once)
-          return await postToGoogleBusiness(post, 1);
-        } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
-          socialSettings.google.connected = false;
-          throw new Error('Google Business Profile authentication expired. Please reconnect.');
-        }
-      } else if (retryCount > 0) {
-        console.log('Already attempted token refresh for posting, not retrying again');
-      }
-      
-      throw apiError;
-    }
-    
-  } catch (error) {
-    console.error('Google Business posting error:', error.message);
-    
-    return {
-      platform: 'google',
-      success: false,
-      error: error.message,
-      message: 'Failed to prepare Google Business Profile post',
-      data: {
-        authenticated: socialSettings.google.connected,
-        locationsFound: socialSettings.google.businessLocations.length,
-        errorDetails: error.message
-      }
-    };
-  }
-}
-
-// Google Business Profile Media API Functions
-
-// Start upload process for Google Business Profile media
-async function startGoogleMediaUpload() {
-  try {
-    if (!socialSettings.google.connected || !socialSettings.google.credentials) {
-      throw new Error('Google Business Profile not connected');
-    }
-
-    // Set up authenticated client
-    googleOAuth2Client.setCredentials({
-      access_token: socialSettings.google.credentials,
-      refresh_token: socialSettings.google.refreshToken,
-      expiry_date: socialSettings.google.tokenExpiry,
-      token_type: 'Bearer'
-    });
-
-    const businessInfo = google.mybusinessbusinessinformation({
-      version: 'v1',
-      auth: googleOAuth2Client
-    });
-
-    const location = socialSettings.google.businessLocations[0];
-    if (!location) {
-      throw new Error('No business location found');
-    }
-
-    // Start upload - this creates a MediaItemDataRef
-    const response = await businessInfo.accounts.locations.media.startUpload({
-      parent: location.name
-    });
-
-    return response.data.resourceName;
-  } catch (error) {
-    console.error('Error starting Google media upload:', error);
-    throw error;
-  }
-}
-
-// Upload media file to Google Business Profile using direct HTTP requests
-async function uploadToGoogleBusiness(filePath, category = 'ADDITIONAL', description = '') {
-  try {
-    if (!socialSettings.google.connected || !socialSettings.google.credentials) {
-      throw new Error('Google Business Profile not connected');
-    }
-
-    const location = socialSettings.google.businessLocations[0];
-    if (!location) {
-      throw new Error('No business location found');
-    }
-
-    // Check if this is a fallback location (not a real Google Business Profile)
-    if (location.fallback) {
-      throw new Error('Google Business Profile setup incomplete. You may need to create a Google Business Profile first at business.google.com, or verify your existing profile.');
-    }
-
-    console.log(`Uploading media to Google Business Profile location: ${location.name}`);
-
-    // Step 1: Start upload to get resource name using direct HTTP request
-    console.log('Step 1: Starting upload...');
-    const startUploadUrl = `https://mybusinessbusinessinformation.googleapis.com/v1/${location.name}/media:startUpload`;
-    
-    const startUploadResponse = await axios.post(startUploadUrl, {}, {
-      headers: {
-        'Authorization': `Bearer ${socialSettings.google.credentials}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
-
-    const resourceName = startUploadResponse.data.resourceName;
-    console.log('Upload resource name:', resourceName);
-
-    // Step 2: Upload the actual file data
-    console.log('Step 2: Uploading file data...');
-    const fileData = await fs.readFile(filePath);
-    
-    const uploadUrl = `https://mybusinessbusinessinformation.googleapis.com/upload/v1/media/${resourceName}?uploadType=media`;
-    
-    await axios.put(uploadUrl, fileData, {
-      headers: {
-        'Authorization': `Bearer ${socialSettings.google.credentials}`,
-        'Content-Type': 'application/octet-stream'
-      }
-    });
-
-    console.log('File data uploaded successfully');
-
-    // Step 3: Create the media item using direct HTTP request
-    console.log('Step 3: Creating media item...');
-    const mediaItem = {
-      mediaFormat: 'PHOTO',
-      locationAssociation: {
-        category: category
-      },
-      description: description,
-      dataRef: {
-        resourceName: resourceName
-      }
-    };
-
-    const createUrl = `https://mybusinessbusinessinformation.googleapis.com/v1/${location.name}/media`;
-    const createResponse = await axios.post(createUrl, mediaItem, {
-      headers: {
-        'Authorization': `Bearer ${socialSettings.google.credentials}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
-
-    console.log('Media item created successfully:', createResponse.data.name);
-
-    return {
-      success: true,
-      mediaName: createResponse.data.name,
-      googleUrl: createResponse.data.googleUrl,
-      thumbnailUrl: createResponse.data.thumbnailUrl,
-      category: category,
-      description: description
-    };
-
-  } catch (error) {
-    console.error('Error uploading to Google Business Profile:', error);
-    
-    // Handle authentication errors
-    if (error.response?.status === 401) {
-      try {
-        console.log('Attempting to refresh Google access token...');
-        const { credentials } = await googleOAuth2Client.refreshAccessToken();
-        socialSettings.google.credentials = credentials.access_token;
-        console.log('Token refreshed, retrying upload...');
-        
-        // Retry once with new token
-        return await uploadToGoogleBusiness(filePath, category, description);
-      } catch (refreshError) {
-        console.error('Token refresh failed:', refreshError);
-        socialSettings.google.connected = false;
-        throw new Error('Google Business Profile authentication expired. Please reconnect.');
-      }
-    }
-    
-    throw error;
-  }
-}
-
-// Get media items from Google Business Profile using direct HTTP requests
-async function getGoogleBusinessMedia() {
-  try {
-    if (!socialSettings.google.connected || !socialSettings.google.credentials) {
-      throw new Error('Google Business Profile not connected');
-    }
-
-    const location = socialSettings.google.businessLocations[0];
-    if (!location) {
-      throw new Error('No business location found');
-    }
-
-    console.log(`Fetching media for location: ${location.name}`);
-
-    // Use direct HTTP request to get media items
-    const mediaUrl = `https://mybusinessbusinessinformation.googleapis.com/v1/${location.name}/media?pageSize=50`;
-    
-    const response = await axios.get(mediaUrl, {
-      headers: {
-        'Authorization': `Bearer ${socialSettings.google.credentials}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    console.log(`Found ${response.data.mediaItems?.length || 0} media items`);
-    return response.data.mediaItems || [];
-  } catch (error) {
-    console.error('Error getting Google Business media:', error);
-    
-    // Handle authentication errors
-    if (error.response?.status === 401) {
-      try {
-        console.log('Attempting to refresh Google access token...');
-        const { credentials } = await googleOAuth2Client.refreshAccessToken();
-        socialSettings.google.credentials = credentials.access_token;
-        console.log('Token refreshed, retrying media fetch...');
-        
-        // Retry once with new token
-        return await getGoogleBusinessMedia();
-      } catch (refreshError) {
-        console.error('Token refresh failed:', refreshError);
-        socialSettings.google.connected = false;
-        return [];
-      }
-    }
-    
-    return [];
-  }
-}
 
 // Serve uploaded media files
 app.use('/uploads/media', express.static(path.join(__dirname, 'uploads/media')));

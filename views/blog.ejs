@@ -100,28 +100,15 @@
                     </div>
                 <% } %>
 
-                <!-- Admin Section for Adding Blog Posts -->
-                <div id="adminSection" style="display: none; margin-top: 3rem; padding: 2rem; background: #f8fafc; border-radius: 10px; border: 2px solid #2563eb;">
-                    <h3 style="color: #2563eb; margin-bottom: 1rem;">Add New Blog Post</h3>
-                    <form id="blogForm">
-                        <div class="form-group">
-                            <label for="title">Article Title</label>
-                            <input type="text" id="title" name="title" required placeholder="e.g., 5 Signs Your Hot Tub Needs Professional Repair">
-                        </div>
-                        <div class="form-group">
-                            <label for="content">Article Content</label>
-                            <textarea id="content" name="content" required rows="10" placeholder="Write your hot tub tips, advice, or article content here..."></textarea>
-                        </div>
-                        <button type="submit" class="btn">Publish Article</button>
-                    </form>
-                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
-                        Tips: Share helpful maintenance advice, seasonal tips, troubleshooting guides, or industry insights.
+                <!-- Secure Admin Access -->
+                <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: #f8fafc; border-radius: 10px;">
+                    <h3 style="color: #2563eb; margin-bottom: 1rem;">Blog Management</h3>
+                    <p style="color: #64748b; margin-bottom: 1.5rem;">
+                        Looking to add or manage blog content? Access the secure admin panel.
                     </p>
-                </div>
-
-                <!-- Admin Toggle Button -->
-                <div style="text-align: center; margin-top: 3rem;">
-                    <button onclick="toggleAdmin()" class="btn" style="background: #64748b;">Admin: Add Article</button>
+                    <a href="/admin/login" class="btn" style="background: #2563eb; color: white; text-decoration: none; display: inline-block;">
+                        🔐 Admin Login
+                    </a>
                 </div>
             </div>
         </section>
@@ -193,10 +180,7 @@
             nav.classList.toggle('active');
         }
 
-        function toggleAdmin() {
-            const adminSection = document.getElementById('adminSection');
-            adminSection.style.display = adminSection.style.display === 'none' ? 'block' : 'none';
-        }
+        // Admin section removed - now uses secure /admin/login
 
         function toggleArticle(index) {
             const content = document.getElementById('content-' + index);
@@ -224,33 +208,7 @@
             }
         }
 
-        document.getElementById('blogForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
-            
-            try {
-                const response = await fetch('/add-blog-post', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Blog post published successfully!');
-                    location.reload();
-                } else {
-                    alert('Failed to publish blog post. Please try again.');
-                }
-            } catch (error) {
-                alert('Error publishing blog post. Please try again.');
-            }
-        });
+        // Blog form removed - now uses secure admin panel
 
         document.getElementById('questionForm').addEventListener('submit', async function(e) {
             e.preventDefault();
