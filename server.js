@@ -17,6 +17,8 @@ const dataManager = require('./utils/dataManager');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// SECURITY: All upload endpoints now require admin authentication (fixed 2025-07-05)
+
 // Cookie parser for JWT tokens
 app.use(cookieParser());
 
