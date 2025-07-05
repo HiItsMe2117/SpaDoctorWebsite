@@ -841,7 +841,7 @@ app.post('/contact', async (req, res) => {
   }
 });
 
-app.post('/upload-image', upload.single('image'), async (req, res) => {
+app.post('/upload-image', requireAdminAuth, upload.single('image'), async (req, res) => {
   if (req.file) {
     const newImage = {
       filename: req.file.filename,
@@ -875,7 +875,7 @@ const createDirectories = async () => {
 createDirectories();
 
 // Upload media endpoint
-app.post('/upload-media', mediaUpload.array('mediaFiles', 5), async (req, res) => {
+app.post('/upload-media', requireAdminAuth, mediaUpload.array('mediaFiles', 5), async (req, res) => {
   try {
     const { title, tags } = req.body;
     const uploadedFiles = [];
@@ -931,7 +931,7 @@ app.get('/media-library', (req, res) => {
 });
 
 // Delete media item
-app.delete('/media/:id', async (req, res) => {
+app.delete('/media/:id', requireAdminAuth, async (req, res) => {
   try {
     const mediaId = req.params.id;
     const mediaIndex = mediaLibrary.findIndex(item => item.id === mediaId);
@@ -968,7 +968,7 @@ app.delete('/media/:id', async (req, res) => {
 // Social Media Routes
 
 // Create social media post
-app.post('/create-social-post', (req, res, next) => {
+app.post('/create-social-post', requireAdminAuth, (req, res, next) => {
   // Use multer conditionally - only if there's a file
   if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
     mediaUpload.single('mediaFile')(req, res, next);
@@ -1100,7 +1100,7 @@ app.get('/social-settings', (req, res) => {
 });
 
 // Update social media settings
-app.post('/social-settings', (req, res) => {
+app.post('/social-settings', requireAdminAuth, (req, res) => {
   try {
     const { defaultTemplate, autoAddContact, includeWebsiteLink, sendNotifications } = req.body;
     
