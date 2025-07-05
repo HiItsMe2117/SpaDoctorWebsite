@@ -1,39 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://spadoctor.vercel.app/</loc>
+    <loc>https://spadoc.tech/</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://spadoctor.vercel.app/services</loc>
+    <loc>https://spadoc.tech/services</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://spadoctor.vercel.app/about</loc>
+    <loc>https://spadoc.tech/about</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://spadoctor.vercel.app/contact</loc>
+    <loc>https://spadoc.tech/contact</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://spadoctor.vercel.app/gallery</loc>
+    <loc>https://spadoc.tech/gallery</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://spadoctor.vercel.app/blog</loc>
+    <loc>https://spadoc.tech/blog</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://spadoc.tech/privacy</loc>
+    <lastmod>2025-07-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

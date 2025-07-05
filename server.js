@@ -336,6 +336,10 @@ app.get('/about', (req, res) => {
   res.render('about');
 });
 
+app.get('/privacy', (req, res) => {
+  res.render('privacy');
+});
+
 app.get('/contact', (req, res) => {
   res.render('contact');
 });
