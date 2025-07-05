@@ -490,3 +490,44 @@ footer {
     font-size: 0.9rem;
   }
 }
+
+/* BBB Seal Styling */
+.bbb-seal-container {
+  transition: all 0.3s ease;
+}
+
+.bbb-seal-container:hover {
+  transform: translateY(-2px);
+}
+
+.bbb-seal-container img {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.bbb-seal-container:hover img {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+
+/* Trust section styling */
+.trust-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.trust-section:hover {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  border-color: #2563eb;
+}
+
+/* Mobile responsive BBB seals */
+@media (max-width: 768px) {
+  .bbb-seal-container img {
+    max-width: 120px !important;
+  }
+  
+  .trust-section {
+    padding: 1.5rem !important;
+  }
+}
