@@ -84,14 +84,19 @@ function sanitizeContent(content) {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Helper function for formatting blog content
+// Helper function for formatting blog content with enhanced markdown support
 app.locals.formatArticleContent = function(content) {
-  return content
-    // Convert **bold** to <strong> tags
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+  // First pass: handle block-level elements
+  let processedContent = content
     // Convert section headers (lines that end with colon)
     .replace(/^(.+):$/gm, '<h3>$1</h3>')
-    // Split into paragraphs and wrap in <p> tags
+    // Convert markdown-style headers
+    .replace(/^### (.*$)/gm, '<h4>$1</h4>')
+    .replace(/^## (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^# (.*$)/gm, '<h2>$1</h2>');
+
+  // Split into paragraphs for processing
+  return processedContent
     .split('\n\n')
     .map(paragraph => {
       paragraph = paragraph.trim();
@@ -102,28 +107,79 @@ app.locals.formatArticleContent = function(content) {
         return paragraph;
       }
       
-      // Handle bullet points
-      if (paragraph.includes('\n-')) {
+      // Handle blockquotes (lines starting with >)
+      if (paragraph.startsWith('>')) {
+        const lines = paragraph.split('\n');
+        const quoteContent = lines
+          .map(line => line.replace(/^>\s*/, '').trim())
+          .filter(line => line)
+          .join('<br>');
+        return `<blockquote style="border-left: 4px solid #2563eb; padding-left: 1rem; margin: 1.5rem 0; font-style: italic; color: #64748b;">${quoteContent}</blockquote>`;
+      }
+      
+      // Handle code blocks (lines wrapped in triple backticks)
+      if (paragraph.startsWith('```') && paragraph.endsWith('```')) {
+        const code = paragraph.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '');
+        return `<pre style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.9rem; margin: 1.5rem 0;"><code>${code}</code></pre>`;
+      }
+      
+      // Handle bullet points (improved)
+      if (paragraph.includes('\n-') || paragraph.includes('\n•')) {
         const lines = paragraph.split('\n');
         const firstLine = lines[0];
-        const bullets = lines.slice(1).filter(line => line.trim().startsWith('-'));
+        const bullets = lines.slice(1).filter(line => line.trim().match(/^[-•]\s/));
         
-        let html = firstLine ? `<p>${firstLine.replace(/\n/g, '<br>')}</p>` : '';
+        let html = firstLine && !firstLine.match(/^[-•]\s/) ? `<p>${formatInlineElements(firstLine)}</p>` : '';
         if (bullets.length > 0) {
           html += '<ul>';
           bullets.forEach(bullet => {
-            const text = bullet.replace(/^-\s*/, '').trim();
-            if (text) html += `<li>${text}</li>`;
+            const text = bullet.replace(/^[-•]\s*/, '').trim();
+            if (text) html += `<li>${formatInlineElements(text)}</li>`;
           });
           html += '</ul>';
         }
         return html;
       }
       
-      // Regular paragraph
-      return `<p>${paragraph.replace(/\n/g, '<br>')}</p>`;
+      // Handle numbered lists
+      if (paragraph.includes('\n1.') || paragraph.match(/^\d+\./)) {
+        const lines = paragraph.split('\n');
+        const firstLine = lines[0];
+        const numberedItems = lines.filter(line => line.trim().match(/^\d+\.\s/));
+        
+        let html = firstLine && !firstLine.match(/^\d+\.\s/) ? `<p>${formatInlineElements(firstLine)}</p>` : '';
+        if (numberedItems.length > 0) {
+          html += '<ol>';
+          numberedItems.forEach(item => {
+            const text = item.replace(/^\d+\.\s*/, '').trim();
+            if (text) html += `<li>${formatInlineElements(text)}</li>`;
+          });
+          html += '</ol>';
+        }
+        return html;
+      }
+      
+      // Regular paragraph with inline formatting
+      return `<p>${formatInlineElements(paragraph.replace(/\n/g, '<br>'))}</p>`;
     })
     .join('');
+    
+  // Helper function for inline elements
+  function formatInlineElements(text) {
+    return text
+      // Convert **bold** to <strong> tags
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Convert *italic* to <em> tags
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // Convert `code` to <code> tags
+      .replace(/`([^`]+)`/g, '<code style="background: #f1f5f9; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: \'Courier New\', monospace; font-size: 0.9em;">$1</code>')
+      // Convert [link text](url) to <a> tags
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #2563eb; text-decoration: underline;" target="_blank" rel="noopener noreferrer">$1</a>')
+      // Convert ![alt text](image url) to <img> tags
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" loading="lazy">')
+      // Convert phone numbers to clickable links
+      .replace(/\((\d{3})\)\s*(\d{3})-(\d{4})/g, '<a href="tel:+1$1$2$3" style="color: #2563eb; font-weight: 600; text-decoration: none;">($1) $2-$3</a>');
+  }
 };
 
 app.use(express.static(path.join(__dirname, 'public')));
