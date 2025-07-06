@@ -323,6 +323,132 @@ async function getGoogleReviews() {
 
 }
 
+// Visit notification system
+const visitNotificationSettings = {
+  enabled: true,
+  notifyEmail: process.env.BUSINESS_EMAIL || process.env.EMAIL_USER,
+  excludeIPs: ['127.0.0.1', '::1'], // Exclude localhost
+  excludePaths: ['/track-page-view', '/analytics-data', '/favicon.ico', '/robots.txt', '/sitemap.xml'],
+  botUserAgents: ['bot', 'crawler', 'spider', 'scraper', 'facebook', 'twitter', 'google', 'bing', 'yahoo']
+};
+
+// Function to check if visitor is a bot
+function isBot(userAgent) {
+  if (!userAgent) return true;
+  const ua = userAgent.toLowerCase();
+  return visitNotificationSettings.botUserAgents.some(bot => ua.includes(bot));
+}
+
+// Function to get client IP address
+function getClientIP(req) {
+  return req.headers['x-forwarded-for'] || 
+         req.headers['x-real-ip'] || 
+         req.connection.remoteAddress || 
+         req.socket.remoteAddress ||
+         (req.connection.socket ? req.connection.socket.remoteAddress : null) ||
+         req.ip;
+}
+
+// Function to send visit notification email
+async function sendVisitNotification(visitData) {
+  if (!visitNotificationSettings.enabled) return;
+  
+  const emailTemplate = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
+        🎯 New Website Visitor Alert
+      </h2>
+      
+      <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
+        <h3 style="color: #334155; margin-top: 0;">Visit Details</h3>
+        <p><strong>📄 Page Visited:</strong> ${visitData.page}</p>
+        <p><strong>🌐 IP Address:</strong> ${visitData.ip}</p>
+        <p><strong>🕒 Time:</strong> ${visitData.timestamp}</p>
+        <p><strong>💻 Device/Browser:</strong> ${visitData.userAgent}</p>
+        <p><strong>📍 Referrer:</strong> ${visitData.referrer || 'Direct visit'}</p>
+      </div>
+      
+      <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0; color: #0369a1;"><strong>💡 Quick Actions:</strong></p>
+        <p style="margin: 5px 0; color: #0369a1;">• Check your analytics dashboard for more details</p>
+        <p style="margin: 5px 0; color: #0369a1;">• Follow up if this was a potential customer</p>
+        <p style="margin: 5px 0; color: #0369a1;">• Monitor for repeat visits from this IP</p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+        <p style="color: #64748b; font-size: 14px;">
+          This notification was sent automatically by your Spa Doctors website.<br>
+          <a href="https://www.spadoc.tech/admin/login" style="color: #2563eb;">Visit Admin Dashboard</a> to manage notification settings.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: visitNotificationSettings.notifyEmail,
+      subject: `🎯 New Website Visitor - ${visitData.page}`,
+      html: emailTemplate
+    });
+    console.log('Visit notification sent:', visitData.page, visitData.ip);
+  } catch (error) {
+    console.error('Error sending visit notification:', error);
+  }
+}
+
+// Visit notification middleware
+function visitNotificationMiddleware(req, res, next) {
+  // Skip if notifications are disabled
+  if (!visitNotificationSettings.enabled) {
+    return next();
+  }
+  
+  const clientIP = getClientIP(req);
+  const userAgent = req.get('User-Agent') || '';
+  const path = req.path;
+  
+  // Skip excluded paths
+  if (visitNotificationSettings.excludePaths.some(excludePath => path.includes(excludePath))) {
+    return next();
+  }
+  
+  // Skip excluded IPs
+  if (visitNotificationSettings.excludeIPs.includes(clientIP)) {
+    return next();
+  }
+  
+  // Skip bots and crawlers
+  if (isBot(userAgent)) {
+    return next();
+  }
+  
+  // Skip non-GET requests
+  if (req.method !== 'GET') {
+    return next();
+  }
+  
+  // Prepare visit data
+  const visitData = {
+    page: path,
+    ip: clientIP,
+    userAgent: userAgent,
+    timestamp: new Date().toLocaleString(),
+    referrer: req.get('Referrer'),
+    fullUrl: `${req.protocol}://${req.get('host')}${req.originalUrl}`
+  };
+  
+  // Send notification asynchronously (don't block the response)
+  setImmediate(() => {
+    sendVisitNotification(visitData);
+  });
+  
+  next();
+}
+
+// Apply visit notification middleware to all routes
+app.use(visitNotificationMiddleware);
+
 // API endpoint to get reviews
 app.get('/api/reviews', async (req, res) => {
   try {
@@ -505,6 +631,55 @@ app.post('/admin/refresh-token', requireAdminAuth, (req, res) => {
     success: true, 
     message: 'Token refreshed successfully',
     expiresIn: 30 * 60 * 1000 // 30 minutes in milliseconds
+  });
+});
+
+// Visit notification admin endpoints
+app.get('/admin/visit-notifications', requireAdminAuth, (req, res) => {
+  res.json({
+    success: true,
+    settings: visitNotificationSettings
+  });
+});
+
+app.post('/admin/visit-notifications', requireAdminAuth, (req, res) => {
+  const { enabled, notifyEmail, excludeIPs } = req.body;
+  
+  if (typeof enabled === 'boolean') {
+    visitNotificationSettings.enabled = enabled;
+  }
+  
+  if (notifyEmail && typeof notifyEmail === 'string') {
+    visitNotificationSettings.notifyEmail = notifyEmail;
+  }
+  
+  if (Array.isArray(excludeIPs)) {
+    visitNotificationSettings.excludeIPs = ['127.0.0.1', '::1', ...excludeIPs];
+  }
+  
+  res.json({
+    success: true,
+    message: 'Visit notification settings updated',
+    settings: visitNotificationSettings
+  });
+});
+
+// Test visit notification endpoint
+app.post('/admin/test-visit-notification', requireAdminAuth, (req, res) => {
+  const testVisitData = {
+    page: '/test-notification',
+    ip: '192.168.1.100',
+    userAgent: 'Mozilla/5.0 (Test Browser)',
+    timestamp: new Date().toLocaleString(),
+    referrer: 'Admin Test',
+    fullUrl: 'https://www.spadoc.tech/test-notification'
+  };
+  
+  sendVisitNotification(testVisitData);
+  
+  res.json({
+    success: true,
+    message: 'Test notification sent to ' + visitNotificationSettings.notifyEmail
   });
 });
 
