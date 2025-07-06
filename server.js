@@ -325,7 +325,7 @@ async function getGoogleReviews() {
 
 // Visit notification system
 const visitNotificationSettings = {
-  enabled: false, // TEMPORARILY DISABLED to stop email spam
+  enabled: true, // ✅ RE-ENABLED with smart filtering (admin detection + rate limiting)
   notifyEmail: process.env.BUSINESS_EMAIL || process.env.EMAIL_USER,
   excludeIPs: ['127.0.0.1', '::1'], // Exclude localhost
   excludePaths: ['/track-page-view', '/analytics-data', '/favicon.ico', '/robots.txt', '/sitemap.xml'],
