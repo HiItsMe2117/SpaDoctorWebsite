@@ -907,9 +907,9 @@ app.get('/robots.txt', (req, res) => {
 });
 
 app.post('/contact', async (req, res) => {
-  const { name, email, phone, zipcode, spaModel, message, service, sessionId, referrerPage } = req.body;
+  const { name, phone, zipcode, message, service, sessionId, referrerPage } = req.body;
   
-  console.log('Contact form submission:', { name, email, phone, zipcode, spaModel, message, service });
+  console.log('Contact form submission:', { name, phone, zipcode, message, service });
   
   // Track contact form analytics
   const submissionData = {
@@ -938,10 +938,8 @@ app.post('/contact', async (req, res) => {
       <h2>New Service Request from Spa Doctors Website</h2>
       <p><strong>Name:</strong> ${name}</p>
       <p><strong>Phone:</strong> ${phone}</p>
-      ${zipcode ? `<p><strong>Zipcode:</strong> ${zipcode}</p>` : ''}
-      ${email ? `<p><strong>Email:</strong> ${email}</p>` : ''}
-      ${service ? `<p><strong>Service Requested:</strong> ${service}</p>` : ''}
-      ${spaModel ? `<p><strong>Spa Brand/Model:</strong> ${spaModel}</p>` : ''}
+      <p><strong>Zipcode:</strong> ${zipcode}</p>
+      <p><strong>Service Requested:</strong> ${service}</p>
       <p><strong>Message:</strong></p>
       <p>${message}</p>
       <hr>
