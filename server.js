@@ -325,11 +325,13 @@ async function getGoogleReviews() {
 
 // Visit notification system
 const visitNotificationSettings = {
-  enabled: true,
+  enabled: false, // TEMPORARILY DISABLED to stop email spam
   notifyEmail: process.env.BUSINESS_EMAIL || process.env.EMAIL_USER,
   excludeIPs: ['127.0.0.1', '::1'], // Exclude localhost
   excludePaths: ['/track-page-view', '/analytics-data', '/favicon.ico', '/robots.txt', '/sitemap.xml'],
-  botUserAgents: ['bot', 'crawler', 'spider', 'scraper', 'facebook', 'twitter', 'google', 'bing', 'yahoo']
+  botUserAgents: ['bot', 'crawler', 'spider', 'scraper', 'facebook', 'twitter', 'google', 'bing', 'yahoo'],
+  rateLimit: {}, // Track last notification time per IP
+  rateLimitMinutes: 60 // Minimum minutes between notifications per IP
 };
 
 // Function to check if visitor is a bot
@@ -366,6 +368,7 @@ async function sendVisitNotification(visitData) {
         <p><strong>🕒 Time:</strong> ${visitData.timestamp}</p>
         <p><strong>💻 Device/Browser:</strong> ${visitData.userAgent}</p>
         <p><strong>📍 Referrer:</strong> ${visitData.referrer || 'Direct visit'}</p>
+        <p><strong>👤 Visitor Type:</strong> ${visitData.isNewVisitor ? '🆕 New Visitor' : '🔄 Returning Visitor'}</p>
       </div>
       
       <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin: 20px 0;">
@@ -418,6 +421,11 @@ function visitNotificationMiddleware(req, res, next) {
     return next();
   }
   
+  // Skip if user is authenticated as admin
+  if (isValidAdminToken(req)) {
+    return next();
+  }
+  
   // Skip bots and crawlers
   if (isBot(userAgent)) {
     return next();
@@ -428,6 +436,18 @@ function visitNotificationMiddleware(req, res, next) {
     return next();
   }
   
+  // Rate limiting - check if we've notified about this IP recently
+  const now = Date.now();
+  const lastNotification = visitNotificationSettings.rateLimit[clientIP] || 0;
+  const minutesSinceLastNotification = (now - lastNotification) / (1000 * 60);
+  
+  if (minutesSinceLastNotification < visitNotificationSettings.rateLimitMinutes) {
+    return next(); // Skip notification, too soon since last one
+  }
+  
+  // Update rate limit tracker
+  visitNotificationSettings.rateLimit[clientIP] = now;
+  
   // Prepare visit data
   const visitData = {
     page: path,
@@ -435,7 +455,8 @@ function visitNotificationMiddleware(req, res, next) {
     userAgent: userAgent,
     timestamp: new Date().toLocaleString(),
     referrer: req.get('Referrer'),
-    fullUrl: `${req.protocol}://${req.get('host')}${req.originalUrl}`
+    fullUrl: `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+    isNewVisitor: minutesSinceLastNotification > (24 * 60) // New if no visit in 24 hours
   };
   
   // Send notification asynchronously (don't block the response)
@@ -643,7 +664,7 @@ app.get('/admin/visit-notifications', requireAdminAuth, (req, res) => {
 });
 
 app.post('/admin/visit-notifications', requireAdminAuth, (req, res) => {
-  const { enabled, notifyEmail, excludeIPs } = req.body;
+  const { enabled, notifyEmail, excludeIPs, rateLimitMinutes } = req.body;
   
   if (typeof enabled === 'boolean') {
     visitNotificationSettings.enabled = enabled;
@@ -657,9 +678,32 @@ app.post('/admin/visit-notifications', requireAdminAuth, (req, res) => {
     visitNotificationSettings.excludeIPs = ['127.0.0.1', '::1', ...excludeIPs];
   }
   
+  if (rateLimitMinutes && typeof rateLimitMinutes === 'number') {
+    visitNotificationSettings.rateLimitMinutes = rateLimitMinutes;
+  }
+  
   res.json({
     success: true,
     message: 'Visit notification settings updated',
+    settings: visitNotificationSettings
+  });
+});
+
+// Quick enable/disable endpoints
+app.post('/admin/visit-notifications/enable', requireAdminAuth, (req, res) => {
+  visitNotificationSettings.enabled = true;
+  res.json({
+    success: true,
+    message: 'Visit notifications enabled with smart filtering',
+    settings: visitNotificationSettings
+  });
+});
+
+app.post('/admin/visit-notifications/disable', requireAdminAuth, (req, res) => {
+  visitNotificationSettings.enabled = false;
+  res.json({
+    success: true,
+    message: 'Visit notifications disabled',
     settings: visitNotificationSettings
   });
 });
