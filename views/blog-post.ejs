@@ -12,6 +12,8 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem 1rem;
+            padding-top: calc(var(--header-height-desktop) + 2rem);
+            margin-top: calc(-1 * var(--header-height-desktop));
         }
         .article-header {
             text-align: center;
@@ -169,6 +171,13 @@
         .cta-button:hover {
             transform: translateY(-2px);
         }
+        @media (max-width: 1024px) {
+            .article-container {
+                padding-top: calc(var(--header-height-tablet) + 2rem);
+                margin-top: calc(-1 * var(--header-height-tablet));
+            }
+        }
+        
         @media (max-width: 768px) {
             .article-title {
                 font-size: 2rem;
@@ -178,6 +187,8 @@
             }
             .article-container {
                 padding: 1rem;
+                padding-top: calc(var(--header-height-mobile) + 2rem);
+                margin-top: calc(-1 * var(--header-height-mobile));
             }
         }
     </style>
