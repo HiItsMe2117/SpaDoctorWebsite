@@ -165,9 +165,47 @@
             color: #dc2626;
             border: 1px solid #fecaca;
         }
+        .dashboard-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .dashboard-tab {
+            padding: 1rem 2rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #64748b;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .dashboard-tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        .dashboard-tab:hover {
+            color: #2563eb;
+        }
+        .dashboard-content {
+            display: none;
+        }
+        .dashboard-content.active {
+            display: block;
+        }
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
+            }
+            .dashboard-tabs {
+                flex-direction: column;
+                gap: 0;
+            }
+            .dashboard-tab {
+                padding: 0.75rem 1rem;
+                border-bottom: 1px solid #e5e7eb;
             }
         }
     </style>
@@ -185,10 +223,16 @@
     </div>
 
     <div class="admin-dashboard">
+        <div class="dashboard-tabs">
+            <button class="dashboard-tab active" onclick="showTab('blog')">📝 Blog Management</button>
+            <button class="dashboard-tab" onclick="showTab('gallery')">🖼️ Gallery Management</button>
+        </div>
+
         <div class="dashboard-grid">
             <div class="dashboard-card">
-                <h3>📊 Blog Statistics</h3>
+                <h3>📊 Content Statistics</h3>
                 <p><strong>Total Posts:</strong> <%= posts.length %></p>
+                <p><strong>Gallery Images:</strong> <span id="galleryCount">Loading...</span></p>
                 <p><strong>Recent Activity:</strong> <%= posts.length > 0 ? 'Last post: ' + new Date(posts[0].date).toLocaleDateString() : 'No posts yet' %></p>
                 <p><strong>Status:</strong> <span style="color: #059669;">Admin Panel Active</span></p>
             </div>
@@ -200,7 +244,8 @@
             </div>
         </div>
 
-        <div class="add-post-form" style="border: 2px solid #059669; background: #f0f9ff;">
+        <div id="blogContent" class="dashboard-content active">
+            <div class="add-post-form" style="border: 2px solid #059669; background: #f0f9ff;">
             <h3>🚀 Quick Start: Import Sample Posts</h3>
             <p style="color: #64748b; margin-bottom: 1.5rem;">
                 Get your blog up and running instantly with 12 professional hot tub articles. 
@@ -255,8 +300,8 @@ Tips for writing great blog content:
             </form>
         </div>
 
-        <div class="posts-list">
-            <h3>📝 Published Posts</h3>
+            <div class="posts-list">
+                <h3>📝 Published Posts</h3>
             <% if (posts && posts.length > 0) { %>
                 <% posts.forEach((post, index) => { %>
                     <div class="post-item">
@@ -277,6 +322,36 @@ Tips for writing great blog content:
             <% } else { %>
                 <p style="text-align: center; color: #64748b; padding: 2rem;">No blog posts yet. Create your first post above!</p>
             <% } %>
+            </div>
+        </div>
+
+        <div id="galleryContent" class="dashboard-content">
+            <div class="add-post-form">
+                <h3>🖼️ Upload Images to Gallery</h3>
+                
+                <div class="success-message" id="gallerySuccessMessage"></div>
+                <div class="error-message" id="galleryErrorMessage"></div>
+
+                <form id="galleryUploadForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="galleryImages">Select Images</label>
+                        <input type="file" id="galleryImages" name="images" multiple accept="image/*" required>
+                        <p style="color: #64748b; font-size: 0.9rem; margin-top: 0.5rem;">Select multiple images to upload to the gallery</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="imageDescription">Description (optional)</label>
+                        <input type="text" id="imageDescription" name="description" placeholder="Brief description of the images">
+                    </div>
+                    <button type="submit" class="btn-primary" id="gallerySubmitBtn">Upload Images</button>
+                </form>
+            </div>
+
+            <div class="posts-list">
+                <h3>🖼️ Gallery Images</h3>
+                <div id="galleryImagesList">
+                    <p style="text-align: center; color: #64748b; padding: 2rem;">Loading gallery images...</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -532,6 +607,159 @@ Tips for writing great blog content:
         
         // Initialize session manager
         const sessionManager = new SessionManager();
+
+        // Tab management
+        function showTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.dashboard-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content
+            document.getElementById(tabName + 'Content').classList.add('active');
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+            
+            // Load gallery images if gallery tab is selected
+            if (tabName === 'gallery') {
+                loadGalleryImages();
+            }
+        }
+
+        // Gallery management functions
+        async function loadGalleryImages() {
+            try {
+                const response = await secureAjaxRequest('/admin/gallery-images');
+                if (!response) return;
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayGalleryImages(result.images);
+                    document.getElementById('galleryCount').textContent = result.images.length;
+                } else {
+                    showGalleryError('Failed to load gallery images');
+                }
+            } catch (error) {
+                showGalleryError('Connection error loading gallery images');
+            }
+        }
+
+        function displayGalleryImages(images) {
+            const container = document.getElementById('galleryImagesList');
+            
+            if (images.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">No images in gallery yet. Upload some images above!</p>';
+                return;
+            }
+
+            container.innerHTML = images.map(image => `
+                <div class="post-item" style="align-items: flex-start; gap: 1rem;">
+                    <img src="/uploads/${image.filename}" alt="${image.description || 'Gallery image'}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px;">
+                    <div class="post-info" style="flex: 1;">
+                        <h4>${image.filename}</h4>
+                        <p>${image.description || 'No description'}</p>
+                        <p style="font-size: 0.8rem; color: #9ca3af;">Uploaded: ${new Date(image.uploadDate).toLocaleDateString()}</p>
+                    </div>
+                    <div class="post-actions">
+                        <button class="btn-danger" onclick="deleteGalleryImage('${image.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteGalleryImage(imageId) {
+            if (!confirm('Are you sure you want to delete this image?')) {
+                return;
+            }
+
+            try {
+                const response = await secureAjaxRequest('/admin/delete-gallery-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ imageId })
+                });
+
+                if (!response) return;
+                const result = await response.json();
+
+                if (result.success) {
+                    showGallerySuccess('Image deleted successfully!');
+                    loadGalleryImages();
+                } else {
+                    showGalleryError(result.error || 'Failed to delete image');
+                }
+            } catch (error) {
+                showGalleryError('Connection error. Please try again.');
+            }
+        }
+
+        function showGallerySuccess(message) {
+            const successEl = document.getElementById('gallerySuccessMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            document.getElementById('galleryErrorMessage').style.display = 'none';
+        }
+
+        function showGalleryError(message) {
+            const errorEl = document.getElementById('galleryErrorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            document.getElementById('gallerySuccessMessage').style.display = 'none';
+        }
+
+        // Gallery upload form
+        document.getElementById('galleryUploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('gallerySubmitBtn');
+            const files = document.getElementById('galleryImages').files;
+            
+            if (!files || files.length === 0) {
+                showGalleryError('Please select at least one image');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Uploading...';
+
+            try {
+                const response = await secureAjaxRequest('/admin/upload-gallery-images', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response) return;
+                const result = await response.json();
+
+                if (result.success) {
+                    showGallerySuccess(`Successfully uploaded ${result.count} image(s)!`);
+                    this.reset();
+                    loadGalleryImages();
+                } else {
+                    showGalleryError(result.error || 'Failed to upload images');
+                }
+            } catch (error) {
+                showGalleryError('Connection error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload Images';
+            }
+        });
+
+        // Load gallery count on page load
+        window.addEventListener('load', () => {
+            loadGalleryImages();
+        });
         
         // Auto-save functionality
         class AutoSaveManager {

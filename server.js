@@ -253,6 +253,22 @@ async function initializeData() {
     mediaLibrary = await dataManager.loadMediaLibrary();
     socialPosts = await dataManager.loadSocialPosts();
     
+    // Migrate gallery images to include IDs if they don't have them
+    let migrationNeeded = false;
+    galleryImages.forEach(image => {
+      if (!image.id) {
+        image.id = uuidv4();
+        image.description = image.description || '';
+        image.path = image.path || `./uploads/${image.filename}`;
+        migrationNeeded = true;
+      }
+    });
+    
+    if (migrationNeeded) {
+      console.log('Migrating gallery images to include IDs...');
+      await dataManager.saveGalleryImages(galleryImages);
+    }
+    
     console.log(`Loaded: ${blogPosts.length} blog posts, ${galleryImages.length} gallery images, ${mediaLibrary.length} media items, ${socialPosts.length} social posts`);
     
     // Create backup on startup
@@ -943,9 +959,12 @@ app.post('/contact', async (req, res) => {
 app.post('/upload-image', requireAdminAuth, upload.single('image'), async (req, res) => {
   if (req.file) {
     const newImage = {
+      id: uuidv4(),
       filename: req.file.filename,
       originalname: req.file.originalname,
-      uploadDate: new Date()
+      description: '',
+      uploadDate: new Date(),
+      path: req.file.path
     };
     galleryImages.push(newImage);
     
@@ -972,6 +991,89 @@ const createDirectories = async () => {
   }
 };
 createDirectories();
+
+// New unified gallery upload endpoint
+app.post('/admin/upload-gallery-images', requireAdminAuth, upload.array('images', 10), async (req, res) => {
+  try {
+    const { description } = req.body;
+    const uploadedFiles = [];
+
+    for (const file of req.files) {
+      const newImage = {
+        id: uuidv4(),
+        filename: file.filename,
+        originalname: file.originalname,
+        description: description || '',
+        uploadDate: new Date(),
+        path: file.path
+      };
+
+      galleryImages.push(newImage);
+      uploadedFiles.push(newImage);
+    }
+
+    // Save gallery images
+    await dataManager.saveGalleryImages(galleryImages);
+
+    res.json({ 
+      success: true, 
+      message: `${uploadedFiles.length} image(s) uploaded successfully!`,
+      count: uploadedFiles.length,
+      images: uploadedFiles 
+    });
+  } catch (error) {
+    console.error('Gallery upload error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get gallery images endpoint
+app.get('/admin/gallery-images', requireAdminAuth, async (req, res) => {
+  try {
+    res.json({ 
+      success: true, 
+      images: galleryImages 
+    });
+  } catch (error) {
+    console.error('Gallery images error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete gallery image endpoint
+app.post('/admin/delete-gallery-image', requireAdminAuth, async (req, res) => {
+  try {
+    const { imageId } = req.body;
+    
+    const imageIndex = galleryImages.findIndex(img => img.id === imageId);
+    if (imageIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Image not found' });
+    }
+
+    const image = galleryImages[imageIndex];
+    
+    // Delete the file from disk
+    try {
+      await fs.unlink(image.path);
+    } catch (fileError) {
+      console.error('Error deleting file:', fileError);
+    }
+
+    // Remove from array
+    galleryImages.splice(imageIndex, 1);
+    
+    // Save updated gallery
+    await dataManager.saveGalleryImages(galleryImages);
+
+    res.json({ 
+      success: true, 
+      message: 'Image deleted successfully!' 
+    });
+  } catch (error) {
+    console.error('Delete image error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // Upload media endpoint
 app.post('/upload-media', requireAdminAuth, mediaUpload.array('mediaFiles', 5), async (req, res) => {

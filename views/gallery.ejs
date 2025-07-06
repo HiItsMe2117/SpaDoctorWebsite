@@ -25,6 +25,7 @@
                         <li><a href="/about">About</a></li>
                         <li><a href="/contact">Contact</a></li>
                         <li><a href="/blog">Blog</a></li>
+                        <li><a href="/admin/login">Admin</a></li>
                     </ul>
                 </nav>
             </div>
@@ -66,25 +67,6 @@
                     </div>
                 <% } %>
 
-                <!-- Admin Upload Section (hidden by default) -->
-                <div id="adminSection" style="display: none; margin-top: 3rem; padding: 2rem; background: #f8fafc; border-radius: 10px;">
-                    <h3>Upload New Photo</h3>
-                    <form id="uploadForm" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="image">Select Image</label>
-                            <input type="file" id="image" name="image" accept="image/*" required>
-                        </div>
-                        <button type="submit" class="btn">Upload Photo</button>
-                    </form>
-                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #64748b;">
-                        Upload high-quality before/after photos of your work. Images will be displayed in the gallery.
-                    </p>
-                </div>
-
-                <!-- Admin Toggle Button -->
-                <div style="text-align: center; margin-top: 3rem;">
-                    <button onclick="toggleAdmin()" class="btn" style="background: #64748b;">Admin Upload</button>
-                </div>
             </div>
         </section>
 
@@ -173,11 +155,6 @@
             nav.classList.toggle('active');
         }
 
-        function toggleAdmin() {
-            const adminSection = document.getElementById('adminSection');
-            adminSection.style.display = adminSection.style.display === 'none' ? 'block' : 'none';
-        }
-
         function openModal(imageSrc) {
             document.getElementById('imageModal').style.display = 'block';
             document.getElementById('modalImage').src = imageSrc;
@@ -186,30 +163,6 @@
         function closeModal() {
             document.getElementById('imageModal').style.display = 'none';
         }
-
-        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            try {
-                const response = await fetch('/upload-image', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Image uploaded successfully!');
-                    location.reload();
-                } else {
-                    alert('Failed to upload image. Please try again.');
-                }
-            } catch (error) {
-                alert('Error uploading image. Please try again.');
-            }
-        });
 
         document.getElementById('quoteForm').addEventListener('submit', async function(e) {
             e.preventDefault();
