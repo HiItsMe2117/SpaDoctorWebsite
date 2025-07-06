@@ -907,9 +907,9 @@ app.get('/robots.txt', (req, res) => {
 });
 
 app.post('/contact', async (req, res) => {
-  const { name, phone, zipcode, message, service, sessionId, referrerPage } = req.body;
+  const { name, phone, zipcode, message, service, source, sessionId, referrerPage } = req.body;
   
-  console.log('Contact form submission:', { name, phone, zipcode, message, service });
+  console.log('Contact form submission:', { name, phone, zipcode, message, service, source });
   
   // Track contact form analytics
   const submissionData = {
@@ -940,6 +940,7 @@ app.post('/contact', async (req, res) => {
       <p><strong>Phone:</strong> ${phone}</p>
       <p><strong>Zipcode:</strong> ${zipcode}</p>
       <p><strong>Service Requested:</strong> ${service}</p>
+      <p><strong>Source:</strong> ${source || 'unknown'}</p>
       <p><strong>Message:</strong></p>
       <p>${message}</p>
       <hr>
