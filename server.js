@@ -351,9 +351,75 @@ function getClientIP(req) {
          req.ip;
 }
 
+// Function to get IP geolocation
+async function getIPLocation(ip) {
+  // Skip localhost and private IPs
+  if (!ip || ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
+    return {
+      location: '🏠 Local/Private Network',
+      city: 'Local',
+      region: 'Private',
+      country: 'Network',
+      isp: 'Local Network'
+    };
+  }
+
+  try {
+    // Primary API: geojs.io (unlimited free)
+    const response = await axios.get(`https://get.geojs.io/v1/ip/geo/${ip}.json`, {
+      timeout: 3000
+    });
+    
+    const data = response.data;
+    return {
+      location: `📍 ${data.city || 'Unknown'}, ${data.region || 'Unknown'}, ${data.country || 'Unknown'}`,
+      city: data.city || 'Unknown',
+      region: data.region || 'Unknown', 
+      country: data.country || 'Unknown',
+      isp: data.organization || 'Unknown ISP',
+      coords: data.latitude && data.longitude ? `${data.latitude}, ${data.longitude}` : null
+    };
+  } catch (error) {
+    console.log('Primary geolocation failed, trying fallback...');
+    
+    try {
+      // Fallback API: ip-api.com (1000 requests/month free)
+      const response = await axios.get(`http://ip-api.com/json/${ip}?fields=status,city,regionName,country,isp,lat,lon`, {
+        timeout: 3000
+      });
+      
+      const data = response.data;
+      if (data.status === 'success') {
+        return {
+          location: `📍 ${data.city || 'Unknown'}, ${data.regionName || 'Unknown'}, ${data.country || 'Unknown'}`,
+          city: data.city || 'Unknown',
+          region: data.regionName || 'Unknown',
+          country: data.country || 'Unknown', 
+          isp: data.isp || 'Unknown ISP',
+          coords: data.lat && data.lon ? `${data.lat}, ${data.lon}` : null
+        };
+      }
+    } catch (fallbackError) {
+      console.log('Fallback geolocation also failed');
+    }
+    
+    // Final fallback - show IP with error note
+    return {
+      location: `🌐 ${ip} (Location lookup failed)`,
+      city: 'Unknown',
+      region: 'Unknown',
+      country: 'Unknown',
+      isp: 'Unknown ISP'
+    };
+  }
+}
+
 // Function to send visit notification email
 async function sendVisitNotification(visitData) {
   if (!visitNotificationSettings.enabled) return;
+  
+  // Get geolocation for the IP address
+  const locationData = await getIPLocation(visitData.ip);
   
   const emailTemplate = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -364,11 +430,14 @@ async function sendVisitNotification(visitData) {
       <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
         <h3 style="color: #334155; margin-top: 0;">Visit Details</h3>
         <p><strong>📄 Page Visited:</strong> ${visitData.page}</p>
-        <p><strong>🌐 IP Address:</strong> ${visitData.ip}</p>
+        <p><strong>📍 Location:</strong> ${locationData.location}</p>
+        <p><strong>🏢 ISP:</strong> ${locationData.isp}</p>
         <p><strong>🕒 Time:</strong> ${visitData.timestamp}</p>
         <p><strong>💻 Device/Browser:</strong> ${visitData.userAgent}</p>
-        <p><strong>📍 Referrer:</strong> ${visitData.referrer || 'Direct visit'}</p>
+        <p><strong>🔗 Referrer:</strong> ${visitData.referrer || 'Direct visit'}</p>
         <p><strong>👤 Visitor Type:</strong> ${visitData.isNewVisitor ? '🆕 New Visitor' : '🔄 Returning Visitor'}</p>
+        ${locationData.coords ? `<p><strong>🗺️ Coordinates:</strong> ${locationData.coords}</p>` : ''}
+        <p style="font-size: 0.9em; color: #64748b;"><strong>🌐 IP:</strong> ${visitData.ip}</p>
       </div>
       
       <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin: 20px 0;">
@@ -391,10 +460,10 @@ async function sendVisitNotification(visitData) {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: visitNotificationSettings.notifyEmail,
-      subject: `🎯 New Website Visitor - ${visitData.page}`,
+      subject: `🎯 Visitor from ${locationData.city || 'Unknown'}, ${locationData.country || 'Unknown'} - ${visitData.page}`,
       html: emailTemplate
     });
-    console.log('Visit notification sent:', visitData.page, visitData.ip);
+    console.log('Visit notification sent:', visitData.page, locationData.location);
   } catch (error) {
     console.error('Error sending visit notification:', error);
   }
