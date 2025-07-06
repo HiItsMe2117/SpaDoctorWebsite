@@ -472,6 +472,26 @@ app.get('/admin/logout', (req, res) => {
   res.redirect('/blog');
 });
 
+app.post('/admin/refresh-token', requireAdminAuth, (req, res) => {
+  // Generate new token for session extension
+  const newToken = generateJWT();
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  res.cookie('adminToken', newToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'strict',
+    maxAge: 30 * 60 * 1000, // 30 minutes
+    path: '/'
+  });
+  
+  res.json({ 
+    success: true, 
+    message: 'Token refreshed successfully',
+    expiresIn: 30 * 60 * 1000 // 30 minutes in milliseconds
+  });
+});
+
 app.post('/admin/add-post', requireAdminAuth, (req, res) => {
   const { title, content } = req.body;
   
@@ -499,8 +519,85 @@ app.post('/admin/add-post', requireAdminAuth, (req, res) => {
   
   res.json({ 
     success: true, 
+    message: 'Blog post added successfully' 
+  });
+});
+
+app.post('/admin/edit-post', requireAdminAuth, (req, res) => {
+  const { id, title, content } = req.body;
+  
+  if (!id || !title || !content) {
+    return res.json({ 
+      success: false, 
+      error: 'Post ID, title, and content are required' 
+    });
+  }
+  
+  const postIndex = blogPosts.findIndex(post => post.id === parseInt(id));
+  
+  if (postIndex === -1) {
+    return res.json({ 
+      success: false, 
+      error: 'Blog post not found' 
+    });
+  }
+  
+  const sanitizedContent = sanitizeContent(content);
+  
+  // Update the post
+  blogPosts[postIndex] = {
+    ...blogPosts[postIndex],
+    title: title.trim(),
+    content: sanitizedContent,
+    lastModified: new Date()
+  };
+  
+  // Save to persistent storage
+  dataManager.saveBlogPosts(blogPosts);
+  
+  res.json({ 
+    success: true, 
     message: 'Blog post added successfully',
     post: newPost
+  });
+});
+
+app.post('/admin/edit-post', requireAdminAuth, (req, res) => {
+  const { id, title, content } = req.body;
+  
+  if (!id || !title || !content) {
+    return res.json({ 
+      success: false, 
+      error: 'Post ID, title, and content are required' 
+    });
+  }
+  
+  const postIndex = blogPosts.findIndex(post => post.id === parseInt(id));
+  
+  if (postIndex === -1) {
+    return res.json({ 
+      success: false, 
+      error: 'Blog post not found' 
+    });
+  }
+  
+  const sanitizedContent = sanitizeContent(content);
+  
+  // Update the post
+  blogPosts[postIndex] = {
+    ...blogPosts[postIndex],
+    title: title.trim(),
+    content: sanitizedContent,
+    lastModified: new Date()
+  };
+  
+  // Save to persistent storage
+  dataManager.saveBlogPosts(blogPosts);
+  
+  res.json({ 
+    success: true, 
+    message: 'Blog post updated successfully',
+    post: blogPosts[postIndex]
   });
 });
 

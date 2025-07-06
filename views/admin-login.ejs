@@ -173,7 +173,11 @@
                 if (result.success) {
                     showSuccess('Login successful! Redirecting...');
                     setTimeout(() => {
-                        window.location.href = '/admin/blog';
+                        // Check for return URL parameter
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const returnTo = urlParams.get('returnTo');
+                        const redirectUrl = returnTo || '/admin/blog';
+                        window.location.href = redirectUrl;
                     }, 1000);
                 } else {
                     showError(result.error || 'Invalid passcode. Please try again.');
