@@ -870,7 +870,7 @@ app.get('/analytics-data', (req, res) => {
 });
 
 // Business dashboard page (formerly analytics)
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard', requireAdminAuth, (req, res) => {
   res.render('analytics'); // Still using analytics.ejs template
 });
 

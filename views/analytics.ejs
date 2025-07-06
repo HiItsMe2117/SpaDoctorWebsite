@@ -26,6 +26,7 @@
                         <li><a href="/contact">Contact</a></li>
                         <li><a href="/blog">Blog</a></li>
                         <li><a href="/dashboard" class="active">Dashboard</a></li>
+                        <li><a href="/admin/blog" style="background: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 5px;">🔧 Blog Admin</a></li>
                     </ul>
                 </nav>
             </div>
@@ -133,73 +134,7 @@
                 <div id="media-tab" class="tab-content">
                     <h2 style="color: var(--gray-dark); margin-bottom: 2rem; font-size: 2rem;">📸 Media Manager</h2>
                     
-                    <!-- Google Business Profile Media Section -->
-                    <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem; border-left: 4px solid #4285f4;">
-                        <h3 style="color: #4285f4; margin-bottom: 1.5rem; font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
-                            🏢 Google Business Profile Media
-                        </h3>
-                        
-                        <div id="google-media-section">
-                            <div id="google-not-connected" style="text-align: center; padding: 2rem; background: var(--gray-light); border-radius: 8px;">
-                                <div style="color: var(--gray-medium); font-size: 2rem; margin-bottom: 1rem;">🔗</div>
-                                <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">Connect Google Business Profile</h4>
-                                <p style="color: var(--gray-medium); margin-bottom: 1.5rem;">Upload photos directly to your Google Business listing</p>
-                                <button onclick="connectGoogle()" style="background: #4285f4; color: white; border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer;">Connect Google</button>
-                            </div>
-                            
-                            <div id="google-setup-required" style="display: none; text-align: center; padding: 2rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px;">
-                                <div style="color: #856404; font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
-                                <h4 style="color: #856404; margin-bottom: 1rem;">Google Business Profile Setup Required</h4>
-                                <p style="color: #856404; margin-bottom: 1.5rem;">You're connected to Google, but you need a verified Google Business Profile to upload photos.</p>
-                                <div style="margin-bottom: 1.5rem;">
-                                    <p style="color: #856404; font-size: 0.9rem; margin-bottom: 0.5rem;"><strong>Steps to set up your Google Business Profile:</strong></p>
-                                    <ol style="text-align: left; color: #856404; font-size: 0.9rem; max-width: 400px; margin: 0 auto;">
-                                        <li>Go to <a href="https://business.google.com" target="_blank" style="color: #4285f4;">business.google.com</a></li>
-                                        <li>Create or claim your business listing</li>
-                                        <li>Verify your business (usually by phone or postcard)</li>
-                                        <li>Return here to upload photos</li>
-                                    </ol>
-                                </div>
-                                <button onclick="disconnectGoogle()" style="background: #dc3545; color: white; border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer; margin-right: 1rem;">Disconnect</button>
-                                <a href="https://business.google.com" target="_blank" style="background: #4285f4; color: white; text-decoration: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; display: inline-block;">Set Up Business Profile</a>
-                            </div>
-                            
-                            <div id="google-connected" style="display: none;">
-                                <!-- Upload to Google Business Profile -->
-                                <div style="border: 2px dashed #4285f4; border-radius: 10px; padding: 2rem; text-align: center; background: #f8f9ff; margin-bottom: 2rem;">
-                                    <div style="color: #4285f4; font-size: 2rem; margin-bottom: 1rem;">🏢</div>
-                                    <h4 style="color: var(--gray-dark); margin-bottom: 1rem;">Upload to Google Business Profile</h4>
-                                    <input type="file" id="googleMediaFile" accept="image/*" style="margin-bottom: 1rem;">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                                        <select id="googleMediaCategory" style="padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px;">
-                                            <option value="ADDITIONAL">Additional Photos</option>
-                                            <option value="EXTERIOR">Exterior</option>
-                                            <option value="INTERIOR">Interior</option>
-                                            <option value="PRODUCT">Products/Services</option>
-                                            <option value="AT_WORK">Team at Work</option>
-                                            <option value="COVER">Cover Photo</option>
-                                            <option value="PROFILE">Profile Photo</option>
-                                            <option value="LOGO">Logo</option>
-                                        </select>
-                                        <input type="text" id="googleMediaDescription" placeholder="Description (optional)" style="padding: 0.8rem; border: 2px solid var(--gray-light); border-radius: 5px;">
-                                    </div>
-                                    <button onclick="uploadToGoogleBusiness()" style="background: #4285f4; color: white; border: none; padding: 0.8rem 2rem; border-radius: 5px; font-weight: 500; cursor: pointer;">Upload to Google Business</button>
-                                    <p style="color: var(--gray-medium); font-size: 0.9rem; margin-top: 1rem;">Photos will appear on your Google Business listing and Google Maps</p>
-                                </div>
-                                
-                                <!-- Google Business Profile Media Gallery -->
-                                <div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                        <h4 style="color: var(--gray-dark); margin: 0;">Your Google Business Photos</h4>
-                                        <button onclick="refreshGoogleMedia()" style="background: var(--gray-medium); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">🔄 Refresh</button>
-                                    </div>
-                                    <div id="google-media-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-                                        <!-- Google Business Profile photos will be loaded here -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Google Business Profile section removed (API access denied) -->
                     
                     <!-- Upload Section -->
                     <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 2rem;">
@@ -326,7 +261,7 @@
                                         <p style="color: var(--gray-medium); font-size: 0.9rem; margin: 0;">Ready to connect</p>
                                     </div>
                                 </div>
-                                <button onclick="connectGoogle()" style="background: var(--primary-blue); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Connect</button>
+                                <button onclick="alert('Google Business Profile integration removed (API access denied)')" style="background: var(--gray-medium); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Unavailable</button>
                             </div>
                             
                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--gray-light); border-radius: 8px; border-left: 4px solid var(--gray-medium);">
@@ -680,53 +615,7 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             }
         }
 
-        // Social media connection functions
-        function connectGoogle() {
-            window.location.href = '/auth/google';
-        }
-
-        function disconnectGoogle() {
-            if (confirm('Are you sure you want to disconnect your Google Business Profile?')) {
-                fetch('/auth/google/disconnect', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        alert('Google Business Profile disconnected successfully');
-                        updateGoogleConnectionStatus(false);
-                    } else {
-                        alert('Failed to disconnect: ' + (result.error || 'Unknown error'));
-                    }
-                })
-                .catch(error => {
-                    alert('Error disconnecting: ' + error.message);
-                });
-            }
-        }
-
-        function updateGoogleConnectionStatus(connected) {
-            // Update settings UI to show connection status
-            const connectionElements = document.querySelectorAll('.google-connection-status');
-            connectionElements.forEach(element => {
-                if (connected) {
-                    element.style.borderLeft = '4px solid #34a853';
-                    element.querySelector('h4').textContent = 'Google Business Profile - Connected';
-                    element.querySelector('p').textContent = 'Successfully connected and authenticated';
-                    element.querySelector('button').textContent = 'Disconnect';
-                    element.querySelector('button').onclick = disconnectGoogle;
-                    element.querySelector('button').style.background = '#dc3545';
-                } else {
-                    element.style.borderLeft = '4px solid var(--gray-medium)';
-                    element.querySelector('h4').textContent = 'Google Business Profile';
-                    element.querySelector('p').textContent = 'Ready to connect';
-                    element.querySelector('button').textContent = 'Connect';
-                    element.querySelector('button').onclick = connectGoogle;
-                    element.querySelector('button').style.background = '#4285f4';
-                }
-            });
-        }
+        // Google integration functions removed (API access denied)
 
         function connectFacebook() {
             alert('Facebook integration coming soon! This will allow you to post to your business page.');
@@ -846,151 +735,6 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
             alert('Post scheduling feature coming soon! This will allow you to schedule posts for optimal times.');
         }
 
-        // Google Business Profile Media Functions
-
-        // Upload media to Google Business Profile
-        async function uploadToGoogleBusiness() {
-            const fileInput = document.getElementById('googleMediaFile');
-            const category = document.getElementById('googleMediaCategory').value;
-            const description = document.getElementById('googleMediaDescription').value;
-
-            if (!fileInput.files.length) {
-                alert('Please select a file to upload!');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('mediaFile', fileInput.files[0]);
-            formData.append('category', category);
-            formData.append('description', description);
-
-            // Show loading state
-            const uploadButton = event.target;
-            const originalText = uploadButton.textContent;
-            uploadButton.textContent = '⏳ Uploading...';
-            uploadButton.disabled = true;
-
-            try {
-                const response = await fetch('/google-business-media/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('✅ Photo uploaded to Google Business Profile successfully!\n\nIt will appear on your Google listing and Google Maps.');
-                    
-                    // Clear form
-                    fileInput.value = '';
-                    document.getElementById('googleMediaDescription').value = '';
-                    
-                    // Refresh gallery
-                    refreshGoogleMedia();
-                } else {
-                    alert('❌ Failed to upload to Google Business Profile: ' + (result.error || 'Unknown error'));
-                }
-            } catch (error) {
-                alert('❌ Upload error: ' + error.message);
-                console.error('Google Business media upload error:', error);
-            } finally {
-                // Restore button state
-                uploadButton.textContent = originalText;
-                uploadButton.disabled = false;
-            }
-        }
-
-        // Load Google Business Profile media
-        async function loadGoogleBusinessMedia() {
-            try {
-                const response = await fetch('/google-business-media');
-                const result = await response.json();
-
-                const gallery = document.getElementById('google-media-gallery');
-                
-                if (result.success && result.data.length > 0) {
-                    gallery.innerHTML = result.data.map(media => {
-                        const categoryLabel = getCategoryLabel(media.locationAssociation?.category || 'ADDITIONAL');
-                        const createDate = media.createTime ? new Date(media.createTime).toLocaleDateString() : 'Unknown';
-                        
-                        return `
-                            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.1); background: var(--white);">
-                                <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #4285f4, #34a853); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
-                                    ${media.thumbnailUrl ? 
-                                        `<img src="${media.thumbnailUrl}" alt="Business photo" style="width: 100%; height: 100%; object-fit: cover;">` : 
-                                        '🏢'
-                                    }
-                                </div>
-                                <div style="padding: 1rem;">
-                                    <h4 style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.9rem;">${categoryLabel}</h4>
-                                    <p style="margin: 0; color: var(--gray-medium); font-size: 0.8rem;">Uploaded: ${createDate}</p>
-                                    ${media.description ? `<p style="margin: 0.5rem 0 0 0; color: var(--gray-dark); font-size: 0.8rem;">${media.description}</p>` : ''}
-                                    <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
-                                        ${media.googleUrl ? `<a href="${media.googleUrl}" target="_blank" style="background: #4285f4; color: white; padding: 0.3rem 0.6rem; border-radius: 3px; font-size: 0.7rem; text-decoration: none;">View</a>` : ''}
-                                        <button onclick="deleteGoogleMedia('${encodeURIComponent(media.name)}')" style="background: #dc3545; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 3px; font-size: 0.7rem; cursor: pointer;">Delete</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    gallery.innerHTML = `
-                        <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--gray-medium);">
-                            <div style="font-size: 2rem; margin-bottom: 1rem;">📷</div>
-                            <p>No photos uploaded to Google Business Profile yet</p>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Error loading Google Business media:', error);
-                document.getElementById('google-media-gallery').innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #dc3545;">
-                        <p>Error loading Google Business Profile photos</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Refresh Google Business Profile media
-        async function refreshGoogleMedia() {
-            const refreshButton = event.target;
-            const originalText = refreshButton.textContent;
-            refreshButton.textContent = '⏳ Loading...';
-            refreshButton.disabled = true;
-
-            try {
-                await loadGoogleBusinessMedia();
-            } finally {
-                refreshButton.textContent = originalText;
-                refreshButton.disabled = false;
-            }
-        }
-
-        // Delete Google Business Profile media
-        async function deleteGoogleMedia(mediaName) {
-            if (!confirm('Are you sure you want to delete this photo from your Google Business Profile?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/google-business-media/${mediaName}`, {
-                    method: 'DELETE'
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('✅ Photo deleted from Google Business Profile successfully!');
-                    refreshGoogleMedia();
-                } else {
-                    alert('❌ Failed to delete photo: ' + (result.error || 'Unknown error'));
-                }
-            } catch (error) {
-                alert('❌ Delete error: ' + error.message);
-                console.error('Google Business media delete error:', error);
-            }
-        }
-
         // Get user-friendly category labels
         function getCategoryLabel(category) {
             const labels = {
@@ -1029,18 +773,14 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                             document.getElementById('google-connected').style.display = 'none';
                             
                             // Update settings UI if it exists
-                            updateGoogleConnectionStatus(true);
+                            // Google connection status update removed
                         } else {
                             // Show connected UI
                             document.getElementById('google-not-connected').style.display = 'none';
                             document.getElementById('google-setup-required').style.display = 'none';
                             document.getElementById('google-connected').style.display = 'block';
                             
-                            // Load existing media
-                            loadGoogleBusinessMedia();
-                            
-                            // Update settings UI if it exists
-                            updateGoogleConnectionStatus(true);
+                            // Google Business Profile media loading removed (API access denied)
                         }
                     } else {
                         // No locations found, show setup required
@@ -1048,7 +788,7 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                         document.getElementById('google-setup-required').style.display = 'block';
                         document.getElementById('google-connected').style.display = 'none';
                         
-                        updateGoogleConnectionStatus(true);
+                        // Google connection status update removed
                     }
                 } else {
                     // Show disconnected UI
@@ -1057,7 +797,7 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
                     document.getElementById('google-connected').style.display = 'none';
                     
                     // Update settings UI if it exists
-                    updateGoogleConnectionStatus(false);
+                    // Google connection status update removed
                 }
             } catch (error) {
                 console.error('Error checking Google connection status:', error);
@@ -1075,7 +815,7 @@ Call (856) 266-7293 for professional hot tub service!</textarea>
 
             if (googleConnected === 'success') {
                 alert('Google Business Profile connected successfully!');
-                updateGoogleConnectionStatus(true);
+                // Google connection status update removed
                 // Remove the parameter from URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else if (googleConnected === 'error') {
