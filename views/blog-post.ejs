@@ -8,12 +8,21 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/analytics.js"></script>
     <style>
+        /* Article-specific header adjustments */
+        .header-content {
+            min-height: 80px !important;
+        }
+        
+        .header-top {
+            justify-content: space-between !important;
+        }
+        
         .article-container {
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem 1rem;
-            padding-top: calc(var(--header-height-desktop) + 2rem);
-            margin-top: calc(-1 * var(--header-height-desktop));
+            padding-top: calc(80px + 2rem);
+            margin-top: -80px;
         }
         .article-header {
             text-align: center;
@@ -175,9 +184,13 @@
             transform: translateY(-2px);
         }
         @media (max-width: 1024px) {
+            .header-content {
+                min-height: 75px !important;
+            }
+            
             .article-container {
-                padding-top: calc(var(--header-height-tablet) + 2rem);
-                margin-top: calc(-1 * var(--header-height-tablet));
+                padding-top: calc(75px + 2rem);
+                margin-top: -75px;
             }
             .article-title {
                 font-size: 2.2rem;
@@ -186,6 +199,16 @@
         }
         
         @media (max-width: 768px) {
+            .header-content {
+                min-height: 70px !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+            }
+            
+            .header-nav {
+                display: none !important;
+            }
+            
             .article-title {
                 font-size: 1.8rem;
                 line-height: 1.4;
@@ -196,19 +219,24 @@
             }
             .article-container {
                 padding: 1rem;
-                padding-top: calc(var(--header-height-mobile) + 2rem);
-                margin-top: calc(-1 * var(--header-height-mobile));
+                padding-top: calc(70px + 2rem);
+                margin-top: -70px;
             }
         }
         
         @media (max-width: 480px) {
+            .header-content {
+                min-height: 65px !important;
+            }
+            
             .article-title {
                 font-size: 1.5rem;
                 line-height: 1.4;
                 padding-top: 1rem;
             }
             .article-container {
-                padding-top: calc(var(--header-height-mobile) + 1.5rem);
+                padding-top: calc(65px + 1.5rem);
+                margin-top: -65px;
             }
         }
     </style>
@@ -218,7 +246,6 @@
         <div class="container">
             <div class="header-content">
                 <div class="header-top">
-                    <a href="/" class="logo">Spa Doctors</a>
                     <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
                     <div class="mobile-menu" onclick="toggleMenu()">
                         <span></span>
