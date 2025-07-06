@@ -15,9 +15,9 @@
   --gray-dark: #334155;
   
   /* Header height variables */
-  --header-height-desktop: 70px;
-  --header-height-tablet: 65px;
-  --header-height-mobile: 60px;
+  --header-height-desktop: 110px;
+  --header-height-tablet: 100px;
+  --header-height-mobile: 90px;
 }
 
 body {
@@ -44,11 +44,25 @@ header {
 
 .header-content {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
   padding: 1rem 0;
   position: relative;
-  min-height: var(--header-height-desktop);
+  min-height: calc(var(--header-height-desktop) + 40px);
+  gap: 0.5rem;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-nav {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .logo {
@@ -477,7 +491,7 @@ footer {
   }
   
   .header-content {
-    min-height: var(--header-height-tablet);
+    min-height: calc(var(--header-height-tablet) + 40px);
   }
   
   main {
@@ -492,7 +506,17 @@ footer {
   }
   
   .header-content {
-    min-height: var(--header-height-mobile);
+    min-height: calc(var(--header-height-mobile) + 30px);
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .header-top {
+    width: auto;
+  }
+  
+  .header-nav {
+    display: none;
   }
   
   main {

@@ -12,7 +12,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem 1rem;
-            padding-top: calc(var(--header-height-desktop) + 4rem);
+            padding-top: calc(var(--header-height-desktop) + 2rem);
             margin-top: calc(-1 * var(--header-height-desktop));
         }
         .article-header {
@@ -176,7 +176,7 @@
         }
         @media (max-width: 1024px) {
             .article-container {
-                padding-top: calc(var(--header-height-tablet) + 4rem);
+                padding-top: calc(var(--header-height-tablet) + 2rem);
                 margin-top: calc(-1 * var(--header-height-tablet));
             }
             .article-title {
@@ -196,7 +196,7 @@
             }
             .article-container {
                 padding: 1rem;
-                padding-top: calc(var(--header-height-mobile) + 3rem);
+                padding-top: calc(var(--header-height-mobile) + 2rem);
                 margin-top: calc(-1 * var(--header-height-mobile));
             }
         }
@@ -208,7 +208,7 @@
                 padding-top: 1rem;
             }
             .article-container {
-                padding-top: calc(var(--header-height-mobile) + 2.5rem);
+                padding-top: calc(var(--header-height-mobile) + 1.5rem);
             }
         }
     </style>
@@ -217,23 +217,27 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo">Spa Doctors</a>
-                <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
-                <div class="mobile-menu" onclick="toggleMenu()">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                <div class="header-top">
+                    <a href="/" class="logo">Spa Doctors</a>
+                    <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
+                    <div class="mobile-menu" onclick="toggleMenu()">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </div>
-                <nav id="nav">
-                    <ul>
-                        <li><a href="/services">Services</a></li>
-                        <li><a href="/gallery">Gallery</a></li>
-                        <li><a href="/about">About</a></li>
-                        <li><a href="/contact">Contact</a></li>
-                        <li><a href="/blog" class="active">Blog</a></li>
-                        <li><a href="/admin/login">Admin</a></li>
-                    </ul>
-                </nav>
+                <div class="header-nav">
+                    <nav id="nav">
+                        <ul>
+                            <li><a href="/services">Services</a></li>
+                            <li><a href="/gallery">Gallery</a></li>
+                            <li><a href="/about">About</a></li>
+                            <li><a href="/contact">Contact</a></li>
+                            <li><a href="/blog" class="active">Blog</a></li>
+                            <li><a href="/admin/login">Admin</a></li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </header>
