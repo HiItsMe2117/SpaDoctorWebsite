@@ -115,8 +115,18 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="zipcode">Zipcode *</label>
+                                <input type="text" id="zipcode" name="zipcode" required placeholder="08033" maxlength="5" pattern="[0-9]{5}">
+                            </div>
+
+                            <div class="form-group">
                                 <label for="email">Email Address</label>
                                 <input type="email" id="email" name="email" placeholder="your@email.com (optional)">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="spaModel">Spa Brand/Model</label>
+                                <input type="text" id="spaModel" name="spaModel" placeholder="e.g., Jacuzzi J-475, Sundance Cameo, Hot Springs Grandee (optional)">
                             </div>
 
                             <div class="form-group">
@@ -232,6 +242,15 @@
 
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
+
+            // Validate zipcode
+            const zipcode = data.zipcode;
+            if (zipcode && !/^\d{5}$/.test(zipcode)) {
+                alert('Please enter a valid 5-digit zipcode.');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                return;
+            }
 
             try {
                 const response = await fetch('/contact', {
