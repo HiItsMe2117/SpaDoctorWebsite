@@ -234,17 +234,26 @@
 
         document.getElementById('serviceForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+
+            // Show loading state
+            submitButton.textContent = 'Sending...';
+            submitButton.disabled = true;
+
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
-            
+
             // Validate zipcode
             const zipcode = data.zipcode;
             if (zipcode && !/^\d{5}$/.test(zipcode)) {
                 alert('Please enter a valid 5-digit zipcode.');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
                 return;
             }
-            
+
             try {
                 const response = await fetch('/contact', {
                     method: 'POST',
@@ -253,17 +262,41 @@
                     },
                     body: JSON.stringify(data)
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
-                    alert('Thank you! We will contact you soon to discuss your service needs.');
+                    // Show success message
+                    const successMsg = document.createElement('div');
+                    successMsg.style.cssText = 'background: #10b981; color: white; padding: 1rem; border-radius: 5px; margin-top: 1rem; text-align: center;';
+                    successMsg.textContent = 'Thank you! We received your service request and will contact you soon to discuss your needs.';
+                    this.appendChild(successMsg);
+
+                    // Reset form
                     this.reset();
+
+                    // Remove success message after 5 seconds
+                    setTimeout(() => {
+                        successMsg.remove();
+                    }, 5000);
                 } else {
-                    alert('Sorry, there was an error. Please call us directly.');
+                    throw new Error('Form submission failed');
                 }
             } catch (error) {
-                alert('Sorry, there was an error. Please call us directly at (856) 266-7293.');
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.style.cssText = 'background: #ef4444; color: white; padding: 1rem; border-radius: 5px; margin-top: 1rem; text-align: center;';
+                errorMsg.innerHTML = 'Sorry, there was an error sending your request.<br>Please call us directly at <a href="tel:+18562667293" style="color: white; text-decoration: underline;">(856) 266-7293</a>';
+                this.appendChild(errorMsg);
+
+                // Remove error message after 5 seconds
+                setTimeout(() => {
+                    errorMsg.remove();
+                }, 5000);
+            } finally {
+                // Restore button state
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
             }
         });
     </script>

@@ -910,12 +910,20 @@ app.post('/contact', async (req, res) => {
   const { name, phone, zipcode, message, service, source, sessionId, referrerPage } = req.body;
   
   console.log('Contact form submission:', { name, phone, zipcode, message, service, source });
+  console.log('Analytics object state:', {
+    hasContactSubmissions: !!analytics.contactSubmissions,
+    contactSubmissionsLength: analytics.contactSubmissions ? analytics.contactSubmissions.length : 'undefined'
+  });
+  
+  // Ensure analytics structure exists
+  if (!analytics.contactSubmissions) {
+    analytics.contactSubmissions = [];
+  }
   
   // Track contact form analytics
   const submissionData = {
     timestamp: new Date().toISOString(),
     service: service || 'General Contact',
-    hasEmail: !!email,
     hasPhone: !!phone,
     messageLength: message ? message.length : 0,
     referrerPage: referrerPage || 'unknown',
@@ -928,7 +936,12 @@ app.post('/contact', async (req, res) => {
   analytics.contactSubmissions.push(submissionData);
   
   // Save analytics data
-  await dataManager.saveAnalytics(analytics);
+  try {
+    await dataManager.saveAnalytics(analytics);
+    console.log('Analytics saved successfully');
+  } catch (error) {
+    console.error('Error saving analytics:', error);
+  }
   
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -949,10 +962,17 @@ app.post('/contact', async (req, res) => {
   };
   
   try {
+    console.log('Attempting to send email...');
     await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully');
     res.json({ success: true, message: 'Thank you for your message! We will contact you soon.' });
   } catch (error) {
     console.error('Email error:', error);
+    console.error('Email configuration:', {
+      user: process.env.EMAIL_USER ? 'SET' : 'NOT SET',
+      pass: process.env.EMAIL_PASS ? 'SET' : 'NOT SET',
+      businessEmail: process.env.BUSINESS_EMAIL || 'NOT SET'
+    });
     res.json({ success: true, message: 'Thank you for your message! We will contact you soon.' });
   }
 });
