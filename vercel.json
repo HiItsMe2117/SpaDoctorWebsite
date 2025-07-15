@@ -35,5 +35,17 @@
       "src": "/(.*)",
       "dest": "/server.js"
     }
+  ],
+  "redirects": [
+    {
+      "source": "http://spadoc.tech/(.*)",
+      "destination": "https://www.spadoc.tech/$1",
+      "permanent": true
+    },
+    {
+      "source": "https://spadoc.tech/(.*)",
+      "destination": "https://www.spadoc.tech/$1",
+      "permanent": true
+    }
   ]
 }
