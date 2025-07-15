@@ -12,7 +12,16 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
-const dataManager = require('./utils/dataManager');
+// const dataManager = require('./utils/dataManager'); // Disabled for Vercel serverless
+
+// Mock dataManager for serverless compatibility
+const dataManager = {
+  saveBlogPosts: () => Promise.resolve(true),
+  saveAnalytics: () => Promise.resolve(true),
+  saveGalleryImages: () => Promise.resolve(true),
+  saveMediaLibrary: () => Promise.resolve(true),
+  saveSocialPosts: () => Promise.resolve(true)
+};
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -244,38 +253,23 @@ const blogCategories = {
 };
 
 // Initialize data on server start
-async function initializeData() {
-  try {
-    console.log('Loading persistent data...');
-    blogPosts = await dataManager.loadBlogPosts();
-    galleryImages = await dataManager.loadGalleryImages();
-    analytics = await dataManager.loadAnalytics();
-    mediaLibrary = await dataManager.loadMediaLibrary();
-    socialPosts = await dataManager.loadSocialPosts();
-    
-    // Migrate gallery images to include IDs if they don't have them
-    let migrationNeeded = false;
-    galleryImages.forEach(image => {
-      if (!image.id) {
-        image.id = uuidv4();
-        image.description = image.description || '';
-        image.path = image.path || `./uploads/${image.filename}`;
-        migrationNeeded = true;
-      }
-    });
-    
-    if (migrationNeeded) {
-      console.log('Migrating gallery images to include IDs...');
-      await dataManager.saveGalleryImages(galleryImages);
-    }
-    
-    console.log(`Loaded: ${blogPosts.length} blog posts, ${galleryImages.length} gallery images, ${mediaLibrary.length} media items, ${socialPosts.length} social posts`);
-    
-    // Create backup on startup
-    await dataManager.createBackup();
-  } catch (error) {
-    console.error('Error initializing data:', error);
-  }
+function initializeData() {
+  console.log('Initializing in-memory data for serverless...');
+  // Initialize with defaults for serverless environment
+  blogPosts = [];
+  galleryImages = [];
+  mediaLibrary = [];
+  socialPosts = [];
+  analytics = {
+    blogPageViews: {},
+    articleExpansions: {},
+    contactSubmissions: [],
+    pageViews: {},
+    customerJourneys: {},
+    servicePageViews: {},
+    dailyStats: {}
+  };
+  console.log('In-memory data initialized');
 }
 
 // Social media platform settings
