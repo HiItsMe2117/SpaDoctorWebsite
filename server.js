@@ -252,6 +252,211 @@ const blogCategories = {
   }
 };
 
+// Service locations data structure
+const serviceLocations = {
+  "arvada": {
+    name: "Arvada",
+    slug: "arvada-services",
+    zipCodes: ["80002", "80003", "80004", "80005", "80006", "80007"],
+    population: "124,000",
+    description: "Professional hot tub repair and maintenance services in Arvada, Colorado. Expert service for Olde Town, Candelas, and all Arvada neighborhoods.",
+    neighborhoods: ["Olde Town Arvada", "Candelas", "Leyden Rock", "Whisper Creek", "Arvada West"],
+    keyFeatures: [
+      "Specialized service for high-altitude hot tubs",
+      "Expert technicians familiar with Arvada's hard water issues",
+      "Full insurance coverage and bonding"
+    ],
+    localInfo: {
+      climate: "Arvada's semi-arid climate and elevation require specialized hot tub maintenance to prevent mineral buildup and equipment stress.",
+      waterQuality: "Arvada's hard water contains high levels of calcium and magnesium that can damage hot tub equipment without proper maintenance.",
+      serviceArea: "We provide comprehensive hot tub services throughout all Arvada zip codes and surrounding Jefferson County areas."
+    },
+    metaTitle: "Hot Tub Repair Arvada CO | Same-Day Service | Spa Doctors",
+    metaDescription: "Need hot tub repair in Arvada? Professional spa service for all neighborhoods. Expert repairs, maintenance, and transport. Fully insured. Call (856) 266-7293!"
+  },
+  "aurora": {
+    name: "Aurora",
+    slug: "aurora-services", 
+    zipCodes: ["80010", "80011", "80012", "80013", "80014", "80015", "80016", "80017", "80018", "80019", "80040", "80041", "80042", "80044", "80045", "80046", "80047"],
+    population: "386,000",
+    description: "Aurora hot tub repair specialists serving Colorado's third-largest city. Expert service for Centretech, Stapleton, Green Valley Ranch, and all Aurora communities.",
+    neighborhoods: ["Centretech", "Stapleton", "Green Valley Ranch", "Saddle Rock", "Murphy Creek", "Tollgate Crossing", "The Preserve", "Southshore"],
+    keyFeatures: [
+      "Largest service area coverage in Aurora",
+      "Factory-certified technicians for all major spa brands",
+      "Comprehensive warranty on all repairs"
+    ],
+    localInfo: {
+      climate: "Aurora's diverse elevation zones from 5,200 to 5,600 feet create unique hot tub maintenance requirements across different neighborhoods.",
+      waterQuality: "Aurora water quality varies by neighborhood, with some areas having extremely hard water requiring specialized treatment.",
+      serviceArea: "Full coverage of Aurora including newer developments like Stapleton and established neighborhoods throughout the city."
+    },
+    metaTitle: "Hot Tub Repair Aurora CO | Expert Spa Service | Spa Doctors", 
+    metaDescription: "Aurora hot tub repair experts! Serving all Aurora neighborhoods including Stapleton, Green Valley Ranch. Professional service, fully insured. Call (856) 266-7293!"
+  },
+  "lakewood": {
+    name: "Lakewood",
+    slug: "lakewood-services",
+    zipCodes: ["80214", "80215", "80226", "80227", "80228", "80232"],
+    population: "156,000",
+    description: "Professional hot tub services in Lakewood, Colorado. Serving Belmar, Green Mountain, and all Lakewood areas with expert repair and maintenance.",
+    neighborhoods: ["Belmar", "Green Mountain", "Bear Valley", "Applewood", "Edgewater", "Mountain View"],
+    keyFeatures: [
+      "Specialized mountain proximity service",
+      "Expert in altitude-related hot tub issues", 
+      "Family-owned business with 15+ years experience"
+    ],
+    localInfo: {
+      climate: "Lakewood's proximity to the mountains creates rapid weather changes that stress hot tub equipment and require adaptive maintenance schedules.",
+      waterQuality: "Lakewood water is moderately hard but varies by neighborhood, with some areas near Bear Creek having softer water.",
+      serviceArea: "Complete Lakewood coverage from Belmar to Green Mountain, including surrounding Jefferson County communities."
+    },
+    metaTitle: "Hot Tub Repair Lakewood CO | Professional Spa Service | Spa Doctors",
+    metaDescription: "Lakewood hot tub repair specialists! Serving Belmar, Green Mountain, all neighborhoods. Professional technicians, same-day service. Call (856) 266-7293!"
+  },
+  "thornton": {
+    name: "Thornton", 
+    slug: "thornton-services",
+    zipCodes: ["80023", "80229", "80233", "80234", "80241", "80260"],  
+    population: "141,000",
+    description: "Thornton hot tub repair and maintenance services. Professional spa care for Thorncreek, Eastlake, and all Thornton neighborhoods.",
+    neighborhoods: ["Thorncreek", "Eastlake", "Thornton City Center", "Hunters Glen", "Northgate", "Trail Winds"],
+    keyFeatures: [
+      "Expertise with newer home hot tub installations", 
+      "Complete diagnostic and repair services",
+      "Preventive maintenance programs available"
+    ],
+    localInfo: {
+      climate: "Thornton's northern location experiences more extreme temperature swings, requiring robust hot tub maintenance protocols.",
+      waterQuality: "Thornton water is typically hard to very hard, necessitating regular system flushing and scale prevention treatments.",
+      serviceArea: "Full Thornton coverage including newer developments and established neighborhoods throughout Adams County."
+    },
+    metaTitle: "Hot Tub Repair Thornton CO | Expert Spa Technicians | Spa Doctors",
+    metaDescription: "Thornton hot tub repair experts! Professional service for all neighborhoods including Thorncreek, Eastlake. Expert service. Call (856) 266-7293!"
+  },
+  "westminster": {
+    name: "Westminster",
+    slug: "westminster-services", 
+    zipCodes: ["80020", "80021", "80030", "80031", "80234"],
+    population: "116,000",
+    description: "Westminster hot tub specialists providing expert repair and maintenance. Serving Legacy Ridge, Standley Lake, and all Westminster communities.",
+    neighborhoods: ["Legacy Ridge", "Standley Lake", "Westin", "Ranch Creek", "Countryside", "Harris Park"],
+    keyFeatures: [
+      "Specialized service for Westminster's unique water conditions",
+      "Expert technicians trained on altitude effects",
+      "Comprehensive hot tub moving services"
+    ],
+    localInfo: {
+      climate: "Westminster's position between Denver and Boulder creates variable microclimates affecting hot tub performance across different neighborhoods.",
+      waterQuality: "Westminster water quality varies significantly by area, with some neighborhoods having exceptionally hard water requiring specialized treatment.",
+      serviceArea: "Complete Westminster coverage including newer developments like Legacy Ridge and established neighborhoods."
+    },
+    metaTitle: "Hot Tub Repair Westminster CO | Professional Spa Service | Spa Doctors",
+    metaDescription: "Westminster hot tub repair professionals! Serving Legacy Ridge, Standley Lake, all areas. Expert technicians, same-day service. Call (856) 266-7293!"
+  },
+  "littleton": {
+    name: "Littleton",
+    slug: "littleton-services",
+    zipCodes: ["80120", "80121", "80122", "80123", "80124", "80125", "80126", "80127", "80128", "80129"],
+    population: "47,000",
+    description: "Littleton hot tub repair and maintenance experts. Professional spa service for Columbine, Ken Caryl, and all South Metro communities.",
+    neighborhoods: ["Historic Downtown Littleton", "Columbine", "Ken Caryl", "Chatfield", "Columbine Valley", "Deer Creek"],
+    keyFeatures: [
+      "Historic community spa expertise",
+      "Specialized service for luxury home installations",
+      "Emergency repair services available",
+      "Expert hot tub transport and moving"
+    ],
+    localInfo: {
+      climate: "Littleton's location in the South Platte River valley creates unique humidity conditions affecting hot tub chemistry and maintenance needs.",
+      waterQuality: "Littleton water is moderately hard but well-treated, though some areas near the South Platte have different mineral profiles.",
+      serviceArea: "Full Littleton and South Metro coverage including surrounding Douglas and Jefferson County communities."
+    },
+    metaTitle: "Hot Tub Repair Littleton CO | South Metro Spa Service | Spa Doctors", 
+    metaDescription: "Littleton hot tub repair specialists! Serving Columbine, Ken Caryl, all South Metro areas. Professional technicians, same-day service. Call (856) 266-7293!"
+  },
+  "centennial": {
+    name: "Centennial",
+    slug: "centennial-services",
+    zipCodes: ["80112", "80121", "80122", "80016"],
+    population: "108,000", 
+    description: "Centennial hot tub services for luxury homes and communities. Expert spa repair and maintenance for Highlands Ranch, Foxridge, and all Centennial areas.",
+    neighborhoods: ["Highlands Ranch", "Foxridge", "Centennial Center", "Dry Creek", "Cherry Knolls", "Southglenn"],
+    keyFeatures: [
+      "Luxury home spa specialization",
+      "High-end hot tub brand expertise", 
+      "Concierge-level customer service",
+      "Preventive maintenance programs"
+    ],
+    localInfo: {
+      climate: "Centennial's higher elevation and exposure create challenging conditions for hot tub equipment, requiring specialized maintenance approaches.",
+      waterQuality: "Centennial area water quality is generally good but varies by development, with some newer areas having different treatment systems.",
+      serviceArea: "Complete Centennial coverage including Highlands Ranch and surrounding Douglas County luxury communities."
+    },
+    metaTitle: "Hot Tub Repair Centennial CO | Luxury Spa Service | Spa Doctors",
+    metaDescription: "Centennial hot tub repair experts! Luxury spa service for Highlands Ranch, all areas. Premium technicians, same-day service. Call (856) 266-7293!"
+  },
+  "wheat-ridge": {
+    name: "Wheat Ridge", 
+    slug: "wheat-ridge-services",
+    zipCodes: ["80033", "80212", "80214", "80215"],
+    population: "31,000",
+    description: "Wheat Ridge hot tub repair specialists. Professional spa service for this close-knit Jefferson County community with personalized attention.",
+    neighborhoods: ["Old Town Wheat Ridge", "Applewood", "Crown Point", "Fairmount", "Secrest", "Prospect"],
+    keyFeatures: [
+      "Personalized small-town service",
+      "Deep knowledge of local conditions",
+      "Specialization in older home spa installations"
+    ],
+    localInfo: {
+      climate: "Wheat Ridge's central location provides moderate conditions but rapid weather changes that can stress hot tub systems.",
+      waterQuality: "Wheat Ridge water is typically hard, requiring regular maintenance to prevent mineral buildup in spa systems.",
+      serviceArea: "Complete Wheat Ridge coverage and surrounding Jefferson County areas including Applewood and Edgewater."
+    },
+    metaTitle: "Hot Tub Repair Wheat Ridge CO | Local Spa Experts | Spa Doctors",
+    metaDescription: "Wheat Ridge hot tub repair specialists! Local experts serving all neighborhoods. Personalized service, same-day repairs. Call (856) 266-7293!"
+  },
+  "englewood": {
+    name: "Englewood",
+    slug: "englewood-services", 
+    zipCodes: ["80110", "80111", "80113", "80150"],
+    population: "33,000",
+    description: "Englewood hot tub services for this vibrant South Metro community. Expert spa repair and maintenance with quick response times.",
+    neighborhoods: ["Downtown Englewood", "Belleview", "Cherry Hills", "Sheridan", "Swedish Medical District", "Hampden South"],
+    keyFeatures: [
+      "Expertise with urban hot tub challenges",
+      "Specialized transport services for tight spaces"
+    ],
+    localInfo: {
+      climate: "Englewood's central location provides stable conditions but urban heat island effects can impact hot tub performance.",
+      waterQuality: "Englewood water quality is generally good but urban infrastructure can create unique challenges for spa maintenance.",
+      serviceArea: "Complete Englewood coverage including surrounding Arapahoe County communities and medical district areas."
+    },
+    metaTitle: "Hot Tub Repair Englewood CO | South Metro Spa Service | Spa Doctors", 
+    metaDescription: "Englewood hot tub repair experts! South Metro spa service with quick response times. Professional technicians, same-day service. Call (856) 266-7293!"
+  },
+  "broomfield": {
+    name: "Broomfield",
+    slug: "broomfield-services",
+    zipCodes: ["80020", "80021", "80023"], 
+    population: "74,000",
+    description: "Broomfield hot tub specialists serving this unique city-county. Expert spa repair and maintenance for Flatiron Crossing, Anthem, and all Broomfield areas.",
+    neighborhoods: ["Flatiron Crossing", "Anthem", "Broadlands", "The Outlook", "Aspen Creek", "Meridian"],
+    keyFeatures: [
+      "Expertise with newer development spas",
+      "Understanding of Broomfield's unique regulations",
+      "Specialized service for luxury community amenities"
+    ],
+    localInfo: {
+      climate: "Broomfield's location between Denver and Boulder creates unique wind patterns and weather conditions affecting hot tub maintenance.",
+      waterQuality: "Broomfield has excellent water treatment facilities, but the area's growth has created varying water pressure and quality by neighborhood.",
+      serviceArea: "Complete Broomfield coverage including new developments and established neighborhoods throughout this unique city-county."
+    },
+    metaTitle: "Hot Tub Repair Broomfield CO | City-County Spa Service | Spa Doctors",
+    metaDescription: "Broomfield hot tub repair specialists! Serving Flatiron Crossing, Anthem, all areas. Expert technicians, same-day service. Call (856) 266-7293!"
+  }
+};
+
 // Initialize data on server start
 function initializeData() {
   console.log('Initializing in-memory data for serverless...');
@@ -611,6 +816,24 @@ app.get('/privacy', (req, res) => {
 
 app.get('/contact', (req, res) => {
   res.render('contact');
+});
+
+// Service Areas routes
+app.get('/service-areas', (req, res) => {
+  res.render('service-areas', { 
+    locations: serviceLocations 
+  });
+});
+
+// Individual location pages
+Object.keys(serviceLocations).forEach(locationKey => {
+  const location = serviceLocations[locationKey];
+  app.get(`/${location.slug}`, (req, res) => {
+    res.render('service-location', { 
+      location: location,
+      allLocations: serviceLocations
+    });
+  });
 });
 
 app.get('/blog', (req, res) => {

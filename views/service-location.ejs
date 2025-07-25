@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title><%= location.metaTitle %></title>
+    <meta name="description" content="<%= location.metaDescription %>">
+    <meta name="keywords" content="hot tub repair <%= location.name %>, spa service <%= location.name %>, hot tub maintenance <%= location.name %>, <%= location.name.toLowerCase() %> hot tub repair">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.spadoc.tech/<%= location.slug %>">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="<%= location.metaTitle %>">
+    <meta property="og:description" content="<%= location.metaDescription %>">
+    <meta property="og:url" content="https://www.spadoc.tech/<%= location.slug %>">
+    <meta property="og:type" content="website">
+    
+    <!-- Local Business Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Spa Doctors - <%= location.name %>",
+      "image": "https://www.spadoc.tech/images/logo.png",
+      "description": "<%= location.description %>",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "<%= location.name %>",
+        "addressRegion": "CO",
+        "addressCountry": "US",
+        "postalCode": "<%= location.zipCodes[0] %>"
+      },
+      "telephone": "(856) 266-7293",
+      "email": "Doctor4Spas@gmail.com",
+      "url": "https://www.spadoc.tech/<%= location.slug %>",
+      "areaServed": {
+        "@type": "City",
+        "name": "<%= location.name %>",
+        "addressRegion": "CO"
+      },
+      "priceRange": "$$",
+      "openingHours": "Mo-Su 08:00-18:00",
+      "serviceType": [
+        "Hot Tub Repair",
+        "Spa Maintenance", 
+        "Hot Tub Transport",
+        "Hot Tub Cleaning"
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "5"
+      }
+    }
+    </script>
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/analytics.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Spa Doctors</a>
+                <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
+                <div class="mobile-menu" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/service-areas" class="active">Service Areas</a></li>
+                        <li><a href="/gallery">Gallery</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/admin/login">Admin</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Hot Tub Service in <%= location.name %>, Colorado</h1>
+                <p><%= location.description %></p>
+                <a href="tel:+18562667293" class="cta-button">Call (856) 266-7293</a>
+                <a href="/contact" class="cta-button secondary">Get Free Quote</a>
+            </div>
+        </section>
+
+        <!-- Breadcrumb Navigation -->
+        <section style="background: #f8fafc; padding: 1rem 0; border-bottom: 1px solid #e5e7eb;">
+            <div class="container">
+                <nav style="font-size: 0.9rem; color: #64748b;">
+                    <a href="/" style="color: #2563eb; text-decoration: none;">Home</a>
+                    <span style="margin: 0 0.5rem;">›</span>
+                    <a href="/service-areas" style="color: #2563eb; text-decoration: none;">Service Areas</a>
+                    <span style="margin: 0 0.5rem;">›</span>
+                    <span style="color: #374151;"><%= location.name %> Services</span>
+                </nav>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem; align-items: start;">
+                    <div>
+                        <h2>Professional Hot Tub Services in <%= location.name %></h2>
+                        <p style="font-size: 1.1rem; line-height: 1.6; color: #64748b; margin-bottom: 2rem;">
+                            <%= location.localInfo.serviceArea %>
+                        </p>
+
+                        <div style="margin-bottom: 3rem;">
+                            <h3 style="color: #374151; margin-bottom: 1rem;">Why Choose Our <%= location.name %> Service</h3>
+                            <ul style="list-style: none; padding: 0;">
+                                <% location.keyFeatures.forEach(feature => { %>
+                                <li style="display: flex; align-items: center; margin-bottom: 0.75rem; padding: 0.75rem; background: #f8fafc; border-radius: 8px; border-left: 4px solid #2563eb;">
+                                    <span style="color: #059669; font-weight: bold; margin-right: 0.75rem;">✓</span>
+                                    <span style="color: #374151;"><%= feature %></span>
+                                </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+
+                        <div style="margin-bottom: 3rem;">
+                            <h3 style="color: #374151; margin-bottom: 1rem;">Complete Hot Tub Services</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                                    <h4 style="color: #2563eb; margin-bottom: 1rem; display: flex; align-items: center;">
+                                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">🔧</span>
+                                        Repair & Diagnosis
+                                    </h4>
+                                    <ul style="list-style: none; padding: 0; color: #64748b; font-size: 0.9rem;">
+                                        <li style="margin-bottom: 0.5rem;">• Complete system diagnosis</li>
+                                        <li style="margin-bottom: 0.5rem;">• Pump and motor repair</li>
+                                        <li style="margin-bottom: 0.5rem;">• Heater troubleshooting</li>
+                                        <li style="margin-bottom: 0.5rem;">• Electrical system fixes</li>
+                                        <li style="margin-bottom: 0.5rem;">• Leak detection & repair</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                                    <h4 style="color: #2563eb; margin-bottom: 1rem; display: flex; align-items: center;">
+                                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">🧽</span>
+                                        Maintenance & Care
+                                    </h4>
+                                    <ul style="list-style: none; padding: 0; color: #64748b; font-size: 0.9rem;">
+                                        <li style="margin-bottom: 0.5rem;">• Regular maintenance visits</li>
+                                        <li style="margin-bottom: 0.5rem;">• Water chemistry balancing</li>
+                                        <li style="margin-bottom: 0.5rem;">• Filter cleaning & replacement</li>
+                                        <li style="margin-bottom: 0.5rem;">• System performance checks</li>
+                                        <li style="margin-bottom: 0.5rem;">• Preventive care programs</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                                    <h4 style="color: #2563eb; margin-bottom: 1rem; display: flex; align-items: center;">
+                                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">🚚</span>
+                                        Transport & Moving
+                                    </h4>
+                                    <ul style="list-style: none; padding: 0; color: #64748b; font-size: 0.9rem;">
+                                        <li style="margin-bottom: 0.5rem;">• Professional spa moving</li>
+                                        <li style="margin-bottom: 0.5rem;">• Specialized equipment</li>
+                                        <li style="margin-bottom: 0.5rem;">• Property protection</li>
+                                        <li style="margin-bottom: 0.5rem;">• Installation & setup</li>
+                                        <li style="margin-bottom: 0.5rem;">• Professional installation</li>
+                                    </ul>
+                                </div>
+                                
+                                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                                    <h4 style="color: #2563eb; margin-bottom: 1rem; display: flex; align-items: center;">
+                                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">✨</span>
+                                        Cleaning & Detailing
+                                    </h4>
+                                    <ul style="list-style: none; padding: 0; color: #64748b; font-size: 0.9rem;">
+                                        <li style="margin-bottom: 0.5rem;">• Deep cleaning service</li>
+                                        <li style="margin-bottom: 0.5rem;">• Cover cleaning & repair</li>
+                                        <li style="margin-bottom: 0.5rem;">• System sanitization</li>
+                                        <li style="margin-bottom: 0.5rem;">• Shell restoration</li>
+                                        <li style="margin-bottom: 0.5rem;">• Drain & refill service</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div style="position: sticky; top: 2rem;">
+                        <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; margin-bottom: 2rem;">
+                            <h3 style="color: #374151; margin-bottom: 1rem; text-align: center;">Get Service Today</h3>
+                            <div style="text-align: center; margin-bottom: 1.5rem;">
+                                <a href="tel:+18562667293" style="display: inline-block; background: #2563eb; color: white; padding: 1rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; width: 100%; box-sizing: border-box;">
+                                    📞 Call (856) 266-7293
+                                </a>
+                                <a href="/contact" style="display: inline-block; background: transparent; color: #2563eb; padding: 1rem 1.5rem; border: 2px solid #2563eb; border-radius: 8px; text-decoration: none; font-weight: 600; width: 100%; box-sizing: border-box;">
+                                    Get Free Quote
+                                </a>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #64748b; text-align: center;">
+                                <p style="margin-bottom: 0.5rem;">📧 Doctor4Spas@gmail.com</p>
+                                <p style="margin-bottom: 0.5rem;">🕒 Mon-Sun: 8AM-6PM</p>
+                                <p>⚡ Professional service</p>
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb;">
+                            <h4 style="color: #374151; margin-bottom: 1rem;">Service Area Info</h4>
+                            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1rem;">
+                                <strong>Population:</strong> <%= location.population %>
+                            </p>
+                            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1rem;">
+                                <strong>Zip Codes:</strong> <%= location.zipCodes.join(', ') %>
+                            </p>
+                            <div style="margin-bottom: 1rem;">
+                                <strong style="color: #374151; font-size: 0.9rem;">Key Neighborhoods:</strong>
+                                <ul style="list-style: none; padding: 0; margin-top: 0.5rem;">
+                                    <% location.neighborhoods.forEach(neighborhood => { %>
+                                    <li style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem;">• <%= neighborhood %></li>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Local Information Section -->
+        <section class="section" style="background: #f8fafc;">
+            <div class="container">
+                <h2 style="text-align: center; margin-bottom: 2rem;">Local <%= location.name %> Expertise</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2563eb; margin-bottom: 1rem; display: flex; align-items: center;">
+                            <span style="font-size: 2rem; margin-right: 0.75rem;">🌡️</span>
+                            Climate Considerations
+                        </h3>
+                        <p style="color: #64748b; line-height: 1.6;">
+                            <%= location.localInfo.climate %>
+                        </p>
+                    </div>
+                    
+                    <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2563eb; margin-bottom: 1rem; display: flex; align-items: center;">
+                            <span style="font-size: 2rem; margin-right: 0.75rem;">💧</span>
+                            Water Quality
+                        </h3>
+                        <p style="color: #64748b; line-height: 1.6;">
+                            <%= location.localInfo.waterQuality %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Other Service Areas -->
+        <section class="section">
+            <div class="container">
+                <h2 style="text-align: center; margin-bottom: 2rem;">We Also Serve Nearby Areas</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <% Object.values(allLocations).forEach(otherLocation => { %>
+                        <% if (otherLocation.name !== location.name) { %>
+                        <a href="/<%= otherLocation.slug %>" style="display: block; text-align: center; padding: 1rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; text-decoration: none; color: #374151; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <span style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;">📍</span>
+                            <span style="font-weight: 600;"><%= otherLocation.name %></span>
+                        </a>
+                        <% } %>
+                    <% }); %>
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="/service-areas" style="color: #2563eb; text-decoration: none; font-weight: 600;">
+                        View All Service Areas →
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="section" style="background: #2563eb; color: white;">
+            <div class="container">
+                <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: white; margin-bottom: 1rem;">Ready to Get Your <%= location.name %> Hot Tub Fixed?</h2>
+                    <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; opacity: 0.9;">
+                        Don't let a broken hot tub ruin your relaxation. Our expert technicians are standing by to provide fast, professional service in <%= location.name %>.
+                    </p>
+                    <a href="tel:+18562667293" style="display: inline-block; background: white; color: #2563eb; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; margin-right: 1rem; margin-bottom: 1rem;">
+                        📞 Call (856) 266-7293 Now
+                    </a>
+                    <a href="/contact" style="display: inline-block; background: transparent; color: white; padding: 1rem 2rem; border: 2px solid white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem;">
+                        Request Service Online
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Spa Doctors</h3>
+                    <p>Professional hot tub services throughout the Denver metro area.</p>
+                    <p>📞 (856) 266-7293</p>
+                    <p>✉️ Doctor4Spas@gmail.com</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="/services">Hot Tub Repair</a></li>
+                        <li><a href="/services">Maintenance</a></li>
+                        <li><a href="/services">Transport</a></li>
+                        <li><a href="/services">Cleaning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Service Areas</h4>
+                    <ul>
+                        <li><a href="/arvada-services">Arvada</a></li>
+                        <li><a href="/aurora-services">Aurora</a></li>
+                        <li><a href="/lakewood-services">Lakewood</a></li>
+                        <li><a href="/thornton-services">Thornton</a></li>
+                        <li><a href="/westminster-services">Westminster</a></li>
+                        <li><a href="/service-areas">View All Areas</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Spa Doctors. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        // Track page view
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.trackPageView) {
+                trackPageView('/<%= location.slug %>');
+            }
+        });
+
+        // Add hover effects to nearby area links
+        document.addEventListener('DOMContentLoaded', function() {
+            const areaLinks = document.querySelectorAll('a[href*="-services"]');
+            areaLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)';
+                    this.style.borderColor = '#2563eb';
+                });
+                link.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                    this.style.borderColor = '#e5e7eb';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

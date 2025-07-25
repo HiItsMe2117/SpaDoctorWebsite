@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Service Areas | Denver Metro Hot Tub Repair | Spa Doctors</title>
+    <meta name="description" content="Professional hot tub services throughout Denver Metro. Serving Arvada, Aurora, Lakewood, Thornton, Westminster, and all surrounding communities.">
+    <meta name="keywords" content="hot tub service areas Denver, spa repair locations, Denver metro hot tub service, Colorado spa maintenance areas">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.spadoc.tech/service-areas">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Service Areas | Denver Metro Hot Tub Repair | Spa Doctors">
+    <meta property="og:description" content="Professional hot tub services throughout Denver Metro. Serving all major communities with professional service.">
+    <meta property="og:url" content="https://www.spadoc.tech/service-areas">
+    <meta property="og:type" content="website">
+    
+    <!-- Service Area Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Hot Tub Services",
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": "Spa Doctors",
+        "telephone": "(856) 266-7293"
+      },
+      "areaServed": [
+        <% Object.values(locations).forEach((location, index) => { %>
+        {
+          "@type": "City",
+          "name": "<%= location.name %>",
+          "addressRegion": "CO"
+        }<%= index < Object.values(locations).length - 1 ? ',' : '' %>
+        <% }); %>
+      ],
+      "serviceType": [
+        "Hot Tub Repair",
+        "Hot Tub Transport", 
+        "Hot Tub Cleaning",
+        "Hot Tub Maintenance"
+      ]
+    }
+    </script>
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/analytics.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Spa Doctors</a>
+                <a href="tel:+18562667293" class="phone-header">📞 (856) 266-7293</a>
+                <div class="mobile-menu" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/service-areas" class="active">Service Areas</a></li>
+                        <li><a href="/gallery">Gallery</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/admin/login">Admin</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Denver Metro Service Areas</h1>
+                <p>Professional hot tub services throughout the Denver metropolitan area.</p>
+                <a href="tel:+18562667293" class="cta-button">Call for Service</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2>We Serve All Major Denver Metro Communities</h2>
+                <p>From downtown Denver to the surrounding suburbs, our certified technicians provide comprehensive hot tub services to homeowners throughout the metro area. Each location receives the same high-quality service with local expertise.</p>
+                
+                <div class="locations-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                    <% Object.values(locations).forEach(location => { %>
+                    <div class="location-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; transition: transform 0.2s, box-shadow 0.2s;">
+                        <h3 style="color: #2563eb; margin-bottom: 1rem; font-size: 1.5rem;">
+                            <a href="/<%= location.slug %>" style="color: inherit; text-decoration: none;">
+                                📍 <%= location.name %>
+                            </a>
+                        </h3>
+                        <p style="color: #64748b; margin-bottom: 1rem; line-height: 1.6;">
+                            <%= location.description %>
+                        </p>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <p style="margin-bottom: 0.5rem;"><strong>Population:</strong> <%= location.population %></p>
+                            <p style="margin-bottom: 0.5rem;"><strong>Zip Codes:</strong> <%= location.zipCodes.slice(0, 4).join(', ') %><%= location.zipCodes.length > 4 ? ', +more' : '' %></p>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="color: #374151; margin-bottom: 0.5rem; font-size: 1rem;">Key Neighborhoods:</h4>
+                            <ul style="list-style: none; padding: 0; color: #64748b; font-size: 0.9rem;">
+                                <% location.neighborhoods.slice(0, 3).forEach(neighborhood => { %>
+                                <li style="margin-bottom: 0.25rem;">• <%= neighborhood %></li>
+                                <% }); %>
+                                <% if (location.neighborhoods.length > 3) { %>
+                                <li style="margin-bottom: 0.25rem; font-style: italic;">+ <%= location.neighborhoods.length - 3 %> more areas</li>
+                                <% } %>
+                            </ul>
+                        </div>
+
+
+                        <a href="/<%= location.slug %>" class="cta-button" style="display: inline-block; background: #2563eb; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.2s;">
+                            View <%= location.name %> Services
+                        </a>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="background: #f8fafc;">
+            <div class="container">
+                <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                    <h2>Why Choose Local Expertise?</h2>
+                    <p style="font-size: 1.1rem; line-height: 1.6; color: #64748b; margin-bottom: 2rem;">
+                        Each Denver metro community has unique characteristics that affect hot tub performance. Our technicians understand local water quality, climate conditions, and neighborhood-specific challenges to provide the most effective service.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        <div style="text-align: center; padding: 1.5rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                            <h3 style="color: #374151; margin-bottom: 1rem;">Local Knowledge</h3>
+                            <p style="color: #64748b;">Understanding of local water quality, climate, and common issues in each area.</p>
+                        </div>
+                        <div style="text-align: center; padding: 1.5rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">⚡</div>
+                            <h3 style="color: #374151; margin-bottom: 1rem;">Fast Response</h3>
+                            <p style="color: #64748b;">Strategic coverage ensures quick response times throughout the metro area.</p>
+                        </div>
+                        <div style="text-align: center; padding: 1.5rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
+                            <h3 style="color: #374151; margin-bottom: 1rem;">Consistent Quality</h3>
+                            <p style="color: #64748b;">Same high standards and professional service in every community we serve.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                    <h2>Ready for Professional Service?</h2>
+                    <p style="font-size: 1.1rem; line-height: 1.6; color: #64748b; margin-bottom: 2rem;">
+                        Don't let a broken hot tub ruin your relaxation. Our certified technicians are ready to provide expert service in your area.
+                    </p>
+                    <a href="tel:+18562667293" class="cta-button" style="display: inline-block; background: #2563eb; color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; margin-right: 1rem; margin-bottom: 1rem;">
+                        📞 Call (856) 266-7293
+                    </a>
+                    <a href="/contact" class="cta-button secondary" style="display: inline-block; background: transparent; color: #2563eb; padding: 1rem 2rem; border: 2px solid #2563eb; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem;">
+                        Get Free Quote
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Spa Doctors</h3>
+                    <p>Professional hot tub services throughout the Denver metro area.</p>
+                    <p>📞 (856) 266-7293</p>
+                    <p>✉️ Doctor4Spas@gmail.com</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="/services">Hot Tub Repair</a></li>
+                        <li><a href="/services">Maintenance</a></li>
+                        <li><a href="/services">Transport</a></li>
+                        <li><a href="/services">Cleaning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Service Areas</h4>
+                    <ul>
+                        <li><a href="/arvada-services">Arvada</a></li>
+                        <li><a href="/aurora-services">Aurora</a></li>
+                        <li><a href="/lakewood-services">Lakewood</a></li>
+                        <li><a href="/thornton-services">Thornton</a></li>
+                        <li><a href="/westminster-services">Westminster</a></li>
+                        <li><a href="/service-areas">View All Areas</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Spa Doctors. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        // Track page view
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.trackPageView) {
+                trackPageView('/service-areas');
+            }
+        });
+
+        // Add hover effects to location cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationCards = document.querySelectorAll('.location-card');
+            locationCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
