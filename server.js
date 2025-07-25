@@ -283,7 +283,7 @@ const serviceLocations = {
     neighborhoods: ["Centretech", "Stapleton", "Green Valley Ranch", "Saddle Rock", "Murphy Creek", "Tollgate Crossing", "The Preserve", "Southshore"],
     keyFeatures: [
       "Largest service area coverage in Aurora",
-      "Factory-certified technicians for all major spa brands",
+      "Expert technicians for all major spa brands",
       "Comprehensive warranty on all repairs"
     ],
     localInfo: {
