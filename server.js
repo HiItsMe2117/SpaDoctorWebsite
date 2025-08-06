@@ -1108,7 +1108,7 @@ app.get('/api/events', async (req, res) => {
           borderColor: morningBooked ? '#6b7280' : '#2563eb',
           textColor: 'white',
           display: 'block',
-          classNames: ['availability-block', 'morning-block'],
+          className: 'availability-block morning-block',
           extendedProps: {
             available: !morningBooked,
             period: 'morning'
@@ -1125,7 +1125,7 @@ app.get('/api/events', async (req, res) => {
           borderColor: afternoonBooked ? '#6b7280' : '#2563eb',
           textColor: 'white',
           display: 'block',
-          classNames: ['availability-block', 'afternoon-block'],
+          className: 'availability-block afternoon-block',
           extendedProps: {
             available: !afternoonBooked,
             period: 'afternoon'
