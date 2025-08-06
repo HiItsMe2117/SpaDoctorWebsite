@@ -870,9 +870,27 @@
             hideMessages();
 
             try {
+                // Validate that a time slot is selected
+                if (!selectedSlot) {
+                    showErrorMessage('Please select a date and time slot before booking.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    return;
+                }
+
                 const formData = new FormData(e.target);
                 const serviceType = formData.get('serviceType');
                 const customerName = formData.get('customerName');
+                const customerPhone = formData.get('customerPhone');
+                
+                // Validate phone number format
+                const phoneDigits = customerPhone.replace(/\D/g, '');
+                if (phoneDigits.length !== 10 && !(phoneDigits.length === 11 && phoneDigits.startsWith('1'))) {
+                    showErrorMessage('Please enter a valid phone number (10 digits or 11 digits starting with 1).');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    return;
+                }
                 
                 const fullAddress = `${formData.get('streetAddress')}, ${formData.get('city')}, ${formData.get('state')} ${formData.get('zipCode')}`;
                 
@@ -882,7 +900,7 @@
                     endDateTime: selectedSlot.end,
                     location: fullAddress,
                     description: formData.get('description'),
-                    customerPhone: formData.get('customerPhone'),
+                    customerPhone: customerPhone,
                     customerEmail: formData.get('customerEmail')
                 };
 
