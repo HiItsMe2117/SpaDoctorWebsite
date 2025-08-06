@@ -220,9 +220,19 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Initialize calendar and SMS services
-const calendarService = new CalendarService();
-const smsService = new SMSService();
+// Initialize calendar and SMS services with error handling
+let calendarService = null;
+let smsService = null;
+
+try {
+  console.log('🔧 Initializing calendar and SMS services...');
+  calendarService = new CalendarService();
+  smsService = new SMSService();
+  console.log('✅ Calendar and SMS services initialized successfully');
+} catch (initError) {
+  console.error('❌ Failed to initialize services:', initError.message);
+  console.warn('⚠️ Running in degraded mode - some features may not work');
+}
 
 // Data storage variables - loaded from persistent storage
 let blogPosts = [];
@@ -996,18 +1006,62 @@ app.post('/api/book-appointment', async (req, res) => {
 
 // Public route to get calendar availability blocks for display
 app.get('/api/events', async (req, res) => {
+  const startTime = Date.now();
+  console.log('🗓️ [API] /api/events called at', new Date().toISOString());
+  
   try {
+    // Check if calendar service is properly initialized
+    if (!calendarService) {
+      console.error('❌ [API] CalendarService not initialized');
+      return res.status(500).json({ 
+        error: 'Calendar service not available',
+        fallback: generateFallbackBlocks(),
+        debug: { service: 'not_initialized', timestamp: new Date().toISOString() }
+      });
+    }
+
+    // Check environment variables
+    const hasGoogleCreds = !!(process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY);
+    console.log('🔑 [API] Google credentials available:', hasGoogleCreds);
+    
+    if (!hasGoogleCreds) {
+      console.warn('⚠️ [API] Missing Google Calendar credentials, using fallback');
+      return res.json({ 
+        events: generateFallbackBlocks(),
+        warning: 'Using fallback data - Google Calendar not configured',
+        debug: { credentials: false, timestamp: new Date().toISOString() }
+      });
+    }
+
     const availabilityBlocks = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Get events for the next 30 days
+    // Get events for the next 30 days with timeout
     const endDate = new Date(today);
     endDate.setDate(endDate.getDate() + 30);
     
-    const events = await calendarService.getEvents(today.toISOString(), endDate.toISOString());
+    console.log('📅 [API] Fetching events from', today.toISOString(), 'to', endDate.toISOString());
+    
+    let events = [];
+    try {
+      // Add timeout wrapper for serverless environment
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Calendar API timeout')), 8000)
+      );
+      
+      const eventsPromise = calendarService.getEvents(today.toISOString(), endDate.toISOString());
+      events = await Promise.race([eventsPromise, timeoutPromise]);
+      
+      console.log('✅ [API] Successfully fetched', events.length, 'events');
+    } catch (apiError) {
+      console.error('❌ [API] Calendar API failed:', apiError.message);
+      console.log('🔄 [API] Using fallback availability (assuming all slots available)');
+      events = []; // Empty events array means all slots appear available
+    }
     
     // Generate blocks for next 30 days
+    let blocksGenerated = 0;
     for (let i = 0; i < 30; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() + i);
@@ -1017,75 +1071,158 @@ app.get('/api/events', async (req, res) => {
       
       const dateStr = date.toISOString().split('T')[0];
       
-      // Check if ANY appointment exists in morning hours (7 AM - 12 PM)
-      const morningStart = new Date(date);
-      morningStart.setHours(7, 0, 0, 0);
-      const morningEnd = new Date(date);
-      morningEnd.setHours(12, 0, 0, 0);
-      
-      const morningBooked = events.some(event => {
-        if (!event.start) return false;
-        const eventStart = new Date(event.start.dateTime || event.start.date);
-        const eventEnd = new Date(event.end.dateTime || event.end.date);
-        // Check if event overlaps with morning business hours at all
-        return (eventStart < morningEnd && eventEnd > morningStart);
-      });
-      
-      // Check if ANY appointment exists in afternoon hours (12 PM - 7 PM)
-      const afternoonStart = new Date(date);
-      afternoonStart.setHours(12, 0, 0, 0);
-      const afternoonEnd = new Date(date);
-      afternoonEnd.setHours(19, 0, 0, 0);
-      
-      const afternoonBooked = events.some(event => {
-        if (!event.start) return false;
-        const eventStart = new Date(event.start.dateTime || event.start.date);
-        const eventEnd = new Date(event.end.dateTime || event.end.date);
-        // Check if event overlaps with afternoon business hours at all
-        return (eventStart < afternoonEnd && eventEnd > afternoonStart);
-      });
-      
-      // Morning block (top half)
-      availabilityBlocks.push({
-        id: `morning-${dateStr}`,
-        title: 'AM',
-        start: dateStr + 'T00:00:00',
-        end: dateStr + 'T12:00:00',
-        backgroundColor: morningBooked ? '#6b7280' : '#2563eb',
-        borderColor: morningBooked ? '#6b7280' : '#2563eb',
-        textColor: 'white',
-        display: 'block',
-        classNames: ['availability-block', 'morning-block'],
-        extendedProps: {
-          available: !morningBooked,
-          period: 'morning'
-        }
-      });
-      
-      // Afternoon block (bottom half)
-      availabilityBlocks.push({
-        id: `afternoon-${dateStr}`,
-        title: 'PM',
-        start: dateStr + 'T12:00:00',
-        end: dateStr + 'T23:59:59',
-        backgroundColor: afternoonBooked ? '#6b7280' : '#2563eb',
-        borderColor: afternoonBooked ? '#6b7280' : '#2563eb',
-        textColor: 'white',
-        display: 'block',
-        classNames: ['availability-block', 'afternoon-block'],
-        extendedProps: {
-          available: !afternoonBooked,
-          period: 'afternoon'
-        }
-      });
+      try {
+        // Check if ANY appointment exists in morning hours (7 AM - 12 PM)
+        const morningStart = new Date(date);
+        morningStart.setHours(7, 0, 0, 0);
+        const morningEnd = new Date(date);
+        morningEnd.setHours(12, 0, 0, 0);
+        
+        const morningBooked = events.some(event => {
+          if (!event.start) return false;
+          const eventStart = new Date(event.start.dateTime || event.start.date);
+          const eventEnd = new Date(event.end.dateTime || event.end.date);
+          return (eventStart < morningEnd && eventEnd > morningStart);
+        });
+        
+        // Check if ANY appointment exists in afternoon hours (12 PM - 7 PM)
+        const afternoonStart = new Date(date);
+        afternoonStart.setHours(12, 0, 0, 0);
+        const afternoonEnd = new Date(date);
+        afternoonEnd.setHours(19, 0, 0, 0);
+        
+        const afternoonBooked = events.some(event => {
+          if (!event.start) return false;
+          const eventStart = new Date(event.start.dateTime || event.start.date);
+          const eventEnd = new Date(event.end.dateTime || event.end.date);
+          return (eventStart < afternoonEnd && eventEnd > afternoonStart);
+        });
+        
+        // Morning block (top half)
+        availabilityBlocks.push({
+          id: `morning-${dateStr}`,
+          title: 'AM',
+          start: dateStr + 'T00:00:00',
+          end: dateStr + 'T12:00:00',
+          backgroundColor: morningBooked ? '#6b7280' : '#2563eb',
+          borderColor: morningBooked ? '#6b7280' : '#2563eb',
+          textColor: 'white',
+          display: 'block',
+          classNames: ['availability-block', 'morning-block'],
+          extendedProps: {
+            available: !morningBooked,
+            period: 'morning'
+          }
+        });
+        
+        // Afternoon block (bottom half)
+        availabilityBlocks.push({
+          id: `afternoon-${dateStr}`,
+          title: 'PM',
+          start: dateStr + 'T12:00:00',
+          end: dateStr + 'T23:59:59',
+          backgroundColor: afternoonBooked ? '#6b7280' : '#2563eb',
+          borderColor: afternoonBooked ? '#6b7280' : '#2563eb',
+          textColor: 'white',
+          display: 'block',
+          classNames: ['availability-block', 'afternoon-block'],
+          extendedProps: {
+            available: !afternoonBooked,
+            period: 'afternoon'
+          }
+        });
+        
+        blocksGenerated += 2;
+      } catch (blockError) {
+        console.error('❌ [API] Error generating block for', dateStr, ':', blockError.message);
+        // Continue with next date
+      }
     }
     
+    const duration = Date.now() - startTime;
+    console.log('✅ [API] Generated', blocksGenerated, 'availability blocks in', duration, 'ms');
+    
     res.json(availabilityBlocks);
+    
   } catch (error) {
-    console.error('Error fetching calendar availability:', error);
-    res.status(500).json({ error: 'Failed to fetch calendar availability' });
+    const duration = Date.now() - startTime;
+    console.error('❌ [API] Critical error in /api/events after', duration, 'ms:', error);
+    console.error('❌ [API] Error stack:', error.stack);
+    
+    // Return fallback calendar data instead of error
+    const fallbackBlocks = generateFallbackBlocks();
+    console.log('🔄 [API] Returning', fallbackBlocks.length, 'fallback blocks');
+    
+    res.json({
+      events: fallbackBlocks,
+      error: 'Calendar temporarily unavailable',
+      fallback: true,
+      debug: { 
+        error: error.message, 
+        duration: duration,
+        timestamp: new Date().toISOString() 
+      }
+    });
   }
 });
+
+// Generate fallback calendar blocks when API is unavailable
+function generateFallbackBlocks() {
+  console.log('🔄 [Fallback] Generating fallback availability blocks');
+  const blocks = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Generate 14 days of fallback availability (all available)
+  for (let i = 0; i < 14; i++) {
+    const date = new Date(today);
+    date.setDate(date.getDate() + i);
+    
+    // Skip weekends
+    if (date.getDay() === 0 || date.getDay() === 6) continue;
+    
+    const dateStr = date.toISOString().split('T')[0];
+    
+    // Morning block - available
+    blocks.push({
+      id: `morning-${dateStr}`,
+      title: 'AM',
+      start: dateStr + 'T00:00:00',
+      end: dateStr + 'T12:00:00',
+      backgroundColor: '#2563eb',
+      borderColor: '#2563eb',
+      textColor: 'white',
+      display: 'block',
+      classNames: ['availability-block', 'morning-block'],
+      extendedProps: {
+        available: true,
+        period: 'morning',
+        fallback: true
+      }
+    });
+    
+    // Afternoon block - available
+    blocks.push({
+      id: `afternoon-${dateStr}`,
+      title: 'PM',
+      start: dateStr + 'T12:00:00',
+      end: dateStr + 'T23:59:59',
+      backgroundColor: '#2563eb',
+      borderColor: '#2563eb',
+      textColor: 'white',
+      display: 'block',
+      classNames: ['availability-block', 'afternoon-block'],
+      extendedProps: {
+        available: true,
+        period: 'afternoon',
+        fallback: true
+      }
+    });
+  }
+  
+  console.log('✅ [Fallback] Generated', blocks.length, 'fallback blocks');
+  return blocks;
+}
 
 // Admin route to get all appointments
 app.get('/api/admin/appointments', requireAdminAuth, async (req, res) => {

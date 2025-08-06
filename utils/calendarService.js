@@ -2,28 +2,55 @@ const { google } = require('googleapis');
 
 class CalendarService {
   constructor() {
-    // Use Service Account authentication
-    this.auth = new google.auth.GoogleAuth({
-      credentials: {
-        type: process.env.GOOGLE_SERVICE_ACCOUNT_TYPE || 'service_account',
-        project_id: process.env.GOOGLE_PROJECT_ID,
-        private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        auth_uri: process.env.GOOGLE_AUTH_URI || 'https://accounts.google.com/o/oauth2/auth',
-        token_uri: process.env.GOOGLE_TOKEN_URI || 'https://oauth2.googleapis.com/token',
-        auth_provider_x509_cert_url: process.env.GOOGLE_AUTH_PROVIDER_CERT_URL || 'https://www.googleapis.com/oauth2/v1/certs',
-        client_x509_cert_url: process.env.GOOGLE_CLIENT_CERT_URL
-      },
-      scopes: ['https://www.googleapis.com/auth/calendar']
-    });
+    console.log('🔧 [Calendar] Initializing CalendarService...');
+    
+    // Check for required environment variables
+    const requiredEnvVars = ['GOOGLE_CLIENT_EMAIL', 'GOOGLE_PRIVATE_KEY'];
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+    
+    if (missingVars.length > 0) {
+      console.warn('⚠️ [Calendar] Missing environment variables:', missingVars.join(', '));
+      console.warn('⚠️ [Calendar] Calendar service will run in fallback mode');
+      this.fallbackMode = true;
+      return;
+    }
 
-    this.calendar = google.calendar({ version: 'v3', auth: this.auth });
-    this.calendarId = process.env.GOOGLE_CALENDAR_ID || 'primary';
+    try {
+      // Use Service Account authentication
+      this.auth = new google.auth.GoogleAuth({
+        credentials: {
+          type: process.env.GOOGLE_SERVICE_ACCOUNT_TYPE || 'service_account',
+          project_id: process.env.GOOGLE_PROJECT_ID,
+          private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+          private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          client_email: process.env.GOOGLE_CLIENT_EMAIL,
+          client_id: process.env.GOOGLE_CLIENT_ID,
+          auth_uri: process.env.GOOGLE_AUTH_URI || 'https://accounts.google.com/o/oauth2/auth',
+          token_uri: process.env.GOOGLE_TOKEN_URI || 'https://oauth2.googleapis.com/token',
+          auth_provider_x509_cert_url: process.env.GOOGLE_AUTH_PROVIDER_CERT_URL || 'https://www.googleapis.com/oauth2/v1/certs',
+          client_x509_cert_url: process.env.GOOGLE_CLIENT_CERT_URL
+        },
+        scopes: ['https://www.googleapis.com/auth/calendar']
+      });
+
+      this.calendar = google.calendar({ version: 'v3', auth: this.auth });
+      this.calendarId = process.env.GOOGLE_CALENDAR_ID || 'primary';
+      this.fallbackMode = false;
+      
+      console.log('✅ [Calendar] CalendarService initialized with Google API');
+    } catch (error) {
+      console.error('❌ [Calendar] Failed to initialize Google Auth:', error.message);
+      console.warn('⚠️ [Calendar] Falling back to offline mode');
+      this.fallbackMode = true;
+    }
   }
 
   async checkAvailability(startDateTime, endDateTime) {
+    if (this.fallbackMode) {
+      console.log('🔄 [Calendar] Fallback mode: assuming slot available');
+      return true; // In fallback mode, assume all slots are available
+    }
+
     try {
       const response = await this.calendar.freebusy.query({
         requestBody: {
@@ -37,8 +64,9 @@ class CalendarService {
       const busyTimes = response.data.calendars[this.calendarId]?.busy || [];
       return busyTimes.length === 0;
     } catch (error) {
-      console.error('Error checking calendar availability:', error);
-      throw new Error('Failed to check availability');
+      console.error('❌ [Calendar] Error checking availability:', error.message);
+      console.log('🔄 [Calendar] Fallback: assuming slot available due to API error');
+      return true; // Fallback to available when API fails
     }
   }
 
@@ -82,6 +110,11 @@ class CalendarService {
   }
 
   async getEvents(timeMin, timeMax) {
+    if (this.fallbackMode) {
+      console.log('🔄 [Calendar] Fallback mode: returning empty events list');
+      return []; // In fallback mode, return empty events (all slots appear available)
+    }
+
     try {
       const response = await this.calendar.events.list({
         calendarId: this.calendarId,
@@ -92,10 +125,13 @@ class CalendarService {
         orderBy: 'startTime'
       });
 
-      return response.data.items || [];
+      const events = response.data.items || [];
+      console.log('✅ [Calendar] Fetched', events.length, 'events');
+      return events;
     } catch (error) {
-      console.error('Error fetching calendar events:', error);
-      throw new Error('Failed to fetch calendar events');
+      console.error('❌ [Calendar] Error fetching events:', error.message);
+      console.log('🔄 [Calendar] Fallback: returning empty events due to API error');
+      return []; // Return empty events on error (makes all slots appear available)
     }
   }
 

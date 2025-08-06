@@ -479,28 +479,49 @@
         });
 
         function initializeCalendar() {
+            console.log('🗓️ [Calendar] Initializing FullCalendar...');
+            
             const calendarEl = document.getElementById('calendar');
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: '' // Only monthly view, no view switching
-                },
-                selectable: true,
-                selectMirror: true,
-                dayMaxEvents: false, // Show all events
-                height: 'auto',
-                validRange: {
-                    start: new Date() // Prevent selecting past dates
-                },
-                events: {
-                    url: '/api/events',
-                    method: 'GET',
-                    failure: function(error) {
-                        console.error('Error loading calendar events:', error);
-                    }
-                },
+            if (!calendarEl) {
+                console.error('❌ [Calendar] Calendar element not found');
+                return;
+            }
+
+            // Add loading indicator
+            calendarEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">Loading calendar...</div>';
+
+            try {
+                calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: '' // Only monthly view, no view switching
+                    },
+                    selectable: true,
+                    selectMirror: true,
+                    dayMaxEvents: false, // Show all events
+                    height: 'auto',
+                    validRange: {
+                        start: new Date() // Prevent selecting past dates
+                    },
+                    events: {
+                        url: '/api/events',
+                        method: 'GET',
+                        failure: function(error) {
+                            console.error('❌ [Calendar] FullCalendar events failure:', error);
+                            showCalendarError('Failed to load calendar data. Please refresh the page.');
+                        },
+                        success: function(events) {
+                            console.log('✅ [Calendar] Successfully loaded', events.length, 'calendar events');
+                            
+                            // Check if this is fallback data
+                            if (events.some && events.some(event => event.extendedProps?.fallback)) {
+                                console.warn('⚠️ [Calendar] Using fallback calendar data');
+                                showCalendarWarning('Calendar is using offline data. Some availability may not be current.');
+                            }
+                        }
+                    },
                 dateClick: function(info) {
                     selectDate(info.dateStr);
                 },
@@ -566,10 +587,70 @@
                             });
                         }
                     }
+                },
+                loading: function(isLoading) {
+                    console.log('🔄 [Calendar] Loading state:', isLoading);
+                    if (isLoading) {
+                        showCalendarLoading();
+                    } else {
+                        hideCalendarMessages();
+                    }
                 }
             });
+            
+            console.log('📅 [Calendar] Rendering calendar...');
             calendar.render();
+            console.log('✅ [Calendar] Calendar initialization completed');
+            
+        } catch (error) {
+            console.error('❌ [Calendar] Failed to initialize calendar:', error);
+            showCalendarError('Calendar failed to load. Please refresh the page or try again later.');
         }
+    }
+
+    // Calendar status message functions
+    function showCalendarError(message) {
+        console.error('❌ [Calendar] Displaying error:', message);
+        const calendarEl = document.getElementById('calendar');
+        calendarEl.innerHTML = `
+            <div style="text-align: center; padding: 2rem; background: #fee2e2; border-radius: 8px; color: #991b1b;">
+                <h3 style="margin: 0 0 1rem 0;">⚠️ Calendar Unavailable</h3>
+                <p style="margin: 0;">${message}</p>
+                <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    🔄 Refresh Page
+                </button>
+            </div>
+        `;
+    }
+
+    function showCalendarWarning(message) {
+        console.warn('⚠️ [Calendar] Displaying warning:', message);
+        const warningEl = document.createElement('div');
+        warningEl.id = 'calendar-warning';
+        warningEl.style.cssText = `
+            background: #fef3c7; 
+            color: #92400e; 
+            padding: 0.75rem; 
+            border-radius: 6px; 
+            margin-bottom: 1rem; 
+            text-align: center;
+            font-size: 14px;
+        `;
+        warningEl.innerHTML = `⚠️ ${message}`;
+        
+        const calendarEl = document.getElementById('calendar');
+        calendarEl.parentNode.insertBefore(warningEl, calendarEl);
+    }
+
+    function showCalendarLoading() {
+        const existingWarning = document.getElementById('calendar-warning');
+        if (existingWarning) existingWarning.remove();
+    }
+
+    function hideCalendarMessages() {
+        const existingWarning = document.getElementById('calendar-warning');
+        if (existingWarning) existingWarning.remove();
+    }
 
         function initializeForm() {
             // Service type selection
@@ -608,23 +689,38 @@
             checkFormValidity();
 
             try {
+                console.log('⏰ [Slots] Fetching available slots for', dateStr);
                 const response = await fetch(`/api/available-slots/${dateStr}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
+                console.log('✅ [Slots] Received slots data:', data);
                 
                 document.getElementById('slotsLoading').style.display = 'none';
                 
+                // Handle fallback or error data
+                if (data.fallback || data.warning) {
+                    console.warn('⚠️ [Slots] Using fallback/offline data');
+                    const warningMsg = data.warning || 'Using offline availability data';
+                    showSlotsWarning(warningMsg);
+                }
+                
                 // Show availability message
                 const messageEl = document.getElementById('availabilityMessage');
-                const availabilityMessage = data.message || `${data.slots.length} appointments available`;
-                messageEl.textContent = `📅 ${availabilityMessage} (Maximum 2 appointments per day)`;
+                const slots = data.slots || [];
+                const availabilityMessage = data.message || `${slots.length} appointments available`;
+                messageEl.textContent = `📅 ${availabilityMessage} (Maximum 4 time slots per day)`;
                 messageEl.style.display = 'block';
                 
                 // Update message color based on availability
-                const availableCount = data.slots ? data.slots.length : 0;
+                const availableCount = slots.length;
                 if (availableCount === 0) {
                     messageEl.style.background = '#fee2e2';
                     messageEl.style.color = '#991b1b';
-                } else if (availableCount === 1) {
+                } else if (availableCount <= 1) {
                     messageEl.style.background = '#fef3c7';
                     messageEl.style.color = '#92400e';
                 } else {
@@ -632,11 +728,52 @@
                     messageEl.style.color = '#065f46';
                 }
                 
-                displayTimeSlots(data.slots);
+                displayTimeSlots(slots);
+                
             } catch (error) {
-                console.error('Error fetching time slots:', error);
-                document.getElementById('slotsLoading').innerHTML = 'Error loading time slots. Please try again.';
+                console.error('❌ [Slots] Error fetching time slots:', error);
+                document.getElementById('slotsLoading').style.display = 'none';
+                
+                // Show user-friendly error message
+                const container = document.getElementById('timeSlotsContainer');
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 1.5rem; background: #fee2e2; border-radius: 8px; color: #991b1b;">
+                        <h4 style="margin: 0 0 0.5rem 0;">⚠️ Unable to Load Time Slots</h4>
+                        <p style="margin: 0 0 1rem 0; font-size: 14px;">
+                            There was a problem loading available times for this date.
+                        </p>
+                        <button onclick="selectDate('${dateStr}')" style="padding: 0.5rem 1rem; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            🔄 Try Again
+                        </button>
+                    </div>
+                `;
+                
+                // Hide availability message on error
+                document.getElementById('availabilityMessage').style.display = 'none';
             }
+            
+        }
+
+        function showSlotsWarning(message) {
+            const existingWarning = document.getElementById('slots-warning');
+            if (existingWarning) existingWarning.remove();
+            
+            const warningEl = document.createElement('div');
+            warningEl.id = 'slots-warning';
+            warningEl.style.cssText = `
+                background: #fef3c7; 
+                color: #92400e; 
+                padding: 0.5rem; 
+                border-radius: 4px; 
+                margin-bottom: 0.5rem; 
+                text-align: center;
+                font-size: 12px;
+            `;
+            warningEl.innerHTML = `⚠️ ${message}`;
+            
+            const messageEl = document.getElementById('availabilityMessage');
+            messageEl.parentNode.insertBefore(warningEl, messageEl);
+        }
         }
 
         function displayTimeSlots(slots) {
