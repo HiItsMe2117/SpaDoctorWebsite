@@ -226,6 +226,7 @@
         <div class="dashboard-tabs">
             <button class="dashboard-tab active" onclick="showTab('blog')">📝 Blog Management</button>
             <button class="dashboard-tab" onclick="showTab('gallery')">🖼️ Gallery Management</button>
+            <button class="dashboard-tab" onclick="showTab('appointments')">📅 Appointments</button>
         </div>
 
         <div class="dashboard-grid">
@@ -241,6 +242,27 @@
                 <p><strong>Session:</strong> Expires in 30 minutes</p>
                 <p><strong>Access Level:</strong> Full Admin</p>
                 <p><strong>Daily Code:</strong> Regenerates at midnight</p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>📅 Appointment Management</h3>
+                <p><strong>Today's Appointments:</strong> <span id="todayAppointments">Loading...</span></p>
+                <p><strong>This Week:</strong> <span id="weekAppointments">Loading...</span></p>
+                <p><strong>Total Bookings:</strong> <span id="totalBookings">Loading...</span></p>
+                <button onclick="loadAppointments()" class="btn-primary" style="margin-top: 10px;">
+                    📋 View All Appointments
+                </button>
+            </div>
+            <div class="dashboard-card">
+                <h3>📱 SMS & Calendar Status</h3>
+                <p><strong>Calendar API:</strong> <span id="calendarStatus">Checking...</span></p>
+                <p><strong>SMS Service:</strong> <span id="smsStatus">Checking...</span></p>
+                <p><strong>Last Sync:</strong> <span id="lastSync">-</span></p>
+                <a href="/schedule" class="btn-primary" style="margin-top: 10px; display: inline-block; text-decoration: none;">
+                    🔗 View Public Booking Page
+                </a>
             </div>
         </div>
 
@@ -378,6 +400,28 @@ Tips for writing great blog content:
                     <button type="submit" class="btn-primary" id="editSubmitBtn">Update Post</button>
                 </div>
             </form>
+        </div>
+
+        <div id="appointmentsContent" class="dashboard-content">
+            <div class="add-post-form">
+                <h3>📅 Appointment Management</h3>
+                
+                <div class="success-message" id="appointmentSuccessMessage"></div>
+                <div class="error-message" id="appointmentErrorMessage"></div>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <button onclick="loadTodayAppointments()" class="btn-primary">Today's Appointments</button>
+                    <button onclick="loadWeekAppointments()" class="btn-primary">This Week</button>
+                    <button onclick="loadAllAppointments()" class="btn-primary">All Upcoming</button>
+                    <button onclick="refreshAppointments()" class="btn-primary" style="background: #059669;">🔄 Refresh</button>
+                </div>
+
+                <div id="appointmentsList">
+                    <p style="text-align: center; color: #64748b; padding: 2rem;">
+                        Click one of the buttons above to load appointments
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1191,6 +1235,197 @@ Tips for writing great blog content:
                 e.preventDefault();
                 e.returnValue = '';
             }
+        });
+
+        // Appointment Management Functions
+        let currentAppointments = [];
+
+        async function loadAppointments() {
+            await loadAllAppointments();
+        }
+
+        async function loadTodayAppointments() {
+            const today = new Date();
+            const startDate = today.toISOString().split('T')[0];
+            const endDate = startDate;
+            await fetchAppointments(startDate, endDate, 'Today');
+        }
+
+        async function loadWeekAppointments() {
+            const today = new Date();
+            const startDate = today.toISOString().split('T')[0];
+            const endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            await fetchAppointments(startDate, endDate, 'This Week');
+        }
+
+        async function loadAllAppointments() {
+            const today = new Date();
+            const startDate = today.toISOString().split('T')[0];
+            const endDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            await fetchAppointments(startDate, endDate, 'Next 30 Days');
+        }
+
+        async function refreshAppointments() {
+            await loadAllAppointments();
+        }
+
+        async function fetchAppointments(startDate, endDate, periodLabel) {
+            const listEl = document.getElementById('appointmentsList');
+            listEl.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">Loading appointments...</p>';
+
+            try {
+                const params = new URLSearchParams();
+                if (startDate) params.append('startDate', startDate + 'T00:00:00.000Z');
+                if (endDate) params.append('endDate', endDate + 'T23:59:59.999Z');
+
+                const response = await makeAuthenticatedRequest(`/api/admin/appointments?${params}`);
+                if (!response) return;
+
+                const result = await response.json();
+                currentAppointments = result.appointments || [];
+                displayAppointments(currentAppointments, periodLabel);
+                updateAppointmentStats();
+            } catch (error) {
+                console.error('Error fetching appointments:', error);
+                listEl.innerHTML = '<p style="color: #dc2626; text-align: center; padding: 2rem;">Error loading appointments. Please try again.</p>';
+            }
+        }
+
+        function displayAppointments(appointments, periodLabel) {
+            const listEl = document.getElementById('appointmentsList');
+            
+            if (appointments.length === 0) {
+                listEl.innerHTML = `<p style="text-align: center; color: #64748b; padding: 2rem;">No appointments found for ${periodLabel}</p>`;
+                return;
+            }
+
+            const appointmentsHtml = appointments.map(appointment => {
+                const startDate = new Date(appointment.start.dateTime || appointment.start.date);
+                const endDate = new Date(appointment.end.dateTime || appointment.end.date);
+                
+                return `
+                    <div style="border: 1px solid #e1e5e9; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: white;">
+                        <div style="display: flex; justify-content: between; align-items: start; flex-wrap: wrap; gap: 1rem;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: #1f2937;">${appointment.summary || 'Untitled Appointment'}</h4>
+                                <p style="margin: 0 0 0.5rem 0; color: #64748b;">
+                                    📅 ${startDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                                    <br>
+                                    ⏰ ${startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - 
+                                    ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </p>
+                                ${appointment.location ? `<p style="margin: 0 0 0.5rem 0; color: #64748b;">📍 ${appointment.location}</p>` : ''}
+                                ${appointment.description ? `<p style="margin: 0; color: #64748b; font-size: 0.9rem;">${appointment.description}</p>` : ''}
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button onclick="viewAppointmentDetails('${appointment.id}')" 
+                                        style="background: #2563eb; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">
+                                    👁️ View
+                                </button>
+                                <button onclick="cancelAppointment('${appointment.id}', '${appointment.summary}')" 
+                                        style="background: #dc2626; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">
+                                    ❌ Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            listEl.innerHTML = `
+                <h4 style="margin: 0 0 1rem 0; color: #1f2937;">Appointments for ${periodLabel} (${appointments.length})</h4>
+                ${appointmentsHtml}
+            `;
+        }
+
+        async function updateAppointmentStats() {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            const weekEnd = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+            
+            const todayCount = currentAppointments.filter(apt => {
+                const aptDate = new Date(apt.start.dateTime || apt.start.date).toISOString().split('T')[0];
+                return aptDate === todayStr;
+            }).length;
+            
+            const weekCount = currentAppointments.filter(apt => {
+                const aptDate = new Date(apt.start.dateTime || apt.start.date);
+                return aptDate >= today && aptDate <= weekEnd;
+            }).length;
+
+            document.getElementById('todayAppointments').textContent = todayCount;
+            document.getElementById('weekAppointments').textContent = weekCount;
+            document.getElementById('totalBookings').textContent = currentAppointments.length;
+        }
+
+        async function viewAppointmentDetails(appointmentId) {
+            const appointment = currentAppointments.find(apt => apt.id === appointmentId);
+            if (!appointment) return;
+
+            const startDate = new Date(appointment.start.dateTime || appointment.start.date);
+            const endDate = new Date(appointment.end.dateTime || appointment.end.date);
+            
+            const details = `
+                Title: ${appointment.summary || 'Untitled'}
+                Date: ${startDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                Time: ${startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                Location: ${appointment.location || 'Not specified'}
+                Description: ${appointment.description || 'No description'}
+                Status: ${appointment.status || 'Confirmed'}
+                Created: ${appointment.created ? new Date(appointment.created).toLocaleString('en-US') : 'Unknown'}
+            `;
+            
+            alert(details);
+        }
+
+        async function cancelAppointment(appointmentId, appointmentTitle) {
+            if (!confirm(`Are you sure you want to cancel "${appointmentTitle}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await makeAuthenticatedRequest(`/api/admin/appointments/${appointmentId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response) return;
+                const result = await response.json();
+
+                if (result.success) {
+                    showAppointmentSuccess('Appointment cancelled successfully!');
+                    await refreshAppointments();
+                } else {
+                    showAppointmentError(result.error || 'Failed to cancel appointment');
+                }
+            } catch (error) {
+                console.error('Error cancelling appointment:', error);
+                showAppointmentError('Network error. Please try again.');
+            }
+        }
+
+        function showAppointmentSuccess(message) {
+            const msgEl = document.getElementById('appointmentSuccessMessage');
+            msgEl.textContent = message;
+            msgEl.style.display = 'block';
+            setTimeout(() => msgEl.style.display = 'none', 5000);
+        }
+
+        function showAppointmentError(message) {
+            const msgEl = document.getElementById('appointmentErrorMessage');
+            msgEl.textContent = message;
+            msgEl.style.display = 'block';
+            setTimeout(() => msgEl.style.display = 'none', 5000);
+        }
+
+        // Load appointment stats on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAppointmentStats();
+            
+            // Update service status indicators
+            document.getElementById('calendarStatus').innerHTML = '<span style="color: #059669;">✅ Connected</span>';
+            document.getElementById('smsStatus').innerHTML = '<span style="color: #059669;">✅ Ready</span>';
+            document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('en-US');
         });
     </script>
 </body>

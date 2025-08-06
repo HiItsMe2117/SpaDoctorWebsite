@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Schedule Hot Tub Service | Book Appointment Online | Spa Doctors Denver</title>
+    <meta name="description" content="Schedule your hot tub diagnostics or maintenance appointment online with Spa Doctors. Choose your preferred time slot and get instant confirmation via SMS. Serving Denver metro area.">
+    <meta name="keywords" content="schedule hot tub service, book spa appointment online, hot tub diagnostics booking, Denver spa service scheduling">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.spadoc.tech/schedule">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Schedule Hot Tub Service | Book Appointment Online | Spa Doctors">
+    <meta property="og:description" content="Schedule your hot tub repair or maintenance appointment online with instant confirmation.">
+    <meta property="og:url" content="https://www.spadoc.tech/schedule">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/main.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.18/main.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.18/main.min.css" rel="stylesheet">
+    
+    <style>
+        .schedule-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .schedule-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        .calendar-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .booking-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .time-slot {
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .time-slot:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        
+        .time-slot.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .time-slot.unavailable {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .selected-datetime {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        
+        #calendar {
+            margin-top: 20px;
+        }
+        
+        .fc .fc-button-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        
+        .fc .fc-button-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        
+        .fc-day-today {
+            background-color: #fff3cd !important;
+        }
+        
+        .service-type-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .service-icon {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .service-icon input[type="radio"] {
+            margin-right: 8px;
+            width: auto;
+        }
+        
+        .service-icon:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        
+        .service-icon.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        /* Custom styling for availability blocks */
+        .availability-block {
+            opacity: 0.6;
+            font-size: 24px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        
+        .morning-block {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        
+        .afternoon-block {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        /* Calendar day cell styling */
+        .fc-daygrid-day {
+            position: relative;
+            min-height: 100px;
+        }
+        
+        .fc-day-today {
+            background-color: #fff3cd !important;
+        }
+        
+        .fc-daygrid-day-events {
+            position: relative;
+            z-index: 2;
+            padding: 2px;
+        }
+        
+        .fc-daygrid-day-frame {
+            position: relative;
+            height: 100%;
+            min-height: 100px;
+        }
+        
+        /* FullCalendar event styling for availability blocks */
+        .fc-event.availability-block {
+            margin: 1px 2px;
+            font-size: 12px !important;
+            min-height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fc-event-title {
+            font-weight: bold;
+        }
+        
+        /* Ensure proper spacing between AM/PM blocks */
+        .fc-daygrid-event {
+            margin-bottom: 2px;
+        }
+        
+        /* Hover effects */
+        .fc-event.availability-block:hover {
+            transform: scale(1.05);
+            transition: transform 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Spa Doctors</a>
+                <a href="tel:8562667293" class="phone-header">📞 (856) 266-7293</a>
+                <div class="mobile-menu" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/service-areas">Service Areas</a></li>
+                        <li><a href="/gallery">Gallery</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/schedule" class="active">Schedule</a></li>
+                        <li><a href="/admin/login">Admin</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Schedule Your Hot Tub Service</h1>
+                    <p>Book your appointment online and get instant confirmation via SMS</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="schedule-container">
+                <div class="calendar-section">
+                    <h2>Select Your Preferred Date & Time</h2>
+                    <p>Choose an available date from the calendar below, then select your preferred time slot.</p>
+                    
+                    <div id="calendar"></div>
+                    
+                    <div id="timeSlots" style="display: none;">
+                        <h3>Available Times for <span id="selectedDate"></span></h3>
+                        <div id="availabilityMessage" style="background: #e7f3ff; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; color: #1f2937; display: none;"></div>
+                        <div class="loading" id="slotsLoading">Loading available times...</div>
+                        <div class="time-slots" id="timeSlotsContainer"></div>
+                    </div>
+                </div>
+
+                <div class="booking-form">
+                    <div class="success-message" id="successMessage"></div>
+                    <div class="error-message" id="errorMessage"></div>
+                    
+                    <div class="selected-datetime" id="selectedDateTime">
+                        <strong>Selected Time:</strong><br>
+                        <span id="selectedDateTimeText"></span>
+                    </div>
+
+                    <form id="bookingForm">
+                        <div class="form-group">
+                            <label for="serviceType">Service Type *</label>
+                            <div class="service-type-icons">
+                                <label class="service-icon">
+                                    <input type="radio" name="serviceType" value="Hot Tub Diagnostics" required>
+                                    🔍 Diagnostics
+                                </label>
+                                <label class="service-icon">
+                                    <input type="radio" name="serviceType" value="Hot Tub Maintenance" required>
+                                    🧽 Maintenance
+                                </label>
+                                <label class="service-icon">
+                                    <input type="radio" name="serviceType" value="Hot Tub Transport" required>
+                                    🚚 Transport
+                                </label>
+                                <label class="service-icon">
+                                    <input type="radio" name="serviceType" value="Hot Tub Cleaning" required>
+                                    ✨ Cleaning
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customerName">Your Name *</label>
+                            <input type="text" id="customerName" name="customerName" required placeholder="Enter your full name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customerPhone">Phone Number *</label>
+                            <input type="tel" id="customerPhone" name="customerPhone" required placeholder="(555) 123-4567">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customerEmail">Email (optional)</label>
+                            <input type="email" id="customerEmail" name="customerEmail" placeholder="your@email.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="streetAddress">Street Address *</label>
+                            <input type="text" id="streetAddress" name="streetAddress" required placeholder="123 Main Street">
+                        </div>
+
+                        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr 100px; gap: 10px;">
+                            <div>
+                                <label for="city">City *</label>
+                                <input type="text" id="city" name="city" required placeholder="Denver">
+                            </div>
+                            <div>
+                                <label for="state">State *</label>
+                                <input type="text" id="state" name="state" required placeholder="CO" maxlength="2" style="text-transform: uppercase;">
+                            </div>
+                            <div>
+                                <label for="zipCode">ZIP *</label>
+                                <input type="text" id="zipCode" name="zipCode" required placeholder="80202" maxlength="5" pattern="[0-9]{5}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Service Details</label>
+                            <textarea id="description" name="description" rows="4" placeholder="Describe the issue or service needed (optional)"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" id="submitBtn" disabled>
+                            Book Appointment
+                        </button>
+                        
+                        <div style="margin-top: 15px; font-size: 12px; color: #6c757d; text-align: center;">
+                            By booking, you agree to receive SMS confirmations and reminders
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Spa Doctors</h3>
+                    <p>Professional hot tub repair, maintenance, and transport services in the Denver metro area.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p>📞 <a href="tel:8562667293">(856) 266-7293</a></p>
+                    <p>✉️ Doctor4Spas@gmail.com</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Service Areas</h3>
+                    <p>Denver Metro Area</p>
+                    <p>Boulder • Aurora • Lakewood</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Spa Doctors. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.18/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.18/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.18/index.global.min.js"></script>
+
+    <script>
+        let calendar;
+        let selectedDate = null;
+        let selectedTime = null;
+        let selectedSlot = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCalendar();
+            initializeForm();
+        });
+
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: '' // Only monthly view, no view switching
+                },
+                selectable: true,
+                selectMirror: true,
+                dayMaxEvents: false, // Show all events
+                height: 'auto',
+                validRange: {
+                    start: new Date() // Prevent selecting past dates
+                },
+                events: {
+                    url: '/api/events',
+                    method: 'GET',
+                    failure: function(error) {
+                        console.error('Error loading calendar events:', error);
+                    }
+                },
+                dateClick: function(info) {
+                    selectDate(info.dateStr);
+                },
+                businessHours: {
+                    daysOfWeek: [1, 2, 3, 4, 5], // Monday - Friday only
+                    startTime: '07:00',
+                    endTime: '19:00'
+                },
+                eventDisplay: 'block',
+                displayEventTime: false,
+                eventClick: function(info) {
+                    // Handle clicks on availability blocks - only if available
+                    if (info.event.classNames.includes('availability-block')) {
+                        const available = info.event.extendedProps.available;
+                        if (available) {
+                            const dateStr = info.event.start.toISOString().split('T')[0];
+                            selectDate(dateStr);
+                        }
+                        info.jsEvent.preventDefault();
+                    }
+                },
+                eventDidMount: function(info) {
+                    // Custom styling for availability blocks in monthly view
+                    if (info.event.classNames.includes('availability-block')) {
+                        const available = info.event.extendedProps.available;
+                        const period = info.event.extendedProps.period;
+                        
+                        // Reset default FullCalendar event styling
+                        info.el.style.border = 'none';
+                        info.el.style.fontSize = '12px';
+                        info.el.style.fontWeight = 'bold';
+                        info.el.style.textAlign = 'center';
+                        info.el.style.margin = '1px';
+                        info.el.style.padding = '2px';
+                        info.el.style.borderRadius = '4px';
+                        
+                        // Set cursor and opacity based on availability
+                        if (available) {
+                            info.el.style.cursor = 'pointer';
+                            info.el.style.opacity = '1';
+                        } else {
+                            info.el.style.cursor = 'not-allowed';
+                            info.el.style.opacity = '0.6';
+                        }
+                        
+                        // Custom content for blocks - clean text only
+                        const label = period === 'morning' ? 'AM' : 'PM';
+                        
+                        info.el.innerHTML = `<div class="availability-content" style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 14px; font-weight: bold;">
+                                              <span>${label}</span>
+                                            </div>`;
+                        
+                        // Add hover effect only for available blocks
+                        if (available) {
+                            info.el.addEventListener('mouseenter', function() {
+                                this.style.opacity = '0.8';
+                                this.style.transform = 'scale(1.05)';
+                            });
+                            
+                            info.el.addEventListener('mouseleave', function() {
+                                this.style.opacity = '1';
+                                this.style.transform = 'scale(1)';
+                            });
+                        }
+                    }
+                }
+            });
+            calendar.render();
+        }
+
+        function initializeForm() {
+            // Service type selection
+            const serviceTypes = document.querySelectorAll('input[name="serviceType"]');
+            serviceTypes.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.querySelectorAll('.service-icon').forEach(icon => {
+                        icon.classList.remove('selected');
+                    });
+                    this.closest('.service-icon').classList.add('selected');
+                    checkFormValidity();
+                });
+            });
+
+            // Form validation
+            const formInputs = document.querySelectorAll('#bookingForm input[required], #bookingForm textarea[required]');
+            formInputs.forEach(input => {
+                input.addEventListener('input', checkFormValidity);
+            });
+
+            // Form submission
+            document.getElementById('bookingForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        async function selectDate(dateStr) {
+            selectedDate = dateStr;
+            selectedTime = null;
+            selectedSlot = null;
+            
+            document.getElementById('selectedDate').textContent = formatDate(dateStr);
+            document.getElementById('timeSlots').style.display = 'block';
+            document.getElementById('slotsLoading').style.display = 'block';
+            document.getElementById('timeSlotsContainer').innerHTML = '';
+            document.getElementById('selectedDateTime').style.display = 'none';
+            
+            checkFormValidity();
+
+            try {
+                const response = await fetch(`/api/available-slots/${dateStr}`);
+                const data = await response.json();
+                
+                document.getElementById('slotsLoading').style.display = 'none';
+                
+                // Show availability message
+                const messageEl = document.getElementById('availabilityMessage');
+                const availabilityMessage = data.message || `${data.slots.length} appointments available`;
+                messageEl.textContent = `📅 ${availabilityMessage} (Maximum 2 appointments per day)`;
+                messageEl.style.display = 'block';
+                
+                // Update message color based on availability
+                const availableCount = data.slots ? data.slots.length : 0;
+                if (availableCount === 0) {
+                    messageEl.style.background = '#fee2e2';
+                    messageEl.style.color = '#991b1b';
+                } else if (availableCount === 1) {
+                    messageEl.style.background = '#fef3c7';
+                    messageEl.style.color = '#92400e';
+                } else {
+                    messageEl.style.background = '#d1fae5';
+                    messageEl.style.color = '#065f46';
+                }
+                
+                displayTimeSlots(data.slots);
+            } catch (error) {
+                console.error('Error fetching time slots:', error);
+                document.getElementById('slotsLoading').innerHTML = 'Error loading time slots. Please try again.';
+            }
+        }
+
+        function displayTimeSlots(slots) {
+            const container = document.getElementById('timeSlotsContainer');
+            
+            if (slots.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 1rem;">Fully booked for this date. Please select another date.</p>';
+                return;
+            }
+
+            container.innerHTML = ''; // Clear previous slots
+            
+            slots.forEach(slot => {
+                const slotEl = document.createElement('div');
+                slotEl.className = 'time-slot';
+                
+                // Use the pre-formatted display name for consistent formatting
+                const timeRangeLabel = slot.displayName || `${formatTime(slot.start)} - ${formatTime(slot.end)}`;
+                
+                // Determine period icon and label
+                let periodLabel;
+                let periodIcon;
+                if (slot.period === 'morning' || (slot.title && slot.title.includes('Morning'))) {
+                    periodLabel = '🌅 Morning';
+                    periodIcon = '🌅';
+                } else if (slot.period === 'afternoon' || (slot.title && slot.title.includes('Afternoon'))) {
+                    periodLabel = '🌇 Afternoon'; 
+                    periodIcon = '🌇';
+                } else {
+                    // Fallback to time-based detection
+                    const hour = new Date(slot.start).getHours();
+                    periodLabel = hour < 12 ? '🌅 Morning' : '🌇 Afternoon';
+                    periodIcon = hour < 12 ? '🌅' : '🌇';
+                }
+                
+                // Calculate duration for display
+                const duration = Math.round((new Date(slot.end) - new Date(slot.start)) / (1000 * 60 * 60));
+                
+                slotEl.innerHTML = `
+                    <div style="font-weight: bold; font-size: 16px;">${timeRangeLabel}</div>
+                    <div style="font-size: 0.8em; color: #6b7280; margin-top: 4px;">
+                        ${periodIcon} ${slot.period?.charAt(0).toUpperCase() + slot.period?.slice(1) || 'Time'} • ${duration}hrs
+                    </div>
+                `;
+                
+                slotEl.onclick = () => selectTimeSlot(slot, slotEl);
+                container.appendChild(slotEl);
+            });
+        }
+
+        function selectTimeSlot(slot, element) {
+            // Remove previous selection
+            document.querySelectorAll('.time-slot').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Select current slot
+            element.classList.add('selected');
+            selectedTime = slot.start;
+            selectedSlot = slot;
+            
+            // Update selected datetime display
+            const dateTime = `${formatDate(selectedDate)} at ${formatTime(slot.start)}`;
+            document.getElementById('selectedDateTimeText').textContent = dateTime;
+            document.getElementById('selectedDateTime').style.display = 'block';
+            
+            checkFormValidity();
+        }
+
+        function checkFormValidity() {
+            const form = document.getElementById('bookingForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const requiredFields = form.querySelectorAll('input[required]');
+            
+            let isValid = selectedDate && selectedTime;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                }
+            });
+            
+            submitBtn.disabled = !isValid;
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Booking...';
+            
+            hideMessages();
+
+            try {
+                const formData = new FormData(e.target);
+                const serviceType = formData.get('serviceType');
+                const customerName = formData.get('customerName');
+                
+                const fullAddress = `${formData.get('streetAddress')}, ${formData.get('city')}, ${formData.get('state')} ${formData.get('zipCode')}`;
+                
+                const appointmentData = {
+                    title: `${serviceType} - ${customerName}`,
+                    startDateTime: selectedSlot.start,
+                    endDateTime: selectedSlot.end,
+                    location: fullAddress,
+                    description: formData.get('description'),
+                    customerPhone: formData.get('customerPhone'),
+                    customerEmail: formData.get('customerEmail')
+                };
+
+                const response = await fetch('/api/book-appointment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(appointmentData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccessMessage(`Appointment booked successfully! You'll receive a confirmation SMS shortly. <a href="${result.calendarLink}" target="_blank" style="color: #155724; text-decoration: underline;">Add to your calendar</a>`);
+                    resetForm();
+                    // Refresh calendar to show new appointment
+                    calendar.refetchEvents();
+                } else {
+                    showErrorMessage(result.error || 'Failed to book appointment. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error booking appointment:', error);
+                showErrorMessage('Network error. Please check your connection and try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                checkFormValidity();
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const msgEl = document.getElementById('successMessage');
+            msgEl.innerHTML = message;
+            msgEl.style.display = 'block';
+            msgEl.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showErrorMessage(message) {
+            const msgEl = document.getElementById('errorMessage');
+            msgEl.textContent = message;
+            msgEl.style.display = 'block';
+            msgEl.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideMessages() {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function resetForm() {
+            document.getElementById('bookingForm').reset();
+            document.querySelectorAll('.service-icon').forEach(icon => {
+                icon.classList.remove('selected');
+            });
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            document.getElementById('selectedDateTime').style.display = 'none';
+            document.getElementById('timeSlots').style.display = 'none';
+            
+            selectedDate = null;
+            selectedTime = null;
+            selectedSlot = null;
+            
+            checkFormValidity();
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function formatTime(timeStr) {
+            const date = new Date(timeStr);
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // Mobile menu toggle (from existing site)
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>

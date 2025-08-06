@@ -14,6 +14,10 @@ const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 // const dataManager = require('./utils/dataManager'); // Disabled for Vercel serverless
 
+// Import calendar and SMS services
+const CalendarService = require('./utils/calendarService');
+const SMSService = require('./utils/smsService');
+
 // Mock dataManager for serverless compatibility
 const dataManager = {
   saveBlogPosts: () => Promise.resolve(true),
@@ -215,6 +219,10 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 });
+
+// Initialize calendar and SMS services
+const calendarService = new CalendarService();
+const smsService = new SMSService();
 
 // Data storage variables - loaded from persistent storage
 let blogPosts = [];
@@ -816,6 +824,303 @@ app.get('/privacy', (req, res) => {
 
 app.get('/contact', (req, res) => {
   res.render('contact');
+});
+
+// Scheduling routes
+app.get('/schedule', (req, res) => {
+  res.render('schedule');
+});
+
+// API route to check availability
+app.post('/api/check-availability', async (req, res) => {
+  try {
+    const { startDateTime, endDateTime } = req.body;
+    
+    if (!startDateTime || !endDateTime) {
+      return res.status(400).json({ error: 'Start and end times are required' });
+    }
+
+    const isAvailable = await calendarService.checkAvailability(startDateTime, endDateTime);
+    res.json({ available: isAvailable });
+  } catch (error) {
+    console.error('Error checking availability:', error);
+    res.status(500).json({ error: 'Failed to check availability' });
+  }
+});
+
+// API route to get available slots for a date
+app.get('/api/available-slots/:date', async (req, res) => {
+  try {
+    const { date } = req.params;
+    const { period } = req.query; // Optional: 'morning' or 'afternoon'
+    
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Get existing events for the day
+    const events = await calendarService.getEvents(startOfDay.toISOString(), endOfDay.toISOString());
+    
+    // Generate 3-hour business slots (4 total slots per day)
+    let businessSlots = calendarService.generateBusinessHours(date);
+    
+    // Filter by period if specified
+    if (period && (period === 'morning' || period === 'afternoon')) {
+      businessSlots = businessSlots.filter(slot => slot.period === period);
+    }
+    
+    // Filter out booked slots
+    const availableSlots = businessSlots.filter(slot => {
+      return !events.some(event => {
+        const eventStart = new Date(event.start.dateTime || event.start.date);
+        const eventEnd = new Date(event.end.dateTime || event.end.date);
+        const slotStart = new Date(slot.start);
+        const slotEnd = new Date(slot.end);
+        
+        // Check for any overlap between existing event and this slot
+        return (slotStart < eventEnd && slotEnd > eventStart);
+      });
+    });
+
+    const totalBusinessSlots = calendarService.generateBusinessHours(date);
+    const bookedCount = totalBusinessSlots.length - availableSlots.length;
+    
+    // Create availability message
+    let message;
+    if (period) {
+      // Period-specific message
+      const periodSlots = totalBusinessSlots.filter(slot => slot.period === period);
+      const availablePeriodSlots = availableSlots.filter(slot => slot.period === period);
+      const periodName = period.charAt(0).toUpperCase() + period.slice(1);
+      
+      if (availablePeriodSlots.length === 0) {
+        message = `${periodName} slots fully booked`;
+      } else if (availablePeriodSlots.length === 1) {
+        message = `1 ${period} slot available`;
+      } else {
+        message = `${availablePeriodSlots.length} ${period} slots available`;
+      }
+    } else {
+      // Overall day message
+      if (availableSlots.length === 0) {
+        message = 'Fully booked for this date';
+      } else if (availableSlots.length === 1) {
+        message = '1 appointment slot remaining';
+      } else {
+        message = `${availableSlots.length} appointment slots available`;
+      }
+    }
+    
+    res.json({ 
+      slots: availableSlots,
+      totalSlots: businessSlots.length,
+      bookedSlots: businessSlots.length - availableSlots.length,
+      maxAppointmentsPerDay: 4, // Now 4 possible 3-hour slots
+      message: message,
+      period: period || 'all'
+    });
+  } catch (error) {
+    console.error('Error getting available slots:', error);
+    res.status(500).json({ error: 'Failed to get available slots' });
+  }
+});
+
+// API route to book an appointment
+app.post('/api/book-appointment', async (req, res) => {
+  try {
+    const { title, startDateTime, endDateTime, location, description, customerPhone, customerEmail, attendees } = req.body;
+    
+    // Validate required fields
+    if (!title || !startDateTime || !endDateTime || !customerPhone) {
+      return res.status(400).json({ error: 'Title, start time, end time, and phone number are required' });
+    }
+
+    // Validate phone number
+    if (!smsService.validatePhoneNumber(customerPhone)) {
+      return res.status(400).json({ error: 'Invalid phone number format' });
+    }
+
+    // Check availability one more time
+    const isAvailable = await calendarService.checkAvailability(startDateTime, endDateTime);
+    if (!isAvailable) {
+      return res.status(409).json({ error: 'Time slot is no longer available' });
+    }
+
+    // Create calendar event
+    const eventData = {
+      title,
+      startDateTime,
+      endDateTime,
+      location: location || 'Location TBD',
+      description: `${description || ''}\n\nCustomer Phone: ${customerPhone}\nCustomer Email: ${customerEmail || 'Not provided'}`
+    };
+
+    const calendarEvent = await calendarService.createEvent(eventData);
+
+    // Send SMS confirmation
+    const appointmentData = {
+      title,
+      startDateTime,
+      endDateTime,
+      location: location || 'Location TBD',
+      description,
+      calendarLink: calendarEvent.htmlLink
+    };
+
+    const smsResult = await smsService.sendConfirmation(customerPhone, appointmentData);
+
+    // Track appointment booking in analytics
+    const today = new Date().toISOString().split('T')[0];
+    if (!analytics.appointmentBookings) {
+      analytics.appointmentBookings = {};
+    }
+    if (!analytics.appointmentBookings[today]) {
+      analytics.appointmentBookings[today] = 0;
+    }
+    analytics.appointmentBookings[today]++;
+
+    res.json({
+      success: true,
+      eventId: calendarEvent.id,
+      calendarLink: calendarEvent.htmlLink,
+      smsStatus: smsResult.success ? 'sent' : 'failed',
+      message: 'Appointment booked successfully!'
+    });
+  } catch (error) {
+    console.error('Error booking appointment:', error);
+    res.status(500).json({ error: 'Failed to book appointment' });
+  }
+});
+
+// Public route to get calendar availability blocks for display
+app.get('/api/events', async (req, res) => {
+  try {
+    const availabilityBlocks = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Get events for the next 30 days
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + 30);
+    
+    const events = await calendarService.getEvents(today.toISOString(), endDate.toISOString());
+    
+    // Generate blocks for next 30 days
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() + i);
+      
+      // Skip Sundays and Saturdays
+      if (date.getDay() === 0 || date.getDay() === 6) continue;
+      
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Check if ANY appointment exists in morning hours (7 AM - 12 PM)
+      const morningStart = new Date(date);
+      morningStart.setHours(7, 0, 0, 0);
+      const morningEnd = new Date(date);
+      morningEnd.setHours(12, 0, 0, 0);
+      
+      const morningBooked = events.some(event => {
+        if (!event.start) return false;
+        const eventStart = new Date(event.start.dateTime || event.start.date);
+        const eventEnd = new Date(event.end.dateTime || event.end.date);
+        // Check if event overlaps with morning business hours at all
+        return (eventStart < morningEnd && eventEnd > morningStart);
+      });
+      
+      // Check if ANY appointment exists in afternoon hours (12 PM - 7 PM)
+      const afternoonStart = new Date(date);
+      afternoonStart.setHours(12, 0, 0, 0);
+      const afternoonEnd = new Date(date);
+      afternoonEnd.setHours(19, 0, 0, 0);
+      
+      const afternoonBooked = events.some(event => {
+        if (!event.start) return false;
+        const eventStart = new Date(event.start.dateTime || event.start.date);
+        const eventEnd = new Date(event.end.dateTime || event.end.date);
+        // Check if event overlaps with afternoon business hours at all
+        return (eventStart < afternoonEnd && eventEnd > afternoonStart);
+      });
+      
+      // Morning block (top half)
+      availabilityBlocks.push({
+        id: `morning-${dateStr}`,
+        title: 'AM',
+        start: dateStr + 'T00:00:00',
+        end: dateStr + 'T12:00:00',
+        backgroundColor: morningBooked ? '#6b7280' : '#2563eb',
+        borderColor: morningBooked ? '#6b7280' : '#2563eb',
+        textColor: 'white',
+        display: 'block',
+        classNames: ['availability-block', 'morning-block'],
+        extendedProps: {
+          available: !morningBooked,
+          period: 'morning'
+        }
+      });
+      
+      // Afternoon block (bottom half)
+      availabilityBlocks.push({
+        id: `afternoon-${dateStr}`,
+        title: 'PM',
+        start: dateStr + 'T12:00:00',
+        end: dateStr + 'T23:59:59',
+        backgroundColor: afternoonBooked ? '#6b7280' : '#2563eb',
+        borderColor: afternoonBooked ? '#6b7280' : '#2563eb',
+        textColor: 'white',
+        display: 'block',
+        classNames: ['availability-block', 'afternoon-block'],
+        extendedProps: {
+          available: !afternoonBooked,
+          period: 'afternoon'
+        }
+      });
+    }
+    
+    res.json(availabilityBlocks);
+  } catch (error) {
+    console.error('Error fetching calendar availability:', error);
+    res.status(500).json({ error: 'Failed to fetch calendar availability' });
+  }
+});
+
+// Admin route to get all appointments
+app.get('/api/admin/appointments', requireAdminAuth, async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    const start = startDate || new Date().toISOString();
+    const end = endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days from now
+    
+    const events = await calendarService.getEvents(start, end);
+    res.json({ appointments: events });
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
+// Admin route to cancel appointment
+app.delete('/api/admin/appointments/:eventId', requireAdminAuth, async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { customerPhone, appointmentData } = req.body;
+    
+    await calendarService.deleteEvent(eventId);
+    
+    // Send cancellation SMS if phone number provided
+    if (customerPhone && appointmentData) {
+      await smsService.sendCancellation(customerPhone, appointmentData);
+    }
+    
+    res.json({ success: true, message: 'Appointment cancelled successfully' });
+  } catch (error) {
+    console.error('Error cancelling appointment:', error);
+    res.status(500).json({ error: 'Failed to cancel appointment' });
+  }
 });
 
 // Service Areas routes
