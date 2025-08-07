@@ -534,7 +534,7 @@
                 displayEventTime: false,
                 eventClick: function(info) {
                     // Handle clicks on availability blocks - only if available
-                    if (info.event.classNames.includes('availability-block')) {
+                    if (info.event.extendedProps.available !== undefined) {
                         const available = info.event.extendedProps.available;
                         if (available) {
                             const dateStr = info.event.start.toISOString().split('T')[0];
@@ -545,7 +545,7 @@
                 },
                 eventDidMount: function(info) {
                     // Custom styling for availability blocks in monthly view
-                    if (info.event.classNames.includes('availability-block')) {
+                    if (info.event.extendedProps.available !== undefined) {
                         const available = info.event.extendedProps.available;
                         const period = info.event.extendedProps.period;
                         
